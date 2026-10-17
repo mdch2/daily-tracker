@@ -1,38 +1,42 @@
-# Decisiones pendientes
+# Decisiones y próximos pasos
 
-## Punto de partida
+La configuración inicial del 16 de octubre de 2026 partió de instrucciones y Skills, sin aplicación. El master setup define ahora móvil iOS/Android, Expo/TypeScript, Supabase y las herramientas de estado/calidad.
 
-Inspección del 16 de octubre de 2026: solo existía `.git`, sin archivos versionados, código, manifiestos, dependencias, pruebas ni configuración de ejecución. Las instrucciones iniciales son independientes de la tecnología. Ninguna opción de las siguientes está seleccionada.
+## Resueltas en esta entrega
 
-## Decisiones técnicas
+| Decisión              | Resolución y motivo                                                                                                                                         |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Plataforma y stack    | Expo SDK 58 con React Native 0.88/React 19.3; conjunto estable compatible. [ADR-001](architecture/adr/001-mobile-foundation.md).                            |
+| Android mínimo        | Android 11/API 30; minSdk 30, compileSdk 37 y targetSdk 36 mediante expo-build-properties. [Compatibilidad Android](architecture/android-compatibility.md). |
+| Gestor y convenciones | pnpm por instrucción explícita; código inglés, docs español, strict, ESLint y Prettier.                                                                     |
+| Organización          | Feature-First y capas por necesidad; bootstrap compone adaptadores; rutas delgadas.                                                                         |
+| Backend               | Supabase/PostgreSQL como fuente sincronizada; cliente sin credenciales privilegiadas. [ADR-002](architecture/adr/002-auth-security.md).                     |
+| Sesión                | SecureStore cifrado, PKCE, refresh por ciclo de app y rutas protegidas técnicas.                                                                            |
+| Persistencia futura   | Contratos sustituibles, sin motor offline en esta fase. [ADR-003](architecture/adr/003-persistence.md).                                                     |
+| Calidad               | Comandos de lint, formato, tipos, Jest/RNTL y pruebas SQL pgTAP.                                                                                            |
+| Modelo inicial        | Contrato profiles consumido por móvil; diseño, migraciones y pruebas exclusivamente en backend.                                                             |
 
-| Decisión | Qué resolver | Cuándo hace falta |
-| --- | --- | --- |
-| Plataforma y stack | Web, móvil o escritorio; lenguaje, framework, runtime y versiones compatibles. | Antes de crear el esqueleto de aplicación. |
-| Herramientas y convenciones | Gestor de dependencias, organización concreta, nomenclatura, formato, lint y tipos si aplican. | Con el primer código, siguiendo el stack elegido. |
-| Persistencia y modelo de uso | Almacenamiento local o remoto, necesidad de backend y base de datos; durabilidad, copias y eventual sincronización. | Antes del primer guardado real. |
-| Identidad y privacidad | Uso personal sin cuenta o con cuentas; aislamiento de datos, sesiones y eliminación o exportación si se requieren. | Antes de introducir identidad o almacenar datos personales. |
-| Modelo temporal | Fecha de negocio frente a instante, origen de la zona horaria, cambios de zona y comienzo de semana. No heredar la zona del entorno de desarrollo como regla del producto. | Antes de calcular recurrencias o métricas por fecha. |
-| Calidad y ejecución | Herramientas de pruebas y comandos reales de desarrollo, validación y compilación. | Al introducir código ejecutable. |
-| Entrega | Destino de despliegue y automatización mínima necesaria. | Cuando se solicite ejecutar o publicar el MVP. |
-| Diseño | Referencias visuales, recursos, componentes, adaptación a pantallas y criterios de accesibilidad. | Antes de consolidar la primera interfaz. La marca definitiva queda abierta. |
+## Requisitos arquitectónicos permanentes resueltos
 
-## Contratos funcionales por concretar
+Separación móvil/backend, idiomas es/en y temas light/dark/system con preferencias persistentes son obligatorios según [ADR-004](architecture/adr/004-permanent-foundations.md). No quedan como opciones del MVP. La generación real de tipos sigue bloqueada por PostgreSQL; no se autoriza ampliar el snapshot manual histórico.
 
-- **Entrega del MVP:** primer recorrido completo, orden de módulos y criterios de aceptación. La tabla de `AGENTS.md` delimita una base orientativa, no un backlog aprobado en detalle.
-- **Hábitos:** tipos de recurrencia iniciales; cumplimiento binario o por cantidad; unidad y objetivo; elegibilidad de registros pasados o futuros; excepciones, pausas y fecha efectiva de cambios.
-- **Rachas y métricas:** períodos que cuentan, tratamiento del período actual abierto, omisiones, días no programados, denominadores y resultados cuando no hay períodos elegibles.
-- **Rutinas y objetivos:** qué actividades agrupa una rutina; relación opcional con hábitos; avance manual o derivado de una meta, y sus unidades.
-- **Historial:** efectos de editar, archivar o eliminar entidades sobre sus registros y vistas derivadas.
-- **Diario:** cardinalidad de entradas por fecha y contenido mínimo admitido.
+## Pendientes
 
-Resuelve solo las decisiones necesarias para la tarea actual. Registra cada resolución aquí con su estado, fecha, motivo, alternativas relevantes y consecuencias; deja de presentarla como pendiente. Si se necesita un registro más extenso, enlázalo desde este documento. Las Skills describen cómo trabajar con estos contratos, sin decidir las opciones pendientes.
+| Decisión                                    | Cuándo resolver                                                                                                                     |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Credenciales y proyecto Supabase alojado    | Antes del primer recorrido remoto real. Configurar Email, SMTP y redirects; no se inventan valores.                                 |
+| Backend local                               | En el repositorio backend, habilitar Docker Linux, verificar SQL/RLS y generar el primer artefacto real de tipos.                   |
+| Acceso anónimo y onboarding                 | Antes de cerrar el recorrido de entrada; Auth actual es técnico y provisional.                                                      |
+| Primera funcionalidad completa              | Elegir módulo y criterios de aceptación; el listado del producto no autoriza implementar todo.                                      |
+| Zona de negocio, viaje y comienzo de semana | Antes de recurrencias y métricas. profiles.time_zone permanece nulo hasta elección explícita.                                       |
+| Hábitos                                     | Recurrencias admitidas, binario/cantidades, períodos abiertos, corrección retroactiva, pausas y fecha efectiva de cambios.          |
+| Métricas                                    | Elegibilidad, rachas, denominadores, redondeo y ausencia de períodos; no hay algoritmos implementados.                              |
+| Rutinas/objetivos                           | Qué actividades agrupar, relación con hábitos, unidad y origen del progreso.                                                        |
+| Diario                                      | Cardinalidad por fecha, contenido mínimo, edición y límites.                                                                        |
+| Historial y privacidad                      | Borrado/exportación de cuenta, retención, archivo y correcciones históricas; sin cascadas de negocio por defecto.                   |
+| Diseño                                      | Referencias Stitch, identidad y recursos; tokens actuales neutrales/provisionales.                                                  |
+| Distribución                                | Bundle IDs, signing, EAS, cuentas de tiendas, enlaces verificados y versión mínima de iOS. Android mínimo ya está definido.         |
+| Dependencias                                | Seguir avisos del audit y actualización del preset ESLint compatible; ver validation.md.                                            |
+| Offline futuro                              | Modelo de conflictos, tombstones, orden de eventos, cursor, transacciones, cifrado local y migraciones SQLite antes de sincronizar. |
 
-## Convenciones de Codex utilizadas
-
-Las instrucciones comunes viven en `AGENTS.md`; las Skills locales viven en `.agents/skills/<nombre>/SKILL.md`, con metadatos YAML `name` y `description` y procedimientos específicos. Pueden seleccionarse por coincidencia con la descripción o por invocación explícita, por ejemplo `$habit-management`. No requieren scripts ni metadatos de interfaz adicionales para este caso.
-
-Referencias oficiales consultadas para esta configuración:
-
-- [Instrucciones con AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md).
-- [Creación, estructura y descubrimiento de Skills](https://learn.chatgpt.com/docs/build-skills).
+Resolver solo las decisiones que requiera cada tarea. Registrar decisiones duraderas en ADR con fecha, alternativas, consecuencias y estado.

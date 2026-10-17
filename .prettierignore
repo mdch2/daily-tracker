@@ -1,0 +1,7 @@
+node_modules
+.expo
+dist
+coverage
+src/infrastructure/supabase/database.types.ts
+supabase/.temp
+supabase/.branches

@@ -1,89 +1,72 @@
 # Daily Tracker: instrucciones del proyecto
 
-## Contexto y estado
+## Contexto y alcance
 
-Daily Tracker permite seguir hábitos diarios, organizar rutinas, gestionar objetivos personales y visualizar el progreso. Sus módulos previstos son hábitos, rutinas, objetivos, dashboard, calendario, estadísticas y diario personal.
+Aplicación móvil MVP para iOS/Android, nombre comercial provisional. Stack y base técnica implementados; módulos de hábitos, rutinas, objetivos, calendario, estadísticas y diario todavía pendientes. Documentación en español; código e identificadores en inglés.
 
-Al preparar estas instrucciones, el repositorio estaba vacío salvo por `.git`. No hay stack, aplicación, dependencias ni comandos de ejecución definidos. Consulta [las decisiones pendientes](docs/decisiones-pendientes.md) antes de iniciar la implementación. Actualiza este estado y documenta los comandos reales cuando se incorpore el primer código; no inventes comandos ni resultados de pruebas.
+Lee [README.md](README.md), [arquitectura](docs/architecture/README.md) y [decisiones pendientes](docs/decisiones-pendientes.md) antes de modificar contratos. No implementes módulos completos ni una identidad visual sin una tarea y referencias que los autoricen. El acceso sin registro sigue abierto; la autenticación actual es un recorrido técnico provisional.
 
-## Alcance del MVP
+## Stack y comandos
 
-Usa la siguiente base para acotar las futuras tareas. Los detalles funcionales y el orden de entrega se concretan con los criterios de aceptación de cada tarea; esta lista no autoriza a implementar todos los módulos de una vez.
+- Expo SDK 58, React Native 0.88, React 19.3, Expo Router y TypeScript strict.
+- Android mínimo: **Android 11 (API 30)**. `expo-build-properties` fija `minSdkVersion: 30`, `compileSdkVersion: 37` y `targetSdkVersion: 36` en app.json para Expo 58. Al actualizar Expo, revisa su matriz y el requisito vigente de Google Play; verifica el prebuild Android y no bajes el mínimo del producto. Expo Go no comprueba este límite de la aplicación.
+- **Usa pnpm exclusivamente**; versión fijada en packageManager, Node en .nvmrc. Conserva pnpm-lock.yaml. No generes otros lockfiles.
+- Desarrollo: pnpm start, pnpm android, pnpm ios (simulador iOS requiere macOS).
+- Calidad: pnpm lint, pnpm format:check, pnpm typecheck, pnpm test; pnpm check agrupa los cuatro.
+- Formato: pnpm format. En este repositorio, pnpm db:types **importa** el artefacto generado por el backend; no ejecuta Supabase CLI ni administra PostgreSQL. pnpm check:boundaries comprueba la separación de repositorios.
+- Verifica compatibilidad con pnpm exec expo install --check; instala módulos nativos con pnpm exec expo install <paquete> --pnpm.
 
-| Módulo | Capacidad mínima orientativa |
-| --- | --- |
-| Hábitos | Definir un hábito y su recurrencia, registrar y corregir su cumplimiento. |
-| Rutinas | Agrupar y ordenar actividades para su consulta diaria. |
-| Objetivos | Definir una meta y consultar o actualizar su avance. |
-| Dashboard | Resumir lo previsto para hoy y el progreso disponible. |
-| Calendario | Consultar la planificación y el cumplimiento por fecha. |
-| Estadísticas | Mostrar métricas básicas calculadas a partir de registros reales. |
-| Diario personal | Escribir, consultar y editar entradas asociadas a una fecha. |
+## Arquitectura y convenciones
 
-Deja fuera por defecto redes sociales, rankings, gamificación compleja, recomendaciones con IA, pagos, notificaciones e integraciones externas. Incorpóralos solo si una tarea los solicita. Tampoco presupongas cuentas, sincronización o funcionamiento sin conexión.
+### Requisitos permanentes
 
-## Arquitectura y organización
+Estas tres reglas son obligatorias en todas las entregas, no opciones del MVP:
 
-- Mantén límites por capacidad de negocio. Separa reglas de dominio, presentación y acceso a datos donde sea necesario para probarlos y modificarlos de forma independiente.
-- Las reglas de negocio no deben depender de componentes visuales ni de un proveedor de almacenamiento. Usa límites simples; no crees capas o interfaces sin una necesidad concreta.
-- Cada módulo es responsable de sus escrituras y expone operaciones claras. Evita dependencias circulares y acceso directo a detalles internos de otros módulos.
-- Dashboard, calendario y estadísticas consumen las mismas reglas y registros de origen; no mantengas versiones independientes del cumplimiento o del progreso.
-- Organiza el código por funcionalidades y sigue las convenciones del stack cuando se elija. No fijes ahora nombres de carpetas de aplicación, monorepo, backend ni servicios separados.
-- `AGENTS.md` contiene acuerdos comunes; `.agents/skills/` contiene procedimientos especializados; `docs/` contiene decisiones y contratos que deban persistir. Crea otras carpetas solo al necesitarlas.
-- Coloca las pruebas según la convención elegida y mantén clara su relación con el módulo probado. Extrae código compartido solo cuando existan consumidores reales.
+1. **Dos repositorios independientes.** `mdch2/daily-tracker` contiene aplicación móvil, dominio, navegación, UI y adaptadores cliente Supabase. `mdch2/daily-tracker-supabase` posee exclusivamente esquema, migraciones, RLS, SQL, funciones, triggers, snippets, seeds, Edge Functions e infraestructura/configuración Supabase. No crear ni ejecutar cambios de base desde el móvil. El único artefacto de esquema que recibe el móvil es `src/infrastructure/supabase/database.types.ts`, generado en backend; no editarlo a mano. No importar fuentes entre repositorios. Véase [repository-boundaries.md](docs/architecture/repository-boundaries.md).
+2. **i18n obligatoria es/en.** Usar i18next, react-i18next y expo-localization. Detectar idioma del dispositivo, permitir selección manual y retorno a sistema, persistir preferencias y usar inglés de respaldo. Textos visibles, etiquetas accesibles, validaciones, navegación, carga, vacíos y errores deben usar los catálogos centrales completos de ambos idiomas; prohibido hardcodearlos en componentes. Usar los formateadores Intl compartidos para fechas/números, con zona de negocio explícita. Véase [localization-and-themes.md](docs/architecture/localization-and-themes.md).
+3. **Temas light/dark/system obligatorios.** Usar tokens semánticos y detección del sistema, con selección manual persistente. Prohibido hardcodear colores en componentes cuando haya token equivalente. Navegación, formularios, modales y estados deben consumir el mismo tema; comprobar contraste y accesibilidad en ambos idiomas y tres modos. Stitch podrá ajustar tokens y composición, sin eliminar estas capacidades.
 
-## Convenciones y reutilización
+- Feature-First + Clean Architecture pragmática + monolito modular. src/app solo compone rutas delgadas; src/bootstrap conecta adaptadores y proveedores.
+- src/features/<feature> posee sus escrituras. Domain contiene tipos/reglas/contratos independientes de React, Expo y Supabase. Application valida y orquesta. Infrastructure adapta proveedores. Presentation presenta estados y navegación. Crea solo capas con responsabilidad real.
+- No importes infraestructura de una feature desde otra o desde presentación. Consume contratos y puntos de entrada; evita ciclos. No lleves Supabase a componentes.
+- TanStack Query posee datos remotos; Zustand solo preferencias/estado global de interfaz; React para estado local. La sesión la posee Supabase Auth y el contexto solo proyecta identidad/estado.
+- Dashboard, calendario y estadísticas compartirán las reglas de origen. No dupliques cumplimiento, progreso ni métricas.
+- Usa alias @/ para src, nombres descriptivos, funciones pequeñas y composición. Pruebas *.test.ts(x) junto al módulo o en tests/. Mantén el formato del repositorio.
+- Justifica cada dependencia nueva con una necesidad actual. No agregues motores offline, servicios, capas vacías ni optimizaciones hipotéticas.
+- Tokens neutrales en shared/theme son provisionales; espera referencias de Stitch. Extrae componentes por semántica y consumidores reales.
 
-- Al existir código, conserva su estilo, nomenclatura, formateador y contratos públicos. Antes del primer código, documenta las convenciones del lenguaje elegido sin introducir herramientas adicionales por costumbre.
-- Usa nombres del dominio coherentes; evita abreviaturas ambiguas. Explica en comentarios las decisiones no evidentes y sus motivos.
-- Mantén operaciones pequeñas con responsabilidades claras. No mezcles refactorizaciones ajenas con la funcionalidad solicitada.
-- Busca componentes y utilidades existentes antes de crear otros. Reutiliza cuando la semántica y el comportamiento coincidan; no fuerces una abstracción configurable para similitudes solo visuales.
-- Sigue las referencias visuales y el sistema de diseño que se proporcionen. Conserva sus recursos y patrones; no definas marca, logotipo, paleta ni identidad comercial definitiva por iniciativa propia.
-- Justifica una dependencia nueva por una necesidad de la tarea que no cubran las herramientas existentes. No agregues infraestructura para necesidades hipotéticas.
+## Datos y seguridad
 
-## Errores, validaciones y datos personales
+- PostgreSQL es la fuente de verdad sincronizada. Contratos de repositorio permiten un adaptador SQLite futuro; hoy no hay soporte offline ni sincronización bidireccional.
+- Solo claves sb_publishable_ en EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY; nunca service_role, sb_secret_, contraseñas ni tokens en código, logs o fixtures.
+- .env queda fuera de Git; .env.example permanece sin valores reales. Las variables EXPO_PUBLIC_ se empaquetan y son públicas.
+- Sesión nativa cifrada en SecureStore; nunca pasar a almacenamiento sin cifrar ante fallos. No usar contenido de diario real en pruebas.
+- Toda tabla expuesta necesita RLS y permisos mínimos, con pruebas reales en el repositorio backend. Las rutas protegidas no sustituyen autorización del backend.
+- SQL, migraciones y configuración viven únicamente en `daily-tracker-supabase`; consulta sus instrucciones antes de modificarlo. El móvil documenta el contrato que consume en docs/architecture/data-model.md. No aplicar cambios remotos sin una tarea que lo autorice.
+- Generar tipos desde PostgreSQL **en backend** y después importarlos con pnpm db:types en el móvil. El importador conserva el archivo si falla. No presentar snapshots manuales como tipos generados; la sustitución del snapshot inicial sigue pendiente hasta disponer de PostgreSQL.
+- Valida entradas en el límite de escritura y restricciones en PostgreSQL. Distingue nulo, vacío, ausencia y error; no ocultes fallos como datos vacíos.
+- Usa UUID estables, instantes timestamptz y fechas de negocio explícitas. No infieras reglas temporales de la zona del equipo. No reinterpretes historial sin contrato.
+- Conserva entradas ante fallo, evita duplicados y comunica éxito solo tras guardado confirmado.
 
-- Valida los datos externos en el límite de entrada y aplica las invariantes en el dominio. La validación visual ayuda al usuario, pero no sustituye la validación en el punto que acepta la escritura.
-- Distingue entradas inválidas, ausencia de datos y fallos de persistencia o comunicación. No conviertas errores en éxitos aparentes ni en datos vacíos silenciosos.
-- Informa el fallo con una acción de recuperación cuando exista. Conserva los datos introducidos si falla el guardado y comunica el éxito solo cuando corresponda al resultado real.
-- Evita escrituras parciales y reintentos que dupliquen registros. No cambies o elimines historial como efecto secundario de otra operación sin un contrato explícito.
-- Trata el diario y los registros personales como privados. No incluyas su contenido ni secretos en logs, fixtures o mensajes de error; usa datos sintéticos para verificar.
+## Flujo y calidad
 
-## Flujo para desarrollar funcionalidades
-
-1. Lee las instrucciones aplicables, las decisiones relevantes y el código relacionado. Identifica los módulos afectados y las herramientas realmente disponibles.
-2. Traduce la tarea en un comportamiento observable y criterios de aceptación. Resuelve las ambigüedades con impacto en datos, alcance o contratos antes de comprometer la implementación; continúa con las partes independientes.
-3. Implementa el cambio mínimo completo dentro de los límites existentes, incluyendo los estados de interfaz y persistencia que requiera el caso de uso. Usa solo las Skills pertinentes de la tabla siguiente.
-4. Verifica el resultado con evidencia proporcional al riesgo y revisa el diff. Documenta decisiones duraderas y entrega un resumen de cambios, verificaciones y limitaciones.
-
-Las decisiones pendientes no bloquean tareas que no dependan de ellas. No elijas silenciosamente un stack ni una política de negocio porque el repositorio todavía no los defina.
+1. Inspecciona estado, instrucciones, decisiones, referencias y código. Define comportamiento observable; resuelve ambigüedades de datos y alcance antes de comprometerlas.
+2. Implementa el cambio mínimo completo con estados de carga, vacío, error y recuperación pertinentes. Documenta decisiones duraderas en ADR; conserva las que siguen abiertas.
+3. Prueba reglas, validaciones, fechas e integridad en la capa más pequeña útil. Para seguridad usa PostgreSQL real, no solo mocks. Reloj y zona explícitos si afectan resultados.
+4. Ejecuta pnpm check y los checks adicionales afectados (compatibilidad o bundle; SQL solo en backend). Verifica es/en, light/dark/system, persistencia, fallos de preferencias y contraste. Revisa diff, privacidad, accesibilidad y dependencias; verifica visualmente las pantallas modificadas si hay entorno.
+5. Informa cambios, evidencia y limitaciones reales. No declares checks exitosos sin ejecutarlos. No añadas frameworks para verificar solo documentación.
 
 ## Skills especializadas
 
-Lee la Skill cuando la tarea corresponda a su descripción o se invoque explícitamente con `$nombre`. Combínalas solo si el cambio cruza sus responsabilidades; no cargues todas por defecto.
+Lee únicamente las pertinentes; cada SKILL.md contiene activación, procedimiento y verificación.
 
-| Skill | Cuándo usarla |
-| --- | --- |
-| [ui-design](.agents/skills/ui-design/SKILL.md) | Implementar o revisar pantallas, componentes, referencias visuales y accesibilidad. |
-| [habit-management](.agents/skills/habit-management/SKILL.md) | Cambiar recurrencias, cumplimiento, rachas o métricas derivadas de hábitos. |
-| [data-management](.agents/skills/data-management/SKILL.md) | Diseñar o cambiar modelos, contratos de datos, persistencia, migraciones o consistencia. |
-| [testing-quality](.agents/skills/testing-quality/SKILL.md) | Diseñar pruebas, investigar regresiones o realizar una revisión de calidad. |
+| Skill                                                                  | Uso                                                                                   |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| [architecture-guardian](.agents/skills/architecture-guardian/SKILL.md) | Revisiones de límites, dependencias y cambios transversales.                          |
+| [ui-design](.agents/skills/ui-design/SKILL.md)                         | Pantallas, Stitch, componentes y accesibilidad.                                       |
+| [habit-management](.agents/skills/habit-management/SKILL.md)           | Recurrencias, cumplimiento, rachas e historial.                                       |
+| [data-management](.agents/skills/data-management/SKILL.md)             | Contratos, consistencia y semántica de datos.                                         |
+| [supabase-development](.agents/skills/supabase-development/SKILL.md)   | Integración cliente, Auth, tipos y coordinación de cambios en el repositorio backend. |
+| [testing-quality](.agents/skills/testing-quality/SKILL.md)             | Pruebas, regresiones y revisión de calidad.                                           |
 
-El desarrollo general se rige por el flujo anterior: no existe una Skill `feature-development` que repita estos acuerdos.
-
-## Estrategia de pruebas
-
-- Prioriza pruebas de reglas de negocio, límites de fechas, validaciones y consistencia. Usa pruebas de integración para persistencia y contratos entre módulos; reserva pruebas de extremo a extremo para los recorridos críticos que existan.
-- En correcciones de comportamiento, añade una prueba de regresión cuando capture el fallo de forma útil. Evita pruebas que solo reproduzcan la implementación o fijen detalles irrelevantes.
-- Haz deterministas reloj, zona horaria y datos de prueba cuando influyan en el resultado. Verifica la interfaz visualmente si cambias su presentación.
-- Ejecuta los checks existentes que correspondan al cambio: pruebas, formato, lint, tipos o compilación, según el stack. Si todavía no hay herramientas, realiza las comprobaciones posibles y declara lo que no se pudo ejecutar.
-- No instales un framework para validar únicamente instrucciones o cambios documentales sencillos.
-
-## Criterios antes de finalizar
-
-- El resultado satisface los criterios de aceptación y respeta el alcance solicitado.
-- Las reglas y cálculos tienen una fuente de verdad; no hay duplicaciones innecesarias ni acoplamientos nuevos injustificados.
-- Se cubren las validaciones y los estados de fallo relevantes; los cambios visuales respetan las referencias y son utilizables con teclado.
-- Los checks pertinentes pasan, o se explican sus fallos y las verificaciones no ejecutadas sin afirmar que pasaron.
-- El diff contiene solo cambios relacionados, sin secretos, dependencias superfluas, artefactos temporales ni funcionalidades añadidas por anticipación.
-- Los contratos, decisiones y comandos documentados coinciden con el estado final del repositorio.
+No crees feature-development para repetir este flujo; ui-implementation y habit-domain ya están cubiertas por las Skills existentes. Crea otras solo para procedimientos que aporten valor distinto.
