@@ -1,0 +1,143 @@
+
+# ============================================================
+# DAILY TRACKER — .gitignore
+# React Native + Expo + TypeScript + pnpm + Supabase
+# ============================================================
+
+# Dependencies
+node_modules/
+.pnp.*
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Expo
+.expo/
+.expo-shared/
+web-build/
+dist/
+.expo-internal/
+
+# Native build artifacts
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+ios/build/
+ios/Pods/
+*.apk
+*.aab
+*.ipa
+*.app/
+*.xcarchive/
+*.hmap
+
+# Expo prebuild-generated native projects
+# Remove these rules if native directories are maintained in Git
+/android/
+/ios/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+*.pem
+*.key
+*.p12
+*.p8
+*.mobileprovision
+*.keystore
+*.jks
+google-services.json
+GoogleService-Info.plist
+credentials.json
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Tests and coverage
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+*.lcov
+
+# TypeScript
+*.tsbuildinfo
+
+# Temporary files and caches
+.cache/
+.tmp/
+temp/
+tmp/
+*.tmp
+*.temp
+.eslintcache
+.parcel-cache/
+.turbo/
+
+# IDEs and editors
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+
+# Local backups
+*.bak
+*.backup
+*.orig
+*.swp
+*.swo
+
+# Local Supabase configuration (if accidentally generated)
+.supabase/
+
+# ============================================================
+# IMPORTANT — DO NOT IGNORE
+# ============================================================
+# pnpm-lock.yaml
+# package.json
+# app.json / app.config.ts
+# tsconfig.json
+# eslint.config.js
+# AGENTS.md
+# .agents/skills/
+# docs/
+# src/
+# README.md
+# .env.example
+# database.types.ts
