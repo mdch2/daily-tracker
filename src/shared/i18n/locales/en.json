@@ -1,0 +1,70 @@
+{
+  "common": {
+    "appName": "Daily Tracker",
+    "retry": "Try again",
+    "processing": "Processing",
+    "loading": "Loading…",
+    "loadingSession": "Loading session"
+  },
+  "config": {
+    "title": "Configuration pending",
+    "instructions": "Set EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY in .env using your project URL and publishable key. Restart Expo after making changes.",
+    "help": "See README.md for backend connection instructions. No example credentials will be used."
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signUp": "Create account",
+    "resetPassword": "Request recovery link",
+    "updatePassword": "Save password",
+    "provisional": "Provisional technical access. The final flow will follow the product designs.",
+    "email": "Email address",
+    "password": "Password",
+    "confirmEmail": "Check your email to confirm your account on this device.",
+    "resetSent": "If an account exists for that email, you will receive a link. Open it on this device.",
+    "recoverLink": "Recover password",
+    "backToSignIn": "Back to sign in",
+    "invalidLink": "The link is invalid, expired, or was opened on another device. Request a new one.",
+    "requestAnother": "Request another link",
+    "validatingLink": "Validating link…",
+    "signOut": "Sign out on this device"
+  },
+  "errors": {
+    "operation": "The operation could not be completed. Check your details and connection, then try again.",
+    "session": "Your session could not be restored securely.",
+    "profile": "Your profile could not be loaded.",
+    "signOut": "Sign-out failed. Try again."
+  },
+  "validation": {
+    "email": "Enter a valid email address.",
+    "emailTooLong": "Use at most 254 characters.",
+    "passwordRequired": "Enter your password.",
+    "passwordMin": "Use at least 12 characters.",
+    "passwordMax": "Use at most 128 characters.",
+    "invalid": "Check this field."
+  },
+  "dashboard": {
+    "intro": "MVP technical foundation. Modules will be added progressively.",
+    "loadingProfile": "Loading profile…",
+    "retryProfile": "Retry profile",
+    "greeting": "Hello, {{name}}",
+    "signedIn": "Signed in.",
+    "noProfile": "No profile is available yet.",
+    "noHabits": "Habits and metrics are not implemented in this initial setup."
+  },
+  "navigation": {
+    "home": "Home"
+  },
+  "preferences": {
+    "title": "Preferences",
+    "language": "Language",
+    "theme": "Theme",
+    "system": "System",
+    "es": "Spanish",
+    "en": "English",
+    "light": "Light",
+    "dark": "Dark",
+    "loadError": "Preferences could not be loaded. Retry before making changes.",
+    "saveError": "Preferences could not be saved. Your previous settings are still active.",
+    "retryLoad": "Reload preferences"
+  }
+}

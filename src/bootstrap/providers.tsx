@@ -1,6 +1,8 @@
 import { useEffect, useState, type PropsWithChildren } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import * as SecureStore from 'expo-secure-store';
+import { useTranslation } from 'react-i18next';
 import { readEnvironment } from '@/shared/config/environment';
 import {
   createSupabaseClient,
@@ -11,6 +13,10 @@ import { createProfileRepository } from '@/features/profile/infrastructure/supab
 import { AuthProvider } from '@/features/auth/presentation/auth-provider';
 import { ProfileRepositoryContext } from '@/features/profile/presentation/profile-context';
 import { Screen, Text } from '@/shared/ui/primitives';
+import { PreferencesControls } from '@/shared/preferences/preferences-controls';
+import { createPreferencesStore } from '@/shared/preferences/store';
+import { PreferencesProvider } from '@/shared/preferences/preferences-provider';
+import { PresentationProvider } from './presentation-provider';
 
 function createRuntime() {
   const environment = readEnvironment();
@@ -22,7 +28,28 @@ function createRuntime() {
     profiles: createProfileRepository(client),
   };
 }
-
+function BackendProvider({ children }: PropsWithChildren) {
+  const { t } = useTranslation();
+  const [runtime] = useState(createRuntime);
+  useEffect(
+    () => (runtime ? observeAuthLifecycle(runtime.client) : undefined),
+    [runtime],
+  );
+  return runtime ? (
+    <AuthProvider repository={runtime.auth}>
+      <ProfileRepositoryContext.Provider value={runtime.profiles}>
+        {children}
+      </ProfileRepositoryContext.Provider>
+    </AuthProvider>
+  ) : (
+    <Screen>
+      <Text accessibilityRole="header">{t('config.title')}</Text>
+      <Text>{t('config.instructions')}</Text>
+      <Text>{t('config.help')}</Text>
+      <PreferencesControls />
+    </Screen>
+  );
+}
 export function AppProviders({ children }: PropsWithChildren) {
   const [queryClient] = useState(
     () =>
@@ -33,35 +60,24 @@ export function AppProviders({ children }: PropsWithChildren) {
         },
       }),
   );
-  const [runtime] = useState(createRuntime);
-  useEffect(
-    () => (runtime ? observeAuthLifecycle(runtime.client) : undefined),
-    [runtime],
+  const [preferences] = useState(() =>
+    createPreferencesStore({
+      getItem: (key) => SecureStore.getItemAsync(key),
+      setItem: (key, value) =>
+        SecureStore.setItemAsync(key, value, {
+          keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+        }),
+    }),
   );
   return (
     <SafeAreaProvider>
-      <QueryClientProvider client={queryClient}>
-        {runtime ? (
-          <AuthProvider repository={runtime.auth}>
-            <ProfileRepositoryContext.Provider value={runtime.profiles}>
-              {children}
-            </ProfileRepositoryContext.Provider>
-          </AuthProvider>
-        ) : (
-          <Screen>
-            <Text accessibilityRole="header">Configuración pendiente</Text>
-            <Text>
-              Completa EXPO_PUBLIC_SUPABASE_URL y
-              EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY en .env con la URL y la clave
-              publicable del proyecto. Reinicia Expo después del cambio.
-            </Text>
-            <Text>
-              Consulta README.md para preparar Supabase. La aplicación no
-              utilizará credenciales de ejemplo.
-            </Text>
-          </Screen>
-        )}
-      </QueryClientProvider>
+      <PreferencesProvider store={preferences}>
+        <PresentationProvider>
+          <QueryClientProvider client={queryClient}>
+            <BackendProvider>{children}</BackendProvider>
+          </QueryClientProvider>
+        </PresentationProvider>
+      </PreferencesProvider>
     </SafeAreaProvider>
   );
 }

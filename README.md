@@ -9,7 +9,7 @@ This release establishes navigation, authentication, and the technical profile f
 - **Minimum Android version:** **Android 11 (API 30)**. The native configuration uses `minSdkVersion: 30`, `compileSdkVersion: 37`, and `targetSdkVersion: 36` through `expo-build-properties`. See [Android compatibility](docs/architecture/android-compatibility.md).
 - Node.js 22.14.0 (`.nvmrc`) and pnpm 10.28.2 (`packageManager`).
 - Expo Go compatible with SDK 58 to run the foundation; a development build is required to validate email callbacks using the `dailytracker` URL scheme.
-- Supabase CLI 2.75.0 or a compatible version, and Docker Desktop with a Linux container engine for the local backend.
+- Access to a Supabase backend service; server tooling belongs to the independent backend repository.
 - The iOS simulator requires macOS and Xcode. On Windows, you can generate the bundle and use a physical iOS device.
 
 ## Getting Started
@@ -44,32 +44,31 @@ The final anonymous access policy remains undecided.
 
 ## Backend
 
+The independent [mdch2/daily-tracker-supabase](https://github.com/mdch2/daily-tracker-supabase) repository exclusively owns PostgreSQL, migrations, RLS, SQL, triggers, seeds, Edge Functions, tests and Supabase infrastructure. Read its instructions before changing backend contracts. This mobile repository only consumes the services.
+
+Generate types **in the backend repository** with its pnpm db:types command. Then, in this mobile checkout:
+
 ```powershell
-pnpm db:start
-pnpm db:reset
-pnpm db:test
 pnpm db:types
+# Or supply the generated artifact explicitly:
+pnpm db:types C:\path\to\daily-tracker-supabase\types\database.types.ts
 ```
 
-`db:reset` deletes data from the project's **local** instance. Use it only with disposable data.
+The mobile command only imports the generated artifact; it does not run Supabase CLI or manage PostgreSQL. It preserves the previous file if the artifact is unavailable.
+The existing file remains explicitly marked as a historical manual snapshot until PostgreSQL is available for the first real generation.
 
-`db:types` generates types from PostgreSQL and preserves the previous file if generation fails. The initial snapshot is marked as manually generated if Docker prevents automatic generation.
+For the Android emulator, use http://10.0.2.2:54321 for a local service. For iOS simulator, use http://127.0.0.1:54321. Physical devices require accessible HTTPS.
+Backend Email, SMTP and redirect configuration belongs to the backend repository. The client uses dailytracker://callback and dailytracker://callback?mode=recovery; PKCE links must open on the device that initiated the request, using a development build.
+See [repository boundaries](docs/architecture/repository-boundaries.md) and [client integration](docs/architecture/supabase.md).
 
-The only applied table is `profiles`. The other five entities have a documented preliminary design, without premature migrations.
+## Mandatory languages and themes
 
-For the Android emulator, the local URL is [http://10.0.2.2:54321](http://10.0.2.2:54321). For the iOS simulator, use [http://127.0.0.1:54321](http://127.0.0.1:54321). A physical device must use an accessible HTTPS endpoint; remote HTTP access has not been enabled.
+Spanish (es) and English (en), with English fallback, device detection, manual/system selection and persistent preferences are mandatory.
+Light, Dark and System modes share semantic tokens and persist independently of login.
+Temporary controls are available before sign-in, in the dashboard and without backend credentials. They do not define a final settings design.
 
-Obtain the publishable key from the local backend without copying privileged keys into the client application.
-
-For a hosted project, configure the Email provider, email confirmation, a minimum password length of 12 characters, and the allowed redirect URLs `dailytracker://callback` and `dailytracker://callback?mode=recovery`.
-
-No remote project has been created or linked, and no SQL has been applied remotely.
-
-Before using a hosted project, review and apply the version-controlled migration through your deployment process. See [Supabase](docs/architecture/supabase.md).
-
-PKCE links must open on the device that initiated the request. They require a development build with the registered URL scheme, not Expo Go alone.
-
-Production SMTP configuration, application package identifiers, app store accounts, and EAS setup are deferred to a future release.
+All visible and accessible text belongs in the centralized translation catalogs. All component colors must use equivalent semantic tokens.
+See [localization and themes](docs/architecture/localization-and-themes.md) and [ADR-004](docs/architecture/adr/004-permanent-foundations.md).
 
 ## Quality Assurance
 
@@ -82,7 +81,7 @@ pnpm exec expo export --platform android --platform ios --output-dir dist
 pnpm audit
 ```
 
-`check` runs linting with zero warnings, formatting checks, TypeScript validation, and Jest tests. SQL tests run separately through `db:test`.
+`check` runs repository boundary checks, linting with zero warnings, formatting checks, TypeScript validation, and Jest tests. SQL tests run exclusively in the backend repository.
 
 The compatibility check excludes Jest 30 and its type definitions from Expo's conservative recommendation (Jest 29). However, `jest-expo` 58 declares support for both versions, and its watch plugin requires Jest 30. See ADR-001.
 
@@ -104,14 +103,11 @@ src/
     supabase/          # Client, SecureStore, and database types
   shared/
     config/            # Public configuration validation
-    theme/             # Provisional tokens, themes, and Zustand preferences
+    theme/             # Semantic tokens and Light/Dark/System resolution
+    i18n/              # Typed es/en catalogs and localized formatters
+    preferences/       # Persistent device language/theme preferences
     ui/                # Minimal shared UI components
-supabase/
-  migrations/          # Version-controlled SQL: profile, trigger, permissions, RLS
-  tests/database/      # Authorization integration tests using pgTAP
-  config.toml
-  seed.sql             # Empty for privacy; transactional fixtures in tests
-scripts/               # Atomic type generation
+scripts/               # Backend type artifact import and boundary checks
 tests/                 # Validation, actions, forms, and encrypted session tests
 docs/architecture/     # Architecture, ADRs, data, security, and validation
 .agents/skills/        # Specialized Codex workflows

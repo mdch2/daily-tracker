@@ -1,6 +1,6 @@
 # ADR-003: persistencia remota y evolución local
 
-- Estado: aceptada.
+- Estado: aceptada. La propiedad de esquema/migraciones corresponde al repositorio backend según [ADR-004](004-permanent-foundations.md).
 - Fecha: 2026-10-16.
 
 ## Contexto

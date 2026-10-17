@@ -5,17 +5,20 @@ export const emailSchema = z.object({
   email: z
     .string()
     .trim()
-    .max(254)
-    .pipe(z.email('Introduce un correo válido.')),
+    .max(254, 'validation.emailTooLong')
+    .pipe(z.email('validation.email')),
 });
 export const passwordSchema = z.object({
   password: z
     .string()
-    .min(12, 'Usa al menos 12 caracteres.')
-    .max(128, 'Usa como máximo 128 caracteres.'),
+    .min(12, 'validation.passwordMin')
+    .max(128, 'validation.passwordMax'),
 });
 export const signInSchema = emailSchema.extend({
-  password: z.string().min(1, 'Introduce tu contraseña.').max(128),
+  password: z
+    .string()
+    .min(1, 'validation.passwordRequired')
+    .max(128, 'validation.passwordMax'),
 });
 export const signUpSchema = emailSchema.extend(passwordSchema.shape);
 export type AuthFormValues = z.infer<typeof signInSchema>;

@@ -1,5 +1,5 @@
-import { render, screen, waitFor } from '@testing-library/react-native';
-import mockSafeArea from 'react-native-safe-area-context/jest/mock';
+import { render } from './helpers/render-localized';
+import { screen, waitFor } from '@testing-library/react-native';
 import { CallbackScreen } from '@/features/auth/presentation/callback-screen';
 
 let mockParams: { code?: string; mode?: string } = {};
@@ -18,7 +18,6 @@ jest.mock('@/features/auth/presentation/auth-provider', () => ({
     beginRecovery: mockBeginRecovery,
   }),
 }));
-jest.mock('react-native-safe-area-context', () => mockSafeArea);
 
 describe('email callback', () => {
   it('does not enter recovery when a code fails, and processes a later link', async () => {

@@ -1,19 +1,18 @@
 import { useColorScheme } from 'react-native';
-import { create } from 'zustand';
+import { usePreferences } from '@/shared/preferences/preferences-provider';
+import type { ThemePreference } from '@/shared/preferences/store';
 import { palettes, tokens } from './tokens';
 
-type ThemePreference = 'system' | 'light' | 'dark';
-export const useThemePreference = create<{
-  preference: ThemePreference;
-  setPreference: (preference: ThemePreference) => void;
-}>((set) => ({
-  preference: 'system',
-  setPreference: (preference) => set({ preference }),
-}));
+export function resolveTheme(
+  preference: ThemePreference,
+  system: 'light' | 'dark' | null | undefined,
+) {
+  return preference === 'system' ? (system ?? 'light') : preference;
+}
 
 export function useTheme() {
   const system = useColorScheme();
-  const preference = useThemePreference((state) => state.preference);
-  const mode = preference === 'system' ? (system ?? 'light') : preference;
+  const preference = usePreferences().values.theme;
+  const mode = resolveTheme(preference, system);
   return { colors: palettes[mode], tokens, mode };
 }

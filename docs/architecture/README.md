@@ -3,6 +3,10 @@
 Estado: fundamentos implementados. Feature-First + Clean Architecture pragmática + monolito modular móvil.
 La separación se aplica donde existe una responsabilidad, sin generar cuatro carpetas por cada módulo previsto.
 
+## Requisitos permanentes
+
+Dos repositorios independientes: el [backend](repository-boundaries.md) posee todo el esquema/SQL/infraestructura y el móvil solo consume servicios e importa tipos. [Idiomas es/en y temas light/dark/system](localization-and-themes.md) son obligatorios, con preferencias persistentes y controles provisionales. Estas decisiones se recogen en [ADR-004](adr/004-permanent-foundations.md).
+
 ## Stack elegido
 
 | Tecnología                             | Versión base              | Motivo                                                                                    |
@@ -48,7 +52,7 @@ El cambio de identidad limpia la caché Query. Las consultas personales incluyen
 Los listeners de AppState y Auth se limpian al desmontar. No hay almacenamiento de contraseñas.
 
 Query usa staleTime de 30 segundos y un reintento de lecturas. No existe persistencia local de datos de negocio ni promesa de acceso offline.
-La preferencia de tema en Zustand dura la sesión de la app; persistirla puede incorporarse cuando exista un caso de uso.
+Idioma y tema se persisten en SecureStore mediante un store Zustand de preferencias de dispositivo, independiente de sesión Auth y datos remotos. Ver [idiomas y temas](localization-and-themes.md).
 
 ## Sistema de diseño provisional
 

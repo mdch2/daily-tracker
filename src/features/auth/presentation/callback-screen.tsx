@@ -3,8 +3,10 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { RouteLink as Link } from '@/shared/ui/route-link';
 import { ErrorMessage, Screen, Text } from '@/shared/ui/primitives';
 import { useAuth } from './auth-provider';
+import { useTranslation } from 'react-i18next';
 
 export function CallbackScreen() {
+  const { t } = useTranslation();
   const { code, mode } = useLocalSearchParams<{
     code?: string;
     mode?: string;
@@ -28,12 +30,12 @@ export function CallbackScreen() {
     <Screen>
       {failedCode === code || !code || Array.isArray(code) ? (
         <>
-          <ErrorMessage message="El enlace no es válido, caducó o se abrió en otro dispositivo. Solicita uno nuevo." />
-          <Link href="/reset-password">Solicitar otro enlace</Link>
-          <Link href="/sign-in">Iniciar sesión</Link>
+          <ErrorMessage message={t('auth.invalidLink')} />
+          <Link href="/reset-password">{t('auth.requestAnother')}</Link>
+          <Link href="/sign-in">{t('auth.signIn')}</Link>
         </>
       ) : (
-        <Text>Validando enlace…</Text>
+        <Text>{t('auth.validatingLink')}</Text>
       )}
     </Screen>
   );

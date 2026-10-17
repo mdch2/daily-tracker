@@ -6,7 +6,10 @@
     "version": "0.1.0",
     "orientation": "default",
     "userInterfaceStyle": "automatic",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "plugins": [
       "expo-router",
       "expo-secure-store",
@@ -20,10 +23,35 @@
             "targetSdkVersion": 36
           }
         }
+      ],
+      [
+        "expo-localization",
+        {
+          "supportsRTL": false,
+          "supportedLocales": [
+            "en",
+            "es"
+          ]
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "supportsRTL": false,
+      "eas": {
+        "projectId": "fe03dd4c-6fc8-4d29-a4d5-aa8ad18f7ccb"
+      }
+    },
+    "owner": "mdch2s-team",
+    "android": {
+      "package": "com.mdch2steam.dailytracker"
     }
   }
 }

@@ -14,14 +14,18 @@ La configuración inicial del 16 de octubre de 2026 partió de instrucciones y S
 | Sesión                | SecureStore cifrado, PKCE, refresh por ciclo de app y rutas protegidas técnicas.                                                                            |
 | Persistencia futura   | Contratos sustituibles, sin motor offline en esta fase. [ADR-003](architecture/adr/003-persistence.md).                                                     |
 | Calidad               | Comandos de lint, formato, tipos, Jest/RNTL y pruebas SQL pgTAP.                                                                                            |
-| Modelo inicial        | Solo profiles migrada; otras entidades en [diseño preliminar](architecture/data-model.md).                                                                  |
+| Modelo inicial        | Contrato profiles consumido por móvil; diseño, migraciones y pruebas exclusivamente en backend.                                                             |
+
+## Requisitos arquitectónicos permanentes resueltos
+
+Separación móvil/backend, idiomas es/en y temas light/dark/system con preferencias persistentes son obligatorios según [ADR-004](architecture/adr/004-permanent-foundations.md). No quedan como opciones del MVP. La generación real de tipos sigue bloqueada por PostgreSQL; no se autoriza ampliar el snapshot manual histórico.
 
 ## Pendientes
 
 | Decisión                                    | Cuándo resolver                                                                                                                     |
 | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | Credenciales y proyecto Supabase alojado    | Antes del primer recorrido remoto real. Configurar Email, SMTP y redirects; no se inventan valores.                                 |
-| Backend local                               | Docker Desktop debe exponer su motor Linux; ejecutar migración/RLS y regenerar tipos.                                               |
+| Backend local                               | En el repositorio backend, habilitar Docker Linux, verificar SQL/RLS y generar el primer artefacto real de tipos.                   |
 | Acceso anónimo y onboarding                 | Antes de cerrar el recorrido de entrada; Auth actual es técnico y provisional.                                                      |
 | Primera funcionalidad completa              | Elegir módulo y criterios de aceptación; el listado del producto no autoriza implementar todo.                                      |
 | Zona de negocio, viaje y comienzo de semana | Antes de recurrencias y métricas. profiles.time_zone permanece nulo hasta elección explícita.                                       |

@@ -1,5 +1,7 @@
 # Supabase y seguridad
 
+Este documento describe la integración **cliente**. El esquema, SQL, RLS, configuración y pruebas PostgreSQL pertenecen únicamente a [daily-tracker-supabase](https://github.com/mdch2/daily-tracker-supabase). Consultar [límites permanentes](repository-boundaries.md) antes de cualquier cambio.
+
 ## Configuración
 
 Cliente central en src/infrastructure/supabase/client.ts; bootstrap lo instancia solo si hay URL y clave publicable válidas.
@@ -7,7 +9,7 @@ No hay credenciales incluidas. HTTPS obligatorio salvo loopback y 10.0.2.2 del e
 El cliente usa Auth PKCE, persistSession y autoRefreshToken; detectSessionInUrl está deshabilitado.
 No se ha contratado, creado, enlazado ni modificado un proyecto alojado.
 
-config.toml prepara PostgreSQL 17, API solo public, Auth Email y buzón de pruebas local.
+En el repositorio backend, config.toml prepara PostgreSQL 17, API solo public, Auth Email y buzón de pruebas local.
 Realtime, Storage, Edge Runtime y Analytics están deshabilitados porque no hay consumidores.
 El seed no contiene datos personales. La migración crea perfiles, permisos, RLS y funciones privadas de trigger.
 
@@ -44,14 +46,16 @@ La API solo expone public. private no tiene permisos de uso del cliente.
 Las funciones de trigger fijan search_path y revocan EXECUTE público; solo crear perfil requiere SECURITY DEFINER.
 profiles habilita RLS y no concede escritura de id, created_at ni updated_at.
 Una cuenta puede consultar y actualizar su perfil, nunca el de otra. Los roles anon no pueden acceder.
-La comprobación ejecutable está en supabase/tests/database/profiles.test.sql. Su ejecución real depende del motor Docker; revisar validation.md, no asumir que pasó.
+La comprobación ejecutable está en supabase/tests/database/profiles.test.sql **del repositorio backend**. Su ejecución real depende del motor Docker; revisar validation.md, no asumir que pasó. El móvil no contiene SQL ni ejecuta estas pruebas.
 
 ## Entornos y siguientes pasos
 
-1. Arrancar Docker Linux y ejecutar pnpm db:start.
-2. En local descartable, pnpm db:reset, pnpm db:test y pnpm db:types.
-3. Obtener URL/clave publicable; completar .env sin credenciales privilegiadas.
+1. En daily-tracker-supabase, arrancar Docker Linux y ejecutar pnpm db:start.
+2. Solo en el backend y con datos locales descartables, pnpm db:reset, pnpm db:test y pnpm db:types.
+3. En móvil, importar el artefacto generado con pnpm db:types. Obtener URL/clave publicable y completar .env sin credenciales privilegiadas.
 4. En remoto, revisar la migración y aplicarla con el procedimiento de despliegue autorizado; configurar URLs, Email y SMTP.
 5. Validar registro, confirmación, relanzamiento, expiración/refresh, cierre y recuperación en iOS/Android reales.
 
 No se incluyen Edge Functions, buckets ni suscripciones Realtime sin una necesidad de producto.
+
+Idioma y tema se gestionan por preferencias locales persistentes y no requieren columnas en profiles ni sesión Auth. Los mensajes visibles de integración se traducen mediante catálogos es/en; no mostrar errores crudos del SDK.

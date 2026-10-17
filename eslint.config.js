@@ -58,6 +58,28 @@ module.exports = defineConfig([
     },
   },
   {
+    files: ['src/**/*.tsx'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'JSXText[value=/\\S/]',
+          message: 'Visible text belongs in the en/es translation catalogs.',
+        },
+        {
+          selector:
+            'JSXAttribute[name.name=/^(title|label|placeholder|accessibilityLabel|message)$/] > Literal',
+          message: 'Translate visible and accessible labels with i18next.',
+        },
+        {
+          selector: 'Literal[value=/^(#[0-9a-fA-F]{3,8}|rgba?\\(|hsla?\\()/]',
+          message:
+            'Use semantic theme tokens instead of component color literals.',
+        },
+      ],
+    },
+  },
+  {
     files: ['src/bootstrap/**/*.{ts,tsx}'],
     rules: { 'no-restricted-imports': 'off' },
   },

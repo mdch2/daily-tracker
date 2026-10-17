@@ -18,6 +18,8 @@ No necesitan scripts propios ni archivos de interfaz porque son procedimientos l
 Las cuatro Skills existentes se conservaron sin renombrarlas para evitar duplicación y romper referencias.
 Las dos nuevas no reproducen todo AGENTS.md: describen procedimientos de revisión o integración particulares.
 
+Actualización permanente: architecture-guardian, ui-design, supabase-development, testing-quality y data-management incorporan los límites de repositorio, i18n es/en, temas light/dark/system y las comprobaciones pertinentes. No se crean Skills adicionales para repetir estas reglas. Supabase-development coordina cambios SQL exclusivamente en backend y mantiene integración/tipos en móvil.
+
 ## Fuentes y validación
 
 Se consultó [la documentación oficial de Skills](https://learn.chatgpt.com/docs/build-skills) y la Skill skill-creator instalada, incluyendo su quick_validate.py.

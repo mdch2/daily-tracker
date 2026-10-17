@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/features/auth/presentation/auth-provider';
 import { useProfileRepository } from '@/features/profile/presentation/profile-context';
 import { Button, ErrorMessage, Screen, Text } from '@/shared/ui/primitives';
-import { useThemePreference } from '@/shared/theme/use-theme';
+import { PreferencesControls } from '@/shared/preferences/preferences-controls';
+import { useTheme } from '@/shared/theme/use-theme';
 
 export function DashboardScreen() {
+  const { t } = useTranslation();
+  const { tokens } = useTheme();
   const { state, repository: auth } = useAuth();
   const profiles = useProfileRepository();
-  const setTheme = useThemePreference((value) => value.setPreference);
-  const theme = useThemePreference((value) => value.preference);
   const [error, setError] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const userId = state.session?.userId;
@@ -20,19 +22,20 @@ export function DashboardScreen() {
   });
   return (
     <Screen>
-      <Text accessibilityRole="header" style={{ fontSize: 26 }}>
-        Daily Tracker
+      <Text
+        accessibilityRole="header"
+        style={{ fontSize: tokens.typography.title }}
+      >
+        {t('common.appName')}
       </Text>
-      <Text>
-        Base técnica del MVP. Los módulos se incorporarán progresivamente.
-      </Text>
+      <Text>{t('dashboard.intro')}</Text>
       {profile.isPending ? (
-        <Text>Cargando perfil…</Text>
+        <Text>{t('dashboard.loadingProfile')}</Text>
       ) : profile.isError ? (
         <>
-          <ErrorMessage message="No se pudo cargar el perfil." />
+          <ErrorMessage message={t('errors.profile')} />
           <Button
-            title="Reintentar perfil"
+            title={t('dashboard.retryProfile')}
             onPress={() => {
               void profile.refetch();
             }}
@@ -41,32 +44,17 @@ export function DashboardScreen() {
       ) : (
         <Text>
           {profile.data?.displayName
-            ? `Hola, ${profile.data.displayName}`
+            ? t('dashboard.greeting', { name: profile.data.displayName })
             : profile.data
-              ? 'Sesión iniciada.'
-              : 'Todavía no hay un perfil disponible.'}
+              ? t('dashboard.signedIn')
+              : t('dashboard.noProfile')}
         </Text>
       )}
-      <Text>
-        No hay hábitos ni métricas implementados en esta configuración inicial.
-      </Text>
+      <Text>{t('dashboard.noHabits')}</Text>
+      <PreferencesControls />
+      {error && <ErrorMessage message={t('errors.signOut')} />}
       <Button
-        title={`Tema: ${theme}`}
-        onPress={() =>
-          setTheme(
-            theme === 'system'
-              ? 'light'
-              : theme === 'light'
-                ? 'dark'
-                : 'system',
-          )
-        }
-      />
-      {error && (
-        <ErrorMessage message="No se pudo cerrar la sesión. Vuelve a intentarlo." />
-      )}
-      <Button
-        title="Cerrar sesión en este dispositivo"
+        title={t('auth.signOut')}
         loading={signingOut}
         onPress={() => {
           setSigningOut(true);

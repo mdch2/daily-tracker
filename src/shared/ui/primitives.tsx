@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { PropsWithChildren } from 'react';
 import { useTheme } from '@/shared/theme/use-theme';
+import { useTranslation } from 'react-i18next';
 
 export function Text({ style, ...props }: TextProps) {
   const { colors, tokens } = useTheme();
@@ -55,17 +56,24 @@ export function Button({
   onPress,
   disabled = false,
   loading = false,
+  selected,
 }: {
   title: string;
   onPress: () => void;
   disabled?: boolean;
   loading?: boolean;
+  selected?: boolean;
 }) {
   const { colors, tokens } = useTheme();
+  const { t } = useTranslation();
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityState={{ disabled: disabled || loading, busy: loading }}
+      accessibilityState={{
+        disabled: disabled || loading,
+        busy: loading,
+        ...(selected === undefined ? {} : { selected }),
+      }}
       disabled={disabled || loading}
       onPress={onPress}
       style={({ pressed }) => ({
@@ -74,17 +82,23 @@ export function Button({
         padding: tokens.spacing.md,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: colors.action,
-        opacity: disabled || pressed ? 0.6 : 1,
+        backgroundColor: selected === false ? colors.surface : colors.action,
+        borderColor: colors.border,
+        borderWidth: 1,
+        opacity: disabled ? 0.6 : pressed ? 0.85 : 1,
       })}
     >
       {loading ? (
         <ActivityIndicator
           color={colors.onAction}
-          accessibilityLabel="Procesando"
+          accessibilityLabel={t('common.processing')}
         />
       ) : (
-        <Text style={{ color: colors.onAction }}>{title}</Text>
+        <Text
+          style={{ color: selected === false ? colors.text : colors.onAction }}
+        >
+          {title}
+        </Text>
       )}
     </Pressable>
   );
@@ -95,13 +109,16 @@ export function Input({
   error,
   ...props
 }: TextInputProps & { label: string; error?: string | undefined }) {
-  const { colors, tokens } = useTheme();
+  const { colors, tokens, mode } = useTheme();
   return (
     <View style={{ gap: tokens.spacing.sm }}>
       <Text>{label}</Text>
       <TextInput
         {...props}
         accessibilityLabel={label}
+        keyboardAppearance={mode}
+        selectionColor={colors.selection}
+        cursorColor={colors.text}
         placeholderTextColor={colors.muted}
         style={{
           color: colors.text,
@@ -133,10 +150,15 @@ export function ErrorMessage({ message }: { message: string }) {
 }
 
 export function LoadingScreen() {
+  const { t } = useTranslation();
+  const { colors } = useTheme();
   return (
     <Screen>
-      <ActivityIndicator accessibilityLabel="Cargando sesión" />
-      <Text>Cargando…</Text>
+      <ActivityIndicator
+        color={colors.action}
+        accessibilityLabel={t('common.loadingSession')}
+      />
+      <Text>{t('common.loading')}</Text>
     </Screen>
   );
 }

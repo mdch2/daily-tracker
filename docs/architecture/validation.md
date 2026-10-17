@@ -3,7 +3,23 @@
 Fecha: 2026-10-16. Entorno Windows, Node 22.14.0, pnpm 10.28.2, Supabase CLI 2.75.0.
 Las herramientas Node se ejecutaron fuera del sandbox porque el runtime y el almacén pnpm no eran accesibles dentro. No se cambió el Node global ni se instaló Python en el sistema.
 
-## Comprobaciones ejecutadas
+Los resultados de la configuración inicial se conservan como historial. Tras ADR-004, los comandos de administración y pruebas SQL pertenecen al repositorio backend; pnpm db:types del móvil ahora importa un artefacto, no ejecuta el generador.
+
+## Actualización: reglas permanentes de repositorios, i18n y temas
+
+- pnpm check: correcto, incluidos límites de repositorio, lint sin warnings, formato, TypeScript y **49 pruebas en 10 suites**.
+- Pruebas nuevas: idiomas es/en y fallback, paridad de claves/interpolaciones, validación traducida, formato con zona explícita, tres modos de tema, cambios del dispositivo, persistencia tras relanzamiento, concurrencia y errores. Cambiar idioma conserva los datos y la validación del formulario. Contraste de texto comprobado contra tokens.
+- pnpm exec expo install --check --pnpm: dependencias compatibles; expo-localization ~58.0.4, i18next 26.4.7 y react-i18next 17.0.20. Se conservan las excepciones de Jest documentadas.
+- Las seis Skills pasaron quick_validate.py tras actualizar cinco de ellas; no se crearon Skills redundantes.
+- Instalación con pnpm install --frozen-lockfile --ignore-scripts: correcta.
+- Bundles Hermes de Android e iOS exportados correctamente con la base de idiomas/temas; no sustituyen una compilación nativa.
+- Prebuild Android temporal correcto: locales_config.xml incluye en/es, el manifiesto referencia ese recurso y mantiene RTL deshabilitado. Las propiedades Android siguen siendo mínimo 30, compilación 37 y destino 36. La introspección iOS declara CFBundleLocalizations en/es.
+- Se trasladaron cinco archivos backend sin alterar su contenido, comprobando SHA-256 antes de retirar las copias móviles. pnpm check:boundaries confirma que no quedan SQL ni infraestructura Supabase del servidor en el móvil.
+- En backend, pnpm db:types y pnpm db:test se intentaron y fallaron por PostgreSQL no disponible. El importador móvil también falló al no existir el artefacto generado y se comprobó por hash que conservó el snapshot anterior.
+
+No se verificaron físicamente Keychain, cambios de idioma/tema en dispositivos ni el renderizado visual nativo. El bloqueo de Java/Android SDK y Docker continúa. El snapshot manual histórico sigue pendiente de sustitución; no se presenta como generado. Véase [límites](repository-boundaries.md) y [presentación](localization-and-themes.md).
+
+## Historial de comprobaciones de la base inicial
 
 | Comprobación                                    | Resultado                                                                                                                                                                |
 | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -36,7 +52,7 @@ Android mínimo del producto: Android 11/API 30. `expo-build-properties` ~58.0.1
 - Sin proyecto/credenciales Supabase remotos, no se comprobaron registro y correo reales, refresh/expiración contra servidor ni recuperación completa.
 - Sin dispositivo/simulador ejecutado, no se validaron visualmente pantallas ni Keychain/Keystore, enlaces nativos, accesibilidad asistida o builds de tiendas. Los tests de componentes y bundles no sustituyen esas comprobaciones.
 
-Para levantar el bloqueo: reparar/iniciar el motor Linux de Docker, pnpm db:start, pnpm db:reset solo en local descartable, pnpm db:test y pnpm db:types.
+Para levantar el bloqueo: en el repositorio backend, reparar/iniciar el motor Linux de Docker, pnpm db:start, pnpm db:reset solo en local descartable, pnpm db:test y pnpm db:types. Después importar el artefacto desde el móvil con su comando pnpm db:types.
 Después configurar .env y probar los recorridos Auth en development builds iOS/Android.
 
 ## Auditoría de dependencias

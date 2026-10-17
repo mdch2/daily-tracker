@@ -1,0 +1,70 @@
+{
+  "common": {
+    "appName": "Daily Tracker",
+    "retry": "Reintentar",
+    "processing": "Procesando",
+    "loading": "Cargando…",
+    "loadingSession": "Cargando sesión"
+  },
+  "config": {
+    "title": "Configuración pendiente",
+    "instructions": "Completa EXPO_PUBLIC_SUPABASE_URL y EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY en .env con la URL y la clave publicable del proyecto. Reinicia Expo después del cambio.",
+    "help": "Consulta README.md para conectar con el backend. No se utilizarán credenciales de ejemplo."
+  },
+  "auth": {
+    "signIn": "Iniciar sesión",
+    "signUp": "Crear cuenta",
+    "resetPassword": "Solicitar recuperación",
+    "updatePassword": "Guardar contraseña",
+    "provisional": "Acceso técnico provisional. El recorrido final se definirá con los diseños del producto.",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "confirmEmail": "Revisa tu correo para confirmar la cuenta en este dispositivo.",
+    "resetSent": "Si existe una cuenta para ese correo, recibirás un enlace. Ábrelo en este dispositivo.",
+    "recoverLink": "Recuperar contraseña",
+    "backToSignIn": "Volver al inicio de sesión",
+    "invalidLink": "El enlace no es válido, caducó o se abrió en otro dispositivo. Solicita uno nuevo.",
+    "requestAnother": "Solicitar otro enlace",
+    "validatingLink": "Validando enlace…",
+    "signOut": "Cerrar sesión en este dispositivo"
+  },
+  "errors": {
+    "operation": "No se pudo completar la operación. Revisa tus datos y la conexión e inténtalo de nuevo.",
+    "session": "No se pudo recuperar la sesión de forma segura.",
+    "profile": "No se pudo cargar el perfil.",
+    "signOut": "No se pudo cerrar la sesión. Vuelve a intentarlo."
+  },
+  "validation": {
+    "email": "Introduce un correo válido.",
+    "emailTooLong": "Usa como máximo 254 caracteres.",
+    "passwordRequired": "Introduce tu contraseña.",
+    "passwordMin": "Usa al menos 12 caracteres.",
+    "passwordMax": "Usa como máximo 128 caracteres.",
+    "invalid": "Revisa este campo."
+  },
+  "dashboard": {
+    "intro": "Base técnica del MVP. Los módulos se incorporarán progresivamente.",
+    "loadingProfile": "Cargando perfil…",
+    "retryProfile": "Reintentar perfil",
+    "greeting": "Hola, {{name}}",
+    "signedIn": "Sesión iniciada.",
+    "noProfile": "Todavía no hay un perfil disponible.",
+    "noHabits": "No hay hábitos ni métricas implementados en esta configuración inicial."
+  },
+  "navigation": {
+    "home": "Inicio"
+  },
+  "preferences": {
+    "title": "Preferencias",
+    "language": "Idioma",
+    "theme": "Tema",
+    "system": "Sistema",
+    "es": "Español",
+    "en": "Inglés",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "loadError": "No se pudieron cargar las preferencias. Reintenta antes de cambiarlas.",
+    "saveError": "No se pudieron guardar las preferencias. Se mantienen los ajustes anteriores.",
+    "retryLoad": "Volver a cargar preferencias"
+  }
+}

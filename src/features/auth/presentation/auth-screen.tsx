@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 import { RouteLink as Link } from '@/shared/ui/route-link';
 import {
   Button,
@@ -10,6 +11,9 @@ import {
   Screen,
   Text,
 } from '@/shared/ui/primitives';
+import { validationMessage } from '@/shared/i18n/validation-message';
+import { PreferencesControls } from '@/shared/preferences/preferences-controls';
+import { useTheme } from '@/shared/theme/use-theme';
 import {
   emailSchema,
   passwordSchema,
@@ -20,17 +24,21 @@ import {
 import { useAuth } from './auth-provider';
 
 type Mode = 'sign-in' | 'sign-up' | 'reset-password' | 'update-password';
-const titles: Record<Mode, string> = {
-  'sign-in': 'Iniciar sesión',
-  'sign-up': 'Crear cuenta',
-  'reset-password': 'Solicitar recuperación',
-  'update-password': 'Guardar contraseña',
-};
+const titles = {
+  'sign-in': 'auth.signIn',
+  'sign-up': 'auth.signUp',
+  'reset-password': 'auth.resetPassword',
+  'update-password': 'auth.updatePassword',
+} as const;
 
 export function AuthScreen({ mode }: { mode: Mode }) {
+  const { t } = useTranslation();
+  const { tokens } = useTheme();
   const { actions, finishRecovery } = useAuth();
-  const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [error, setError] = useState(false);
+  const [notice, setNotice] = useState<
+    'auth.confirmEmail' | 'auth.resetSent' | null
+  >(null);
   const schema =
     mode === 'sign-up'
       ? signUpSchema
@@ -44,58 +52,50 @@ export function AuthScreen({ mode }: { mode: Mode }) {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<AuthFormValues>({
-    // Inactive fields remain strings; each action validates only its own inputs.
     resolver: zodResolver(schema),
     defaultValues: { email: '', password: '' },
   });
   const submit = handleSubmit(async (values) => {
-    setError(null);
+    setError(false);
     setNotice(null);
     try {
       if (mode === 'sign-in') await actions.signIn(values);
       if (mode === 'sign-up') {
         const result = await actions.signUp(values);
-        if (result.confirmationRequired)
-          setNotice(
-            'Revisa tu correo para confirmar la cuenta en este dispositivo.',
-          );
+        if (result.confirmationRequired) setNotice('auth.confirmEmail');
       }
       if (mode === 'reset-password') {
         await actions.requestPasswordReset(values);
-        setNotice(
-          'Si existe una cuenta para ese correo, recibirás un enlace. Ábrelo en este dispositivo.',
-        );
+        setNotice('auth.resetSent');
       }
       if (mode === 'update-password') {
         await actions.updatePassword(values);
         finishRecovery();
       }
     } catch {
-      setError(
-        'No se pudo completar la operación. Revisa tus datos y la conexión e inténtalo de nuevo.',
-      );
+      setError(true);
     }
   });
   return (
     <Screen>
-      <Text accessibilityRole="header" style={{ fontSize: 26 }}>
-        {titles[mode]}
+      <Text
+        accessibilityRole="header"
+        style={{ fontSize: tokens.typography.title }}
+      >
+        {t(titles[mode])}
       </Text>
-      <Text>
-        Acceso técnico provisional. El recorrido final se definirá con los
-        diseños del producto.
-      </Text>
+      <Text>{t('auth.provisional')}</Text>
       {mode !== 'update-password' && (
         <Controller
           control={control}
           name="email"
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
-              label="Correo electrónico"
+              label={t('auth.email')}
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
-              error={errors.email?.message}
+              error={validationMessage(errors.email?.message, t)}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
@@ -111,11 +111,11 @@ export function AuthScreen({ mode }: { mode: Mode }) {
           name="password"
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
-              label="Contraseña"
+              label={t('auth.password')}
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
-              error={errors.password?.message}
+              error={validationMessage(errors.password?.message, t)}
               secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
@@ -127,10 +127,10 @@ export function AuthScreen({ mode }: { mode: Mode }) {
           )}
         />
       )}
-      {error && <ErrorMessage message={error} />}
-      {notice && <Text accessibilityLiveRegion="polite">{notice}</Text>}
+      {error && <ErrorMessage message={t('errors.operation')} />}
+      {notice && <Text accessibilityLiveRegion="polite">{t(notice)}</Text>}
       <Button
-        title={titles[mode]}
+        title={t(titles[mode])}
         loading={isSubmitting}
         onPress={() => {
           void submit();
@@ -138,13 +138,14 @@ export function AuthScreen({ mode }: { mode: Mode }) {
       />
       {mode === 'sign-in' ? (
         <>
-          <Link href="/sign-up">Crear cuenta</Link>
-          <Link href="/reset-password">Recuperar contraseña</Link>
+          <Link href="/sign-up">{t('auth.signUp')}</Link>
+          <Link href="/reset-password">{t('auth.recoverLink')}</Link>
         </>
       ) : null}
       {mode === 'sign-up' || mode === 'reset-password' ? (
-        <Link href="/sign-in">Volver al inicio de sesión</Link>
+        <Link href="/sign-in">{t('auth.backToSignIn')}</Link>
       ) : null}
+      <PreferencesControls />
     </Screen>
   );
 }
