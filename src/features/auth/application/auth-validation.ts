@@ -11,7 +11,7 @@ export const emailSchema = z.object({
 export const passwordSchema = z.object({
   password: z
     .string()
-    .min(12, 'validation.passwordMin')
+    .min(8, 'validation.passwordMin')
     .max(128, 'validation.passwordMax'),
 });
 export const signInSchema = emailSchema.extend({

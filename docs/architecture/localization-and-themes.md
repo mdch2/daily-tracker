@@ -27,7 +27,7 @@ No hay métricas o fechas ficticias en la pantalla: el formateador está prepara
 ## Temas
 
 Los modos light, dark y system comparten tokens semánticos en shared/theme/tokens.ts. useTheme resuelve la preferencia contra useColorScheme; sin señal del sistema usa light.
-El catálogo es neutro/provisional: Stitch podrá actualizarlo, manteniendo semántica, contraste y los tres modos.
+El catálogo visual inicial sigue la referencia de Stitch para autenticación: carbón y verde/lima en oscuro, superficies neutras claras y verdes de texto adaptados en claro. La identidad comercial sigue siendo provisional. Se mantienen la semántica de tokens y los tres modos.
 No se permiten colores literales en componentes cuando existe un token equivalente.
 
 PresentationProvider aplica el tema a Expo Router/ThemeProvider y StatusBar; formularios, áreas seguras, fondos, enlaces, errores, indicadores y teclado consumen el mismo tema.
@@ -47,7 +47,7 @@ No hay guardado exitoso aparente ni caché remota duplicada.
 
 ## Controles y verificación
 
-Los controles provisionales están disponibles en acceso, dashboard y configuración pendiente, sin requerir una cuenta ni credenciales de backend.
+Los controles están disponibles en el panel de idioma y apariencia del acceso, en dashboard y en configuración pendiente, sin requerir una cuenta ni credenciales de backend. El acceso mantiene montado el formulario al abrir o cerrar el panel y al cambiar idioma o tema.
 Permiten español, inglés o sistema y claro, oscuro o sistema. El estado seleccionado es visible y accesible.
 La suite cubre catálogo, detección/respaldo, validaciones es/en, formato, cambios manuales/sistema, tres modos, relanzamiento, errores y concurrencia.
 Los mocks de dispositivo y pruebas de componentes no sustituyen una revisión visual en iOS/Android, Keychain real, lectores de pantalla o builds nativas.

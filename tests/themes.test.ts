@@ -43,9 +43,19 @@ describe('mandatory themes', () => {
         [colors.text, colors.selection],
         [colors.muted, colors.surface],
         [colors.error, colors.background],
+        [colors.link, colors.background],
+        [colors.link, colors.surface],
+        [colors.muted, colors.background],
+        [colors.muted, colors.field],
+        [colors.error, colors.errorSurface],
+        [colors.success, colors.successSurface],
         [colors.onAction, colors.action],
+        [colors.onAction, colors.actionPressed],
       ])
         expect(contrast(foreground!, background!)).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(colors.fieldBorder, colors.field)).toBeGreaterThanOrEqual(
+        3,
+      );
     },
   );
 });

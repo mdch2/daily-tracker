@@ -36,6 +36,35 @@ describe('auth input boundary', () => {
       password: 'existing',
     });
   });
+  it.each([8, 128])(
+    'accepts new passwords of %i characters for sign-up and recovery',
+    async (length) => {
+      const repository = makeRepository();
+      const actions = createAuthActions(repository);
+      const password = 'a'.repeat(length);
+      await actions.signUp({ email: 'user@example.test', password });
+      await actions.updatePassword({ password });
+      expect(repository.signUp).toHaveBeenCalledWith({
+        email: 'user@example.test',
+        password,
+      });
+      expect(repository.updatePassword).toHaveBeenCalledWith(password);
+    },
+  );
+  it.each([7, 129])(
+    'rejects new passwords of %i characters before contacting the backend',
+    (length) => {
+      const repository = makeRepository();
+      const actions = createAuthActions(repository);
+      const password = 'a'.repeat(length);
+      expect(() =>
+        actions.signUp({ email: 'user@example.test', password }),
+      ).toThrow();
+      expect(() => actions.updatePassword({ password })).toThrow();
+      expect(repository.signUp).not.toHaveBeenCalled();
+      expect(repository.updatePassword).not.toHaveBeenCalled();
+    },
+  );
   it('propagates write failure without reporting success', async () => {
     const repository = makeRepository();
     jest

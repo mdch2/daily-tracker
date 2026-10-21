@@ -28,8 +28,9 @@ Fallos de borrado se propagan. Nunca registrar payloads, errores de SDK con cont
 ## Registro y recuperación
 
 Registro e inicio de sesión usan acciones con validación Zod, adaptadas por AuthRepository.
-La contraseña nueva requiere 12–128 caracteres; el login permite contraseñas existentes sin imponer retroactivamente esa longitud mínima.
-El backend debe configurar al menos el mismo mínimo. No se alteran contraseñas ni cuentas desde SQL propio.
+La contraseña nueva requiere 8–128 caracteres; el login permite contraseñas existentes sin imponer retroactivamente esa longitud mínima.
+El backend debe configurar también un mínimo de 8 caracteres. No se alteran contraseñas ni cuentas desde SQL propio.
+La configuración local de `daily-tracker-supabase/supabase/config.toml` aún requiere actualizar `minimum_password_length` de 12 a 8 y reiniciar Auth; el cambio del cliente no modifica la política del servidor.
 
 Confirmación y recuperación usan dailytracker://callback, intercambio de code PKCE y una pantalla protegida para actualizar contraseña.
 Permitir también dailytracker://callback?mode=recovery en Supabase Auth.

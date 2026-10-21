@@ -17,6 +17,7 @@ import { PreferencesControls } from '@/shared/preferences/preferences-controls';
 import { createPreferencesStore } from '@/shared/preferences/store';
 import { PreferencesProvider } from '@/shared/preferences/preferences-provider';
 import { PresentationProvider } from './presentation-provider';
+import { FontProvider } from './font-provider';
 
 function createRuntime() {
   const environment = readEnvironment();
@@ -73,9 +74,11 @@ export function AppProviders({ children }: PropsWithChildren) {
     <SafeAreaProvider>
       <PreferencesProvider store={preferences}>
         <PresentationProvider>
-          <QueryClientProvider client={queryClient}>
-            <BackendProvider>{children}</BackendProvider>
-          </QueryClientProvider>
+          <FontProvider>
+            <QueryClientProvider client={queryClient}>
+              <BackendProvider>{children}</BackendProvider>
+            </QueryClientProvider>
+          </FontProvider>
         </PresentationProvider>
       </PreferencesProvider>
     </SafeAreaProvider>

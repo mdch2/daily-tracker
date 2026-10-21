@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { RouteLink as Link } from '@/shared/ui/route-link';
-import { ErrorMessage, Screen, Text } from '@/shared/ui/primitives';
+import { ActivityIndicator, View } from 'react-native';
+import { ErrorMessage, Text } from '@/shared/ui/primitives';
+import { useTheme } from '@/shared/theme/use-theme';
+import { AuthFrame } from './auth-frame';
 import { useAuth } from './auth-provider';
 import { useTranslation } from 'react-i18next';
 
 export function CallbackScreen() {
+  const { colors, tokens } = useTheme();
   const { t } = useTranslation();
   const { code, mode } = useLocalSearchParams<{
     code?: string;
@@ -26,17 +30,41 @@ export function CallbackScreen() {
       })
       .catch(() => setFailedCode(code));
   }, [code, mode, repository, router, beginRecovery]);
+  const invalid = failedCode === code || !code || Array.isArray(code);
   return (
-    <Screen>
-      {failedCode === code || !code || Array.isArray(code) ? (
-        <>
-          <ErrorMessage message={t('auth.invalidLink')} />
-          <Link href="/reset-password">{t('auth.requestAnother')}</Link>
-          <Link href="/sign-in">{t('auth.signIn')}</Link>
-        </>
-      ) : (
-        <Text>{t('auth.validatingLink')}</Text>
+    <AuthFrame
+      title={t(invalid ? 'auth.invalidLinkTitle' : 'auth.callbackTitle')}
+      description={t(
+        invalid ? 'auth.invalidLinkDescription' : 'auth.callbackDescription',
       )}
-    </Screen>
+      eyebrow={t('auth.checkEmailEyebrow')}
+      illustration={invalid ? 'link-2' : 'mail'}
+    >
+      <View
+        style={{
+          backgroundColor: colors.surface,
+          borderColor: colors.border,
+          borderWidth: 1,
+          borderRadius: tokens.radius.card,
+          padding: tokens.spacing.lg,
+          gap: tokens.spacing.md,
+        }}
+      >
+        {invalid ? (
+          <>
+            <ErrorMessage message={t('auth.invalidLink')} />
+            <Link href="/reset-password">{t('auth.requestAnother')}</Link>
+            <Link href="/sign-in">{t('auth.signIn')}</Link>
+          </>
+        ) : (
+          <>
+            <ActivityIndicator color={colors.link} />
+            <Text accessibilityLiveRegion="polite">
+              {t('auth.validatingLink')}
+            </Text>
+          </>
+        )}
+      </View>
+    </AuthFrame>
   );
 }

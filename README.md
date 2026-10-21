@@ -40,7 +40,7 @@ pnpm ios
 
 Authentication currently provides a provisional technical flow: registration, email confirmation, sign-in, local sign-out, and account recovery.
 
-The final anonymous access policy remains undecided.
+The MVP requires an account to access personal tracking features and does not include guest mode. See [ADR-005](docs/architecture/adr/005-mvp-account-required.md). The final onboarding design remains pending.
 
 ## Backend
 
