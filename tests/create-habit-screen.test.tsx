@@ -94,4 +94,30 @@ describe('create habit form', () => {
       weeklyTarget: 3,
     });
   });
+  it('edits the workweek preset using accessible day names without inline preferences', async () => {
+    const repository = await open();
+    expect(screen.queryByText('Preferences')).not.toBeOnTheScreen();
+    await fireEvent.changeText(
+      screen.getByLabelText('Habit name'),
+      'Synthetic walk',
+    );
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Selected weekdays' }),
+    );
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Monday to Friday' }),
+    );
+    expect(
+      screen.getByRole('button', { name: 'Monday', selected: true }),
+    ).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Thursday' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Saturday' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Create habit' }));
+    await waitFor(() => expect(repository.create).toHaveBeenCalledTimes(1));
+    expect(repository.create.mock.calls[0]?.[0]).toMatchObject({
+      measurementMode: 'binary',
+      scheduleType: 'weekdays',
+      weekdayMask: 55,
+    });
+  });
 });

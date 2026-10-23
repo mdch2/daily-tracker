@@ -9,7 +9,6 @@ import {
   Screen,
   Text,
 } from '@/shared/ui/primitives';
-import { PreferencesControls } from '@/shared/preferences/preferences-controls';
 import { operationErrorCode } from '@/shared/domain/operation-error';
 import { useAuth } from '@/features/auth/presentation/auth-provider';
 import type {
@@ -86,7 +85,6 @@ function CalendarSetup({ reload }: { reload: () => void }) {
           onPress={reload}
         />
       )}
-      <PreferencesControls />
     </Screen>
   );
 }
@@ -114,7 +112,6 @@ export function BusinessCalendarGate({
           message={t(`habits.errors.${operationErrorCode(query.error)}`)}
         />
         <Button title={t('common.retry')} onPress={reload} />
-        <PreferencesControls />
       </Screen>
     );
   if (!query.data) return null;

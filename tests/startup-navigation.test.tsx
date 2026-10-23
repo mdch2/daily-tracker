@@ -29,6 +29,7 @@ async function openApp(initialUrl: string) {
         '(auth)/reset-password': () => <Text>Reset password screen</Text>,
         '(tabs)/index': () => <Text>Dashboard screen</Text>,
         '(tabs)/habits': () => <Text>Habits screen</Text>,
+        '(tabs)/more': () => <Text>Preferences screen</Text>,
         'habits/new': () => <Text>Create habit screen</Text>,
         'habits/[id]': () => <Text>Habit detail screen</Text>,
         'update-password': () => <Text>Update password screen</Text>,
@@ -62,7 +63,7 @@ describe('startup navigation', () => {
     expect(view.getPathname()).toBe('/');
   });
 
-  it.each(['/habits', '/habits/new', '/habits/synthetic-id'])(
+  it.each(['/habits', '/habits/new', '/habits/synthetic-id', '/more'])(
     'protects the habit route %s without a session',
     async (url) => {
       const view = await openApp(url);

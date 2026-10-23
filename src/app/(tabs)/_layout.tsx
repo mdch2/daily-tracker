@@ -31,6 +31,19 @@ export default function TabsLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="more"
+        options={{
+          title: t('navigation.more'),
+          tabBarIcon: ({ color, size }) => (
+            <Icon
+              name="more-horizontal"
+              color={typeof color === 'string' ? color : undefined}
+              size={size}
+            />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

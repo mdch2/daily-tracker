@@ -7,7 +7,6 @@ import { BusinessCalendarGate } from '@/features/profile/presentation/business-c
 import type { ReadyBusinessContext } from '@/features/profile/domain/business-calendar';
 import { Button, ErrorMessage, Screen, Text } from '@/shared/ui/primitives';
 import { RouteLink } from '@/shared/ui/route-link';
-import { PreferencesControls } from '@/shared/preferences/preferences-controls';
 import { useTheme } from '@/shared/theme/use-theme';
 import { useLocalizedFormatters } from '@/shared/i18n/use-localized-formatters';
 import { operationErrorCode } from '@/shared/domain/operation-error';
@@ -119,7 +118,6 @@ function HabitList({ context }: { context: ReadyBusinessContext }) {
           />
         </>
       )}
-      <PreferencesControls />
     </Screen>
   );
 }

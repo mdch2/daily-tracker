@@ -87,7 +87,8 @@
   },
   "navigation": {
     "home": "Inicio",
-    "habits": "Hábitos"
+    "habits": "Hábitos",
+    "more": "Más"
   },
   "calendar": {
     "title": "Elige el calendario de tu cuenta",
@@ -107,6 +108,7 @@
     "nameHint": "Entre 1 y 100 caracteres.",
     "measurement": "¿Qué registrarás?",
     "binary": "Hecho / no hecho",
+    "binaryOption": "Sí / No",
     "quantity": "Cantidad",
     "schedule": "Frecuencia",
     "daily": "Todos los días",
@@ -181,6 +183,31 @@
       "amountLimit": "El total resultante supera el máximo admitido.",
       "network": "No se pudo conectar. Se conserva tu entrada.",
       "service": "No se pudo confirmar la operación. Se conserva tu entrada."
+    },
+    "designTitle": "Diseña tu constancia",
+    "designDescription": "Los pequeños cambios suman un 1% diario.",
+    "identity": "Tu nuevo hábito",
+    "required": "Obligatorio",
+    "namePlaceholder": "Leer 20 páginas",
+    "scheduledFrequency": "Frecuencia programada",
+    "frequencyDescription": "Elige cómo encaja en tu semana.",
+    "frequencyOptions": {
+      "daily": "Cada día",
+      "weekdays": "Días fijos",
+      "weekly": "Flexible"
+    },
+    "workweek": "Lunes a viernes",
+    "dailyGoal": "Tipo de meta diaria",
+    "binaryDescription": "Un paso a la vez: registra si lo hiciste cada día programado.",
+    "unitPlaceholder": "páginas, minutos…",
+    "dayInitials": {
+      "1": "L",
+      "2": "M",
+      "3": "X",
+      "4": "J",
+      "5": "V",
+      "6": "S",
+      "7": "D"
     }
   },
   "preferences": {

@@ -205,7 +205,7 @@ export function Input({
         <TextInput
           {...props}
           accessibilityLabel={label}
-          accessibilityHint={error ?? hint}
+          accessibilityHint={error ?? hint ?? props.accessibilityHint}
           keyboardAppearance={mode}
           secureTextEntry={!!secureTextEntry && !visible}
           selectionColor={colors.selection}

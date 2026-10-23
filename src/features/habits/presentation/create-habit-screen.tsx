@@ -1,3 +1,4 @@
+import { Pressable, View } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import { randomUUID } from 'expo-crypto';
 import { useRouter } from 'expo-router';
@@ -17,8 +18,9 @@ import {
   Screen,
   Text,
 } from '@/shared/ui/primitives';
-import { RouteLink } from '@/shared/ui/route-link';
-import { PreferencesControls } from '@/shared/preferences/preferences-controls';
+import { Icon } from '@/shared/ui/icon';
+import { useTheme } from '@/shared/theme/use-theme';
+import { HabitFormCard, HabitFormChoice } from './habit-form-controls';
 import type { CreateHabit, Measurement, Schedule } from '../domain/habit';
 import {
   createHabitActions,
@@ -28,6 +30,7 @@ import { useHabitRepository } from './habit-context';
 
 function CreateHabitForm() {
   const { t } = useTranslation();
+  const { colors, tokens } = useTheme();
   const { state } = useAuth();
   const client = useQueryClient();
   const router = useRouter();
@@ -103,91 +106,268 @@ function CreateHabitForm() {
     }
   }
   return (
-    <Screen>
-      <Text accessibilityRole="header">{t('habits.create')}</Text>
-      <Text>{t('habits.startsToday')}</Text>
-      <Input
-        label={t('habits.name')}
-        hint={t('habits.nameHint')}
-        value={name}
-        onChangeText={setName}
-        maxLength={100}
-        editable={!disabled}
-      />
-      <Text>{t('habits.measurement')}</Text>
-      {(['binary', 'quantity'] as const).map((value) => (
-        <Button
-          key={value}
-          title={t(`habits.${value}`)}
-          selected={mode === value}
+    <Screen
+      contentStyle={{ padding: tokens.spacing.md, gap: tokens.spacing.md }}
+    >
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: tokens.spacing.sm,
+        }}
+      >
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('habits.back')}
+          accessibilityState={{ disabled }}
           disabled={disabled}
-          onPress={() => setMode(value)}
-        />
-      ))}
-      {mode === 'quantity' && (
-        <>
-          <Input
-            label={t('habits.unit')}
-            hint={t('habits.unitHint')}
-            value={unit}
-            onChangeText={setUnit}
-            maxLength={30}
-            editable={!disabled}
-          />
-          <Input
-            label={t('habits.target')}
-            hint={t('habits.amountHint')}
-            value={target}
-            onChangeText={setTarget}
-            keyboardType="decimal-pad"
-            editable={!disabled}
-          />
-        </>
-      )}
-      <Text>{t('habits.schedule')}</Text>
-      {(['daily', 'weekdays', 'weekly'] as const).map((value) => (
-        <Button
-          key={value}
-          title={t(`habits.${value}`)}
-          selected={schedule === value}
-          disabled={disabled}
-          onPress={() => setSchedule(value)}
-        />
-      ))}
-      {schedule === 'weekdays' &&
-        ([1, 2, 3, 4, 5, 6, 7] as const).map((day) => (
-          <Button
-            key={day}
-            title={t(`habits.days.${day}`)}
-            selected={(mask & (1 << (day - 1))) !== 0}
-            disabled={disabled}
-            onPress={() => setMask((value) => value ^ (1 << (day - 1)))}
-          />
-        ))}
-      {schedule === 'weekly' && (
+          onPress={() => router.replace('/(tabs)/habits')}
+          style={({ pressed }) => ({
+            minHeight: tokens.minimumTouchTarget,
+            minWidth: tokens.minimumTouchTarget,
+            borderRadius: tokens.radius.pill,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: pressed ? colors.elevated : colors.background,
+            opacity: disabled ? 0.55 : 1,
+          })}
+        >
+          <Icon name="arrow-left" color={colors.text} />
+        </Pressable>
+        <Text
+          accessibilityRole="header"
+          weight="bold"
+          style={{ flex: 1, textAlign: 'center', fontSize: 20 }}
+        >
+          {t('habits.create')}
+        </Text>
+        <View style={{ width: tokens.minimumTouchTarget }} />
+      </View>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: tokens.spacing.md,
+          backgroundColor: colors.accentSoft,
+          padding: tokens.spacing.md,
+          borderRadius: tokens.radius.card,
+        }}
+      >
+        <View
+          style={{
+            backgroundColor: colors.selection,
+            padding: 12,
+            borderRadius: tokens.radius.control,
+          }}
+        >
+          <Icon name="sunrise" size={26} color={colors.link} />
+        </View>
+        <View style={{ flex: 1, gap: tokens.spacing.xs }}>
+          <Text weight="bold">{t('habits.designTitle')}</Text>
+          <Text style={{ color: colors.muted, fontSize: 14 }}>
+            {t('habits.designDescription')}
+          </Text>
+        </View>
+      </View>
+
+      <HabitFormCard>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: tokens.spacing.sm,
+          }}
+        >
+          <Icon name="edit-3" color={colors.link} />
+          <Text weight="bold" style={{ flex: 1 }}>
+            {t('habits.identity')}
+          </Text>
+          <Text style={{ color: colors.link, fontSize: 12 }}>
+            {t('habits.required')}
+          </Text>
+        </View>
         <Input
-          label={t('habits.weeklyTarget')}
-          hint={t('habits.weeklyHint')}
-          value={weekly}
-          onChangeText={setWeekly}
-          keyboardType="number-pad"
-          maxLength={1}
+          label={t('habits.name')}
+          hint={t('habits.nameHint')}
+          icon="bookmark"
+          placeholder={t('habits.namePlaceholder')}
+          value={name}
+          onChangeText={setName}
+          maxLength={100}
           editable={!disabled}
         />
-      )}
+      </HabitFormCard>
+
+      <HabitFormCard>
+        <Text accessibilityRole="header" weight="bold">
+          {t('habits.scheduledFrequency')}
+        </Text>
+        <Text style={{ color: colors.muted, fontSize: 14 }}>
+          {t('habits.frequencyDescription')}
+        </Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: tokens.spacing.sm,
+          }}
+        >
+          {(['daily', 'weekdays', 'weekly'] as const).map((value) => (
+            <View key={value} style={{ flexGrow: 1, flexBasis: 80 }}>
+              <HabitFormChoice
+                title={t(`habits.frequencyOptions.${value}`)}
+                label={t(`habits.${value}`)}
+                selected={schedule === value}
+                disabled={disabled}
+                onPress={() => setSchedule(value)}
+              />
+            </View>
+          ))}
+        </View>
+        {schedule === 'weekdays' && (
+          <>
+            <HabitFormChoice
+              title={t('habits.workweek')}
+              icon="calendar"
+              selected={mask === 31}
+              disabled={disabled}
+              onPress={() => setMask(31)}
+            />
+            <View
+              style={{
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                marginHorizontal: -tokens.spacing.md,
+              }}
+            >
+              {([1, 2, 3, 4, 5, 6, 7] as const).map((day) => (
+                <View
+                  key={day}
+                  style={{ flexBasis: tokens.minimumTouchTarget }}
+                >
+                  <HabitFormChoice
+                    title={t(`habits.dayInitials.${day}`)}
+                    label={t(`habits.days.${day}`)}
+                    selected={(mask & (1 << (day - 1))) !== 0}
+                    disabled={disabled}
+                    onPress={() => setMask((value) => value ^ (1 << (day - 1)))}
+                  />
+                </View>
+              ))}
+            </View>
+          </>
+        )}
+        {schedule === 'weekly' && (
+          <Input
+            label={t('habits.weeklyTarget')}
+            hint={t('habits.weeklyHint')}
+            value={weekly}
+            onChangeText={setWeekly}
+            keyboardType="number-pad"
+            maxLength={1}
+            editable={!disabled}
+          />
+        )}
+      </HabitFormCard>
+
+      <HabitFormCard>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: tokens.spacing.sm,
+          }}
+        >
+          <Icon name="target" color={colors.link} />
+          <Text accessibilityRole="header" weight="bold">
+            {t('habits.dailyGoal')}
+          </Text>
+        </View>
+        <View style={{ flexDirection: 'row', gap: tokens.spacing.sm }}>
+          {(['quantity', 'binary'] as const).map((value) => (
+            <View key={value} style={{ flex: 1 }}>
+              <HabitFormChoice
+                title={t(
+                  value === 'binary'
+                    ? 'habits.binaryOption'
+                    : 'habits.quantity',
+                )}
+                label={t(`habits.${value}`)}
+                icon={value === 'quantity' ? 'bar-chart-2' : 'check-circle'}
+                selected={mode === value}
+                disabled={disabled}
+                onPress={() => setMode(value)}
+              />
+            </View>
+          ))}
+        </View>
+        {mode === 'quantity' ? (
+          <>
+            <View
+              style={{
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                gap: tokens.spacing.md,
+              }}
+            >
+              <View style={{ flexGrow: 1, flexBasis: 120 }}>
+                <Input
+                  label={t('habits.target')}
+                  value={target}
+                  onChangeText={setTarget}
+                  accessibilityHint={t('habits.amountHint')}
+                  keyboardType="decimal-pad"
+                  editable={!disabled}
+                />
+              </View>
+              <View style={{ flexGrow: 1, flexBasis: 120 }}>
+                <Input
+                  label={t('habits.unit')}
+                  value={unit}
+                  onChangeText={setUnit}
+                  accessibilityHint={t('habits.unitHint')}
+                  placeholder={t('habits.unitPlaceholder')}
+                  maxLength={30}
+                  editable={!disabled}
+                />
+              </View>
+            </View>
+            <Text style={{ color: colors.muted, fontSize: 12 }}>
+              {t('habits.amountHint')}
+            </Text>
+            <Text style={{ color: colors.muted, fontSize: 12 }}>
+              {t('habits.unitHint')}
+            </Text>
+          </>
+        ) : (
+          <Text style={{ color: colors.muted, fontSize: 14 }}>
+            {t('habits.binaryDescription')}
+          </Text>
+        )}
+      </HabitFormCard>
+      <View
+        style={{
+          flexDirection: 'row',
+          gap: tokens.spacing.sm,
+          paddingHorizontal: tokens.spacing.sm,
+        }}
+      >
+        <Icon name="info" size={18} />
+        <Text style={{ color: colors.muted, fontSize: 12, flex: 1 }}>
+          {t('habits.startsToday')}
+        </Text>
+      </View>
       {error && <ErrorMessage message={t(`habits.errors.${error}`)} />}
       {pending && error && <Text>{t('habits.uncertain')}</Text>}
       <Button
         title={t(pending && error ? 'habits.retrySave' : 'habits.create')}
+        icon="plus-circle"
         loading={mutation.isPending}
         onPress={() => {
           void save();
         }}
       />
-      <RouteLink href="/(tabs)/habits" disabled={disabled}>
-        {t('habits.back')}
-      </RouteLink>
-      <PreferencesControls />
     </Screen>
   );
 }

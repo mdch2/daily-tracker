@@ -11,7 +11,6 @@ import { BusinessCalendarGate } from '@/features/profile/presentation/business-c
 import type { ReadyBusinessContext } from '@/features/profile/domain/business-calendar';
 import { Button, ErrorMessage, Screen, Text } from '@/shared/ui/primitives';
 import { RouteLink } from '@/shared/ui/route-link';
-import { PreferencesControls } from '@/shared/preferences/preferences-controls';
 import { useLocalizedFormatters } from '@/shared/i18n/use-localized-formatters';
 import { operationErrorCode } from '@/shared/domain/operation-error';
 import type { Habit } from '../domain/habit';
@@ -168,7 +167,6 @@ function HabitHistory({
       <RouteLink href="/(tabs)/habits" disabled={locked}>
         {t('habits.back')}
       </RouteLink>
-      <PreferencesControls />
     </Screen>
   );
 }

@@ -87,7 +87,8 @@
   },
   "navigation": {
     "home": "Home",
-    "habits": "Habits"
+    "habits": "Habits",
+    "more": "More"
   },
   "calendar": {
     "title": "Choose your account calendar",
@@ -107,6 +108,7 @@
     "nameHint": "1–100 characters.",
     "measurement": "What will you record?",
     "binary": "Done / not done",
+    "binaryOption": "Yes / No",
     "quantity": "Quantity",
     "schedule": "Frequency",
     "daily": "Every day",
@@ -181,6 +183,31 @@
       "amountLimit": "The resulting total exceeds the supported maximum.",
       "network": "Could not connect. Your input has been kept.",
       "service": "The operation could not be confirmed. Your input has been kept."
+    },
+    "designTitle": "Design your consistency",
+    "designDescription": "Small changes add up to 1% every day.",
+    "identity": "Your new habit",
+    "required": "Required",
+    "namePlaceholder": "Read 20 pages",
+    "scheduledFrequency": "Scheduled frequency",
+    "frequencyDescription": "Choose how it fits into your week.",
+    "frequencyOptions": {
+      "daily": "Every day",
+      "weekdays": "Fixed days",
+      "weekly": "Flexible"
+    },
+    "workweek": "Monday to Friday",
+    "dailyGoal": "Daily goal type",
+    "binaryDescription": "One step at a time: record whether you did it on each scheduled day.",
+    "unitPlaceholder": "pages, minutes…",
+    "dayInitials": {
+      "1": "M",
+      "2": "T",
+      "3": "W",
+      "4": "T",
+      "5": "F",
+      "6": "S",
+      "7": "S"
     }
   },
   "preferences": {

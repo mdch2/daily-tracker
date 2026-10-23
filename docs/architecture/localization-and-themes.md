@@ -47,7 +47,7 @@ No hay guardado exitoso aparente ni caché remota duplicada.
 
 ## Controles y verificación
 
-Los controles están disponibles en el panel de idioma y apariencia del acceso, en dashboard y en configuración pendiente, sin requerir una cuenta ni credenciales de backend. El acceso mantiene montado el formulario al abrir o cerrar el panel y al cambiar idioma o tema.
+Los controles están disponibles en la pestaña Más de la sesión, en el panel de idioma y apariencia del acceso y en configuración pendiente, sin requerir credenciales de backend para estas dos últimas entradas. No se repite el panel dentro del inicio, listado, creación, detalle o configuración del calendario. El acceso mantiene montado el formulario al abrir o cerrar el panel y al cambiar idioma o tema.
 Permiten español, inglés o sistema y claro, oscuro o sistema. El estado seleccionado es visible y accesible.
 La suite cubre catálogo, detección/respaldo, validaciones es/en, formato, cambios manuales/sistema, tres modos, relanzamiento, errores y concurrencia.
 Los mocks de dispositivo y pruebas de componentes no sustituyen una revisión visual en iOS/Android, Keychain real, lectores de pantalla o builds nativas.

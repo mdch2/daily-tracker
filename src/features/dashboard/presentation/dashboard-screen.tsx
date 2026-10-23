@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/features/auth/presentation/auth-provider';
 import { useProfileRepository } from '@/features/profile/presentation/profile-context';
 import { Button, ErrorMessage, Screen, Text } from '@/shared/ui/primitives';
-import { PreferencesControls } from '@/shared/preferences/preferences-controls';
 import { useTheme } from '@/shared/theme/use-theme';
 import { RouteLink } from '@/shared/ui/route-link';
 
@@ -53,7 +52,6 @@ export function DashboardScreen() {
       )}
       <Text>{t('dashboard.noHabits')}</Text>
       <RouteLink href="/(tabs)/habits">{t('habits.title')}</RouteLink>
-      <PreferencesControls />
       {error && <ErrorMessage message={t('errors.signOut')} />}
       <Button
         title={t('auth.signOut')}
