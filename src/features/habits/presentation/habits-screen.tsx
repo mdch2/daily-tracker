@@ -146,11 +146,9 @@ function HabitList({ context }: { context: ReadyBusinessContext }) {
       view === 'history'
         ? window
         : habitHistoryWindow(context.today, context.weekStartDay, 0);
-    setInspection({
-      habit,
-      initialDate: range.readTo,
-      from: range.start,
-      to: range.readTo,
+    router.push({
+      pathname: '/habits/[id]',
+      params: { id: habit.id, date: range.readTo },
     });
   };
   return (

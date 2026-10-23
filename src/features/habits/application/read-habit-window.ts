@@ -2,7 +2,8 @@ import { OperationError } from '@/shared/domain/operation-error';
 import type { HabitRepository } from '../domain/habit-repository';
 import { addBusinessDays } from '../domain/habit-rules';
 
-// A 16-week map, read in batches below both the adapter's 31-day limit
+// Overview maps (16 weeks), or one habit's calendar year including edge weeks,
+// read in batches below both the adapter's 31-day limit
 // and the service's 1,000-row response cap (30 habits × 28 days).
 export async function readHabitWindow(
   repository: HabitRepository,
@@ -11,7 +12,8 @@ export async function readHabitWindow(
   to: string,
 ) {
   const count = (Date.parse(to) - Date.parse(from)) / 86400000 + 1;
-  if (!Number.isInteger(count) || count < 1 || count > 112)
+  const limit = habitIds.length === 1 ? 378 : 112;
+  if (!Number.isInteger(count) || count < 1 || count > limit)
     throw new OperationError('invalidInput');
   if (!habitIds.length) return [];
   const requests = [];

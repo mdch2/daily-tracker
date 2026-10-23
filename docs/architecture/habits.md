@@ -22,7 +22,7 @@ Las fechas de negocio ya asignadas se transportan a Intl con sus campos de calen
 
 Un día programado abierto está pendiente o parcial; al cerrar sin cumplir, no cumplido. Una frecuencia semanal flexible cuenta días distintos y no obliga a completar cada fecha. La primera semana parcial conserva X y muestra progreso informativo, sin evaluación. Una semana completa puede cumplir al alcanzar X; si termina por debajo, no cumplida. Correcciones admitidas recalculan desde los registros y la definición inmutable, manteniendo los límites históricos. No hay contadores de cumplimiento, porcentajes ni rachas persistidos.
 
-El historial se conserva y consulta fuera de la ventana editable. Las páginas muestran 14 fechas e incluyen los límites semanales necesarios en consultas acotadas a 31 fechas. Antes del inicio, futuro y días no programados no admiten escrituras; hoy y siete fechas previas sí, cuando son elegibles.
+El historial se conserva y consulta fuera de la ventana editable. El detalle ofrece semana, mes, tres meses y año; el historial desplegado pagina 14 fechas. Las ventanas incluyen semanas completas y se leen en bloques de hasta 28 fechas, dentro del límite de 31 del adaptador. Un solo hábito admite hasta 378 fechas para cubrir un año bisiesto y sus semanas de borde; los mapas de varios hábitos conservan el máximo de 112 fechas. Antes del inicio, futuro y días no programados no admiten escrituras; hoy y siete fechas previas sí, cuando son elegibles.
 
 ## Presentación y verificación
 

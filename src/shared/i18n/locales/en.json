@@ -242,7 +242,30 @@
     "trackedCount_other": "{{value}} habits tracked",
     "pageHabitCount_one": "{{value}} habit on this page",
     "pageHabitCount_other": "{{value}} habits on this page",
-    "accountDate": "Today: {{date}} · {{zone}}"
+    "accountDate": "Today: {{date}} · {{zone}}",
+    "detail": {
+      "title": "Habit details",
+      "active": "Active",
+      "period": "Activity period",
+      "periods": {
+        "week": "Week",
+        "month": "Month",
+        "quarter": "3 months",
+        "year": "Year"
+      },
+      "map": "Activity map",
+      "range": "{{from}} – {{to}}",
+      "previousPeriod": "Previous period",
+      "nextPeriod": "Next period",
+      "mapDescription": "Activity of {{name}}, from {{from}} to {{to}}. Use the date controls or history to inspect individual records. Scroll horizontally for the full map.",
+      "inspectRecord": "View or correct record",
+      "recentHistory": "Recent history",
+      "showAll": "View all dates",
+      "showRecent": "Recent records",
+      "empty": "No records in this period. Use the date controls to inspect a day.",
+      "updated": "Updated {{value}}",
+      "fixedConfiguration": "Name, goal and frequency are fixed. Eligible records can be corrected for today and the previous seven days."
+    }
   },
   "preferences": {
     "title": "Preferences",

@@ -148,7 +148,7 @@ describe('daily and historical habit views', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Close' }));
     expect(screen.queryByLabelText('Amount')).not.toBeOnTheScreen();
   });
-  it('allows inspecting an older window but keeps its records read-only', async () => {
+  it('opens the full detail at the selected historical window', async () => {
     await open((repository) =>
       repository.list.mockResolvedValue({
         habits: [{ ...habit, startDate: '2026-01-01' }],
@@ -163,11 +163,10 @@ describe('daily and historical habit views', () => {
         name: 'Inspect the history of Synthetic reading',
       }),
     );
-    await screen.findByText(
-      'Read only. New records and corrections require an eligible date from today or the previous seven days.',
-    );
-    expect(screen.getByRole('button', { name: 'Set total' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Next date' })).toBeDisabled();
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: '/habits/[id]',
+      params: { id: habit.id, date: '2026-07-05' },
+    });
   });
   it('shows a confirmed empty state without requesting day records', async () => {
     const { repository } = await open((value) =>

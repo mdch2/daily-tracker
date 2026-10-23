@@ -242,7 +242,30 @@
     "trackedCount_other": "{{value}} hábitos en seguimiento",
     "pageHabitCount_one": "{{value}} hábito en esta página",
     "pageHabitCount_other": "{{value}} hábitos en esta página",
-    "accountDate": "Hoy: {{date}} · {{zone}}"
+    "accountDate": "Hoy: {{date}} · {{zone}}",
+    "detail": {
+      "title": "Detalle del hábito",
+      "active": "Activo",
+      "period": "Período de actividad",
+      "periods": {
+        "week": "Semana",
+        "month": "Mes",
+        "quarter": "3 meses",
+        "year": "Año"
+      },
+      "map": "Mapa de actividad",
+      "range": "{{from}} – {{to}}",
+      "previousPeriod": "Período anterior",
+      "nextPeriod": "Período siguiente",
+      "mapDescription": "Actividad de {{name}}, del {{from}} al {{to}}. Usa los controles de fecha o el historial para consultar cada registro. Desliza horizontalmente para ver todo el mapa.",
+      "inspectRecord": "Consultar o corregir registro",
+      "recentHistory": "Historial reciente",
+      "showAll": "Ver todas las fechas",
+      "showRecent": "Registros recientes",
+      "empty": "No hay registros en este período. Usa los controles de fecha para consultar un día.",
+      "updated": "Actualizado el {{value}}",
+      "fixedConfiguration": "El nombre, la meta y la frecuencia son fijos. Puedes corregir registros de fechas elegibles de hoy y los siete días anteriores."
+    }
   },
   "preferences": {
     "title": "Preferencias",
