@@ -26,6 +26,6 @@ El historial se conserva y consulta fuera de la ventana editable. Las páginas m
 
 ## Presentación y verificación
 
-Pantallas provisionales con componentes existentes, catálogos centrales es/en, formateadores Intl y tokens light/dark/system. Preferencias disponibles sin abandonar el formulario. Sin dependencias nuevas, almacenamiento offline, guest mode ni identidad visual definitiva.
+Creación y listado adaptados a las referencias de Stitch, con catálogos centrales es/en, formateadores Intl y tokens light/dark/system. El listado alterna tarjetas diarias y mapas de 16 semanas con inspección accesible de fechas; consulta por bloques de hasta 28 fechas y reutiliza el editor confirmado. Las preferencias de la sesión se concentran en Más. Véase [diseño de hábitos](../design/habits.md). Sin dependencias nuevas, almacenamiento offline, guest mode ni identidad visual definitiva.
 
 Pruebas: reglas puras, validación, adaptadores, creación, reintentos, conflictos, lectura fallida, calendario explícito, conservación de borradores y rutas protegidas. Las pruebas PostgreSQL reales, la cadena incremental y la concurrencia viven solo en backend. Los resultados ejecutados y límites de revisión nativa se registran en [validation.md](validation.md).

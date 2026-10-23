@@ -67,7 +67,10 @@ export function HabitDayEditor({
     try {
       const rows = await refresh();
       if (!mounted.current) return;
-      setBaseRevision(rows.find((row) => row.date === date)?.revision ?? 0);
+      setBaseRevision(
+        rows.find((row) => row.habitId === habit.id && row.date === date)
+          ?.revision ?? 0,
+      );
       setReviewRequired(false);
       setError(null);
       setNotice('reviewed');
@@ -119,7 +122,10 @@ export function HabitDayEditor({
       try {
         const rows = await refresh();
         if (mounted.current) {
-          setBaseRevision(rows.find((row) => row.date === date)?.revision ?? 0);
+          setBaseRevision(
+            rows.find((row) => row.habitId === habit.id && row.date === date)
+              ?.revision ?? 0,
+          );
           setReviewRequired(false);
         }
       } catch {

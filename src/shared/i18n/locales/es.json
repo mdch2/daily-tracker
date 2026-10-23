@@ -208,7 +208,41 @@
       "5": "V",
       "6": "S",
       "7": "D"
-    }
+    },
+    "myHabits": "Mis hábitos",
+    "compactWeekProgress": "Semana flexible · {{days}} / {{target}} días",
+    "new": "Nuevo",
+    "views": {
+      "daily": "Vista diaria",
+      "history": "Vista histórica"
+    },
+    "all": "Todos",
+    "filterEmpty": "No hay hábitos de este tipo en esta página.",
+    "dailyMinimum": "Meta: {{value}} {{unit}} / día",
+    "todayStatus": "Hoy · {{status}}",
+    "recordedAmount": "Registrado: {{value}} {{unit}}",
+    "currentUnavailable": "Estado actual no disponible.",
+    "inspect": "Inspeccionar el historial de {{name}}",
+    "recordToday": "Registrar hoy en {{name}}",
+    "inspectHint": "Toca un hábito para consultar cada fecha de su historial. El botón lateral abre el registro de hoy.",
+    "mapRange": "16 semanas · {{from}} – {{to}}",
+    "mapDescription": "Historial de {{name}}, del {{from}} al {{to}}. Consulta cada fecha desde el nombre del hábito.",
+    "mapUnavailable": "No se pudo cargar el mapa. Reintenta para consultar sus estados.",
+    "previousDay": "Fecha anterior",
+    "nextDay": "Fecha siguiente",
+    "legend": {
+      "completed": "Cumplido",
+      "partial": "Parcial",
+      "pending": "Sin cumplimiento",
+      "missed": "No cumplido",
+      "notScheduled": "No programado / sin comenzar",
+      "future": "Futuro"
+    },
+    "trackedCount_one": "{{value}} hábito en seguimiento",
+    "trackedCount_other": "{{value}} hábitos en seguimiento",
+    "pageHabitCount_one": "{{value}} hábito en esta página",
+    "pageHabitCount_other": "{{value}} hábitos en esta página",
+    "accountDate": "Hoy: {{date}} · {{zone}}"
   },
   "preferences": {
     "title": "Preferencias",

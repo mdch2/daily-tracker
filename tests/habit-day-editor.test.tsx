@@ -130,4 +130,26 @@ describe('confirmed habit editing', () => {
     ).toBeDisabled();
     expect(repository.record).not.toHaveBeenCalled();
   });
+  it('uses the revision for this habit when a refresh contains other habits on the same date', async () => {
+    const { refresh, repository } = await open();
+    refresh.mockResolvedValueOnce([
+      {
+        ...day('2026-10-21', 9000, 19),
+        habitId: '31000000-0000-4000-8000-000000000099',
+      },
+      day('2026-10-21', 20000, 4),
+    ]);
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Reload current state' }),
+    );
+    await screen.findByText(
+      'Current state loaded. Review it and confirm your correction again.',
+    );
+    await fireEvent.changeText(screen.getByLabelText('Amount'), '25');
+    await fireEvent.press(screen.getByRole('button', { name: 'Set total' }));
+    await waitFor(() => expect(repository.record).toHaveBeenCalledTimes(1));
+    expect(repository.record.mock.calls[0]?.[0]).toMatchObject({
+      expectedRevision: 4,
+    });
+  });
 });
