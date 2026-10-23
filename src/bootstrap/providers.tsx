@@ -10,6 +10,8 @@ import {
 } from '@/infrastructure/supabase/client';
 import { createAuthRepository } from '@/features/auth/infrastructure/supabase-auth-repository';
 import { createProfileRepository } from '@/features/profile/infrastructure/supabase-profile-repository';
+import { createHabitRepository } from '@/features/habits/infrastructure/supabase-habit-repository';
+import { HabitRepositoryContext } from '@/features/habits/presentation/habit-context';
 import { AuthProvider } from '@/features/auth/presentation/auth-provider';
 import { ProfileRepositoryContext } from '@/features/profile/presentation/profile-context';
 import { Screen, Text } from '@/shared/ui/primitives';
@@ -27,6 +29,7 @@ function createRuntime() {
     client,
     auth: createAuthRepository(client),
     profiles: createProfileRepository(client),
+    habits: createHabitRepository(client),
   };
 }
 function BackendProvider({ children }: PropsWithChildren) {
@@ -39,7 +42,9 @@ function BackendProvider({ children }: PropsWithChildren) {
   return runtime ? (
     <AuthProvider repository={runtime.auth}>
       <ProfileRepositoryContext.Provider value={runtime.profiles}>
-        {children}
+        <HabitRepositoryContext.Provider value={runtime.habits}>
+          {children}
+        </HabitRepositoryContext.Provider>
       </ProfileRepositoryContext.Provider>
     </AuthProvider>
   ) : (

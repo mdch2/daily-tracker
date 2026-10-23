@@ -1,5 +1,6 @@
 import type { BackendClient } from '@/infrastructure/supabase/client';
 import type { AuthRepository } from '../domain/auth-repository';
+import { mapAuthError } from './auth-error';
 
 export function createAuthRepository(client: BackendClient): AuthRepository {
   const redirectUrl = 'dailytracker://callback';
@@ -21,20 +22,14 @@ export function createAuthRepository(client: BackendClient): AuthRepository {
     },
     async signIn(credentials) {
       const { error } = await client.auth.signInWithPassword(credentials);
-      if (error)
-        throw new Error(
-          'No se pudo iniciar sesión. Revisa tus datos y la conexión.',
-        );
+      if (error) throw mapAuthError(error);
     },
     async signUp(credentials) {
       const { data, error } = await client.auth.signUp({
         ...credentials,
         options: { emailRedirectTo: redirectUrl },
       });
-      if (error)
-        throw new Error(
-          'No se pudo crear la cuenta. Revisa tus datos e inténtalo de nuevo.',
-        );
+      if (error) throw mapAuthError(error);
       return { confirmationRequired: data.session === null };
     },
     async signOut() {
@@ -46,10 +41,7 @@ export function createAuthRepository(client: BackendClient): AuthRepository {
       const { error } = await client.auth.resetPasswordForEmail(email, {
         redirectTo: `${redirectUrl}?mode=recovery`,
       });
-      if (error)
-        throw new Error(
-          'No se pudo solicitar el enlace. Revisa la conexión e inténtalo de nuevo.',
-        );
+      if (error) throw mapAuthError(error);
     },
     async completeRedirect(code) {
       const { error } = await client.auth.exchangeCodeForSession(code);
@@ -60,10 +52,7 @@ export function createAuthRepository(client: BackendClient): AuthRepository {
     },
     async updatePassword(password) {
       const { error } = await client.auth.updateUser({ password });
-      if (error)
-        throw new Error(
-          'No se pudo cambiar la contraseña. Vuelve a intentarlo.',
-        );
+      if (error) throw mapAuthError(error);
     },
   };
 }

@@ -1,9 +1,37 @@
-# Verificación de la base técnica
+# Verificación
+
+## Hábitos v1: 22 de octubre de 2026
+
+- `pnpm check`: correcto, **141 pruebas en 19 suites**, límites de repositorio, lint sin warnings, formato y TypeScript. Incluye reglas de las tres frecuencias, cantidades exactas, cierre de períodos, semana parcial, correcciones, adaptadores, reintentos, conflictos, calendario explícito, conservación de entradas, rutas protegidas y regresiones de Auth/preferencias.
+- Backend: migración incremental 20261021000100 aplicada solo en PostgreSQL local, sin resetear sus datos. `pnpm db:test`: **165 comprobaciones pgTAP correctas**; lint SQL sin errores. `pnpm db:test:auth` correcto, con eliminación de su usuario/perfil sintéticos.
+- `pnpm db:test:habits:isolated`: cadena completa de migraciones de aplicación, conservación de un perfil previo, pgTAP y dos conexiones concurrentes correctos. Se usa una base temporal con tabla Auth mínima sintética y la función auth.uid instalada; no equivale a recrear todo Supabase Auth. Solo esa base temporal se elimina al terminar.
+- Tipos generados en backend desde PostgreSQL y después importados con `pnpm db:types` del móvil. El generador elimina espacio final de CLI, sin edición manual del artefacto. SHA-256 coincidente en ambos repositorios: `C03E38BB45E4E190967CA95DA6B835E6FDF2D18C99B96A6A96FDAF7E4FD74A72`.
+- Exportación Hermes Android/iOS correcta con dos workers. No sustituye builds de distribución ni pruebas en dispositivos iOS.
+- `pnpm exec expo install --check --pnpm` devuelve advertencias de parches pendientes para expo, expo-constants, expo-linking, expo-localization, expo-router, expo-status-bar y jest-expo. Se conservan las versiones y el lockfile de la tarea; no se afirma compatibilidad completamente limpia ni se actualizan dependencias ajenas al módulo.
+- Revisión con Computer Use en el emulador Android API 37 abierto por el usuario y Supabase local: calendario America/Bogota/lunes confirmado por elección explícita del usuario; listado vacío, creación binaria, marcar y desmarcar con guardado confirmado y actualización del listado correctos. La sesión existente se conserva.
+- Recorrido cuantitativo semanal real: mínimo de 500 ml y meta de tres días; dos aportes de 250 dejaron 500 ml y 1/3 días. Fijar el total en 100 dejó 100 ml y 0/3, conservando una sola fecha y tres comprobantes en PostgreSQL. La primera semana parcial muestra progreso informativo. Se revisaron es/en y claro/oscuro/sistema; cambiar idioma y tema conservó el formulario antes de crear.
+- Limpieza de QA: se retiraron exclusivamente los dos hábitos sintéticos creados en el recorrido, sus dos estados diarios, dos definiciones y cinco comprobantes, verificando sus identidades antes de la transacción. No se eliminó la cuenta ni se cambió el calendario elegido. Idioma y tema se restauraron a sistema, como estaban al comenzar.
+- Sin despliegues remotos, dependencias nuevas, SQL en móvil ni alteración deliberada de los cambios previos de Auth/documentación. No se verificaron iOS físico, lector de pantalla, texto ampliado, cambios reales de zona/DST mediante el reloj del dispositivo ni distribución en tiendas; las fronteras temporales se cubren con reloj/fechas explícitos en las pruebas.
+
+Los resultados de las secciones siguientes son históricos. Los bloqueos iniciales de Docker, PostgreSQL y snapshot manual ya no describen el estado actual.
+
+## Historial de la base técnica
 
 Fecha: 2026-10-16. Entorno Windows, Node 22.14.0, pnpm 10.28.2, Supabase CLI 2.75.0.
 Las herramientas Node se ejecutaron fuera del sandbox porque el runtime y el almacén pnpm no eran accesibles dentro. No se cambió el Node global ni se instaló Python en el sistema.
 
 Los resultados de la configuración inicial se conservan como historial. Tras ADR-004, los comandos de administración y pruebas SQL pertenecen al repositorio backend; pnpm db:types del móvil ahora importa un artefacto, no ejecuta el generador.
+
+## Corrección del registro: 21 de octubre de 2026
+
+- Causas comprobadas: `.env` local usa `127.0.0.1` y el emulador solo tenía reenviado Metro (8081), sin Supabase (54321); Auth exigía 12 caracteres mientras el formulario admitía 8. Se reprodujo `422 weak_password` con 8 caracteres contra el servicio local.
+- Se conserva `127.0.0.1` por preferencia del usuario y se habilitó `adb reverse tcp:54321 tcp:54321`. El reenvío debe repetirse tras perder la conexión ADB. El mínimo local de Auth quedó en 8 con autorización explícita; `pnpm db:restart` aplicó la configuración conservando datos. No se modificaron esquema ni permisos.
+- El cliente completa las capacidades nativas necesarias para PKCE S256 mediante `expo-crypto`, sin dependencia nueva. Los errores conocidos se traducen en es/en sin exponer mensajes del servidor; el formulario conserva los campos y permite reintentar.
+- `pnpm check`: correcto, **85 pruebas en 13 suites**, límites, lint, formato y TypeScript. Incluye vector RFC 7636, petición PKCE del SDK, clasificación segura de errores, reintentos, idiomas y temas. La primera ejecución tuvo timeouts; se aisló el mock de registro y el check completo posterior pasó.
+- Backend: `pnpm db:test:auth --email user1-test@gmail.com` correcto: registro, correo al buzón local, confirmación, intercambio S256 y lectura del perfil autenticado. La prueba eliminó su cuenta y correo; rechaza reutilizar una cuenta existente. `pnpm db:test`: **65 pruebas pgTAP correctas**; lint SQL sin errores.
+- Exportación Hermes de Android/iOS correcta fuera del sandbox con dos workers. El primer intento dentro del sandbox terminó con código 6 del compilador. Compatibilidad Expo comprobada con su matriz local; la consulta online no estuvo disponible.
+- Recorrido real en development build Android: registro de `user1-test@gmail.com` con 8 caracteres, pantalla de confirmación, enlace desde el buzón local abierto en el dispositivo de origen, intercambio PKCE y dashboard con sesión iniciada. Se usó `127.0.0.1` con ADB reverse. Se cerró la sesión y se eliminaron la cuenta, su perfil y el correo de prueba; la app volvió al inicio de sesión.
+- Las pruebas de SDK usan un adaptador criptográfico nativo simulado. No se comprobaron dispositivos iOS, SMTP remoto ni un proyecto alojado.
 
 ## Actualización: reglas permanentes de repositorios, i18n y temas
 

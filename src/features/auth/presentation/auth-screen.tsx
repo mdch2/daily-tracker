@@ -18,6 +18,14 @@ import {
 } from '../application/auth-validation';
 import { useAuth } from './auth-provider';
 import { AuthFrame } from './auth-frame';
+import { AuthError, type AuthErrorCode } from '../domain/auth-error';
+
+const errorMessages = {
+  network: 'errors.authNetwork',
+  passwordPolicy: 'errors.passwordPolicy',
+  rateLimit: 'errors.authRateLimit',
+  operation: 'errors.operation',
+} as const;
 
 type Mode = 'sign-in' | 'sign-up' | 'reset-password' | 'update-password';
 const content = {
@@ -51,7 +59,7 @@ export function AuthScreen({ mode }: { mode: Mode }) {
   const { t } = useTranslation();
   const { colors, tokens } = useTheme();
   const { actions, finishRecovery } = useAuth();
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<AuthErrorCode | null>(null);
   const [notice, setNotice] = useState<
     'auth.confirmEmail' | 'auth.resetSent' | null
   >(null);
@@ -82,7 +90,7 @@ export function AuthScreen({ mode }: { mode: Mode }) {
       await handleSubmit(
         async (values) => {
           Keyboard.dismiss();
-          setError(false);
+          setError(null);
           setNotice(null);
           try {
             if (mode === 'sign-in') await actions.signIn(values);
@@ -98,8 +106,8 @@ export function AuthScreen({ mode }: { mode: Mode }) {
               await actions.updatePassword(values);
               finishRecovery();
             }
-          } catch {
-            setError(true);
+          } catch (failure) {
+            setError(failure instanceof AuthError ? failure.code : 'operation');
           }
         },
         (invalid) => {
@@ -260,7 +268,7 @@ export function AuthScreen({ mode }: { mode: Mode }) {
                 }}
               >
                 <Icon name="alert-circle" color={colors.error} size={20} />
-                <ErrorMessage message={t('errors.operation')} />
+                <ErrorMessage message={t(errorMessages[error])} />
               </View>
             )}
             <Button

@@ -2,7 +2,7 @@
 
 Mobile MVP foundation for iOS and Android. The name is provisional; no final commercial brand identity has been established.
 
-This release establishes navigation, authentication, and the technical profile foundation. It does not implement habits, routines, goals, calendar, statistics, or journaling.
+This release includes navigation, authentication, profiles and the first habit recording flow: binary/quantity habits, three frequencies, explicit account calendar and seven-day corrections. Routines, goals, full calendar/statistics, journaling, pauses and streaks remain deferred. See [habit contracts](docs/architecture/habits.md).
 
 ## Requirements
 
@@ -55,9 +55,11 @@ pnpm db:types C:\path\to\daily-tracker-supabase\types\database.types.ts
 ```
 
 The mobile command only imports the generated artifact; it does not run Supabase CLI or manage PostgreSQL. It preserves the previous file if the artifact is unavailable.
-The existing file remains explicitly marked as a historical manual snapshot until PostgreSQL is available for the first real generation.
+The current artifact is generated from the local backend PostgreSQL schema and imported without manual edits. Earlier manual-snapshot limitations remain documented as historical evidence.
 
 For the Android emulator, use http://10.0.2.2:54321 for a local service. For iOS simulator, use http://127.0.0.1:54321. Physical devices require accessible HTTPS.
+Android's `127.0.0.1` points to the emulator itself. If you keep that URL, run `adb reverse tcp:54321 tcp:54321` after connecting the device; Metro's port forwarding only covers its own port. Restart Expo and reload the app after changing `.env`.
+After editing the backend Auth configuration, run `pnpm db:restart` in the backend checkout to apply it while preserving local data. Its `pnpm db:test:auth` verifies registration, confirmation email and S256 PKCE against the local services with disposable synthetic data. A database reset is unnecessary for Auth configuration changes.
 Backend Email, SMTP and redirect configuration belongs to the backend repository. The client uses dailytracker://callback and dailytracker://callback?mode=recovery; PKCE links must open on the device that initiated the request, using a development build.
 See [repository boundaries](docs/architecture/repository-boundaries.md) and [client integration](docs/architecture/supabase.md).
 
@@ -98,6 +100,7 @@ src/
   features/
     auth/              # Domain, application, infrastructure, presentation
     profile/           # Contract, adapter, and context consumed by dashboard
+    habits/            # Habit rules, recording actions, Supabase adapter and screens
     dashboard/         # Initial technical screen
   infrastructure/
     supabase/          # Client, SecureStore, and database types

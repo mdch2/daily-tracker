@@ -6,8 +6,10 @@ import { AppState } from 'react-native';
 import type { Environment } from '@/shared/config/environment';
 import { createChunkedStorage } from './chunked-storage';
 import type { Database } from './database.types';
+import { installAuthCrypto } from './auth-crypto';
 
 export function createSupabaseClient(environment: Environment) {
+  installAuthCrypto();
   const storage = createChunkedStorage(
     {
       getItem: (key) => SecureStore.getItemAsync(key),

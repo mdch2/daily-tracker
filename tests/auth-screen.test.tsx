@@ -3,6 +3,7 @@ import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { AuthScreen } from '@/features/auth/presentation/auth-screen';
 import { createAuthActions } from '@/features/auth/application/auth-validation';
 import type { AuthRepository } from '@/features/auth/domain/auth-repository';
+import { AuthError } from '@/features/auth/domain/auth-error';
 
 const mockRepository: AuthRepository = {
   getSession: jest.fn(),
@@ -24,6 +25,74 @@ jest.mock('@/features/auth/presentation/auth-provider', () => ({
 }));
 
 describe('sign-in form', () => {
+  beforeEach(() => {
+    jest.mocked(mockRepository.signUp).mockReset();
+  });
+  it.each([
+    [
+      'es',
+      'light',
+      'network',
+      'No se pudo conectar. Revisa tu conexión a internet e inténtalo de nuevo.',
+    ],
+    [
+      'en',
+      'dark',
+      'network',
+      'Could not connect. Check your internet connection and try again.',
+    ],
+    [
+      'es',
+      'dark',
+      'passwordPolicy',
+      'Esta contraseña no cumple los requisitos de seguridad del servicio. Elige una contraseña más larga y única e inténtalo de nuevo.',
+    ],
+    [
+      'en',
+      'system',
+      'rateLimit',
+      'Too many requests. Wait a few minutes and try again.',
+    ],
+  ] as const)(
+    'preserves sign-up input and permits retry after %s/%s/%s',
+    async (language, theme, code, message) => {
+      jest
+        .mocked(mockRepository.signUp)
+        .mockRejectedValueOnce(new AuthError(code))
+        .mockResolvedValueOnce({ confirmationRequired: true });
+      await render(<AuthScreen mode="sign-up" />, { language, theme });
+      const emailLabel =
+        language === 'es' ? 'Correo electrónico' : 'Email address';
+      const passwordLabel =
+        language === 'es' ? 'Nueva contraseña' : 'New password';
+      const title = language === 'es' ? 'Crear cuenta' : 'Create account';
+      await fireEvent.changeText(
+        screen.getByLabelText(emailLabel),
+        'user@example.test',
+      );
+      await fireEvent.changeText(
+        screen.getByLabelText(passwordLabel),
+        'Test123!',
+      );
+      await fireEvent.press(screen.getByRole('button', { name: title }));
+      expect(await screen.findByText(message)).toBeOnTheScreen();
+      expect(screen.getByDisplayValue('user@example.test')).toBeOnTheScreen();
+      expect(screen.getByDisplayValue('Test123!')).toBeOnTheScreen();
+      expect(
+        screen.queryByText(
+          language === 'es' ? 'Revisa tu correo.' : 'Check your email.',
+        ),
+      ).not.toBeOnTheScreen();
+      await fireEvent.press(screen.getByRole('button', { name: title }));
+      expect(
+        await screen.findByRole('header', {
+          name: language === 'es' ? 'Revisa tu correo.' : 'Check your email.',
+        }),
+      ).toBeOnTheScreen();
+    },
+    15000,
+  );
+
   it.each([
     [
       'es',

@@ -1,6 +1,6 @@
 # Arquitectura de Daily Tracker
 
-Estado: fundamentos implementados. Feature-First + Clean Architecture pragmática + monolito modular móvil.
+Estado: fundamentos y [primera entrega de hábitos](habits.md) implementados. Feature-First + Clean Architecture pragmática + monolito modular móvil.
 La separación se aplica donde existe una responsabilidad, sin generar cuatro carpetas por cada módulo previsto.
 
 ## Requisitos permanentes

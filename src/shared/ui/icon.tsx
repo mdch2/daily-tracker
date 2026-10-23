@@ -11,7 +11,7 @@ export function Icon({
 }: {
   name: IconName;
   size?: number;
-  color?: string;
+  color?: ComponentProps<typeof Feather>['color'];
 }) {
   const { colors } = useTheme();
   return (

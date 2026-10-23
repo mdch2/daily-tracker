@@ -28,6 +28,9 @@ async function openApp(initialUrl: string) {
         '(auth)/sign-up': () => <Text>Sign up screen</Text>,
         '(auth)/reset-password': () => <Text>Reset password screen</Text>,
         '(tabs)/index': () => <Text>Dashboard screen</Text>,
+        '(tabs)/habits': () => <Text>Habits screen</Text>,
+        'habits/new': () => <Text>Create habit screen</Text>,
+        'habits/[id]': () => <Text>Habit detail screen</Text>,
         'update-password': () => <Text>Update password screen</Text>,
         callback: () => <Text>Callback screen</Text>,
       },
@@ -58,6 +61,23 @@ describe('startup navigation', () => {
     expect(screen.getByText('Dashboard screen')).toBeOnTheScreen();
     expect(view.getPathname()).toBe('/');
   });
+
+  it.each(['/habits', '/habits/new', '/habits/synthetic-id'])(
+    'protects the habit route %s without a session',
+    async (url) => {
+      const view = await openApp(url);
+      expect(screen.getByText('Sign in screen')).toBeOnTheScreen();
+      expect(view.getPathname()).toBe('/sign-in');
+    },
+    15000,
+  );
+
+  it('opens habit detail for an authenticated deep link', async () => {
+    mockSession = { userId: 'synthetic-user' };
+    const view = await openApp('/habits/synthetic-id');
+    expect(screen.getByText('Habit detail screen')).toBeOnTheScreen();
+    expect(view.getPathname()).toBe('/habits/synthetic-id');
+  }, 15000);
 
   it('opens password recovery instead of the dashboard during recovery', async () => {
     mockSession = { userId: 'synthetic-user' };

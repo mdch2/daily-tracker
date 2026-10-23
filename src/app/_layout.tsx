@@ -42,6 +42,7 @@ function RootNavigator() {
           redirectTo={fallbackRoute}
         >
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="habits" />
         </Stack.Protected>
         <Stack.Screen name="callback" />
       </Stack>
