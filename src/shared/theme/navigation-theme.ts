@@ -11,7 +11,7 @@ export function createNavigationTheme(
     dark: mode === 'dark',
     colors: {
       ...base.colors,
-      primary: colors.action,
+      primary: colors.link,
       background: colors.background,
       card: colors.surface,
       text: colors.text,

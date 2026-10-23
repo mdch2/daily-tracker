@@ -4,7 +4,7 @@
 
 Aplicación móvil MVP para iOS/Android, nombre comercial provisional. Stack y base técnica implementados; módulos de hábitos, rutinas, objetivos, calendario, estadísticas y diario todavía pendientes. Documentación en español; código e identificadores en inglés.
 
-Lee [README.md](README.md), [arquitectura](docs/architecture/README.md) y [decisiones pendientes](docs/decisiones-pendientes.md) antes de modificar contratos. No implementes módulos completos ni una identidad visual sin una tarea y referencias que los autoricen. El acceso sin registro sigue abierto; la autenticación actual es un recorrido técnico provisional.
+Lee [README.md](README.md), [arquitectura](docs/architecture/README.md) y [decisiones pendientes](docs/decisiones-pendientes.md) antes de modificar contratos. No implementes módulos completos ni una identidad visual sin una tarea y referencias que los autoricen. El MVP requiere cuenta y no incluye modo invitado, según [ADR-005](docs/architecture/adr/005-mvp-account-required.md); la presentación actual de autenticación sigue siendo provisional.
 
 ## Stack y comandos
 

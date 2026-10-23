@@ -20,17 +20,29 @@ function RootNavigator() {
         <Button title={t('common.retry')} onPress={retry} />
       </Screen>
     );
+  const fallbackRoute = !state.session
+    ? '/sign-in'
+    : state.recovery
+      ? '/update-password'
+      : '/';
   return (
     <>
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Protected guard={!state.session}>
+        <Stack.Protected guard={!state.session} redirectTo={fallbackRoute}>
           <Stack.Screen name="(auth)" />
         </Stack.Protected>
-        <Stack.Protected guard={!!state.session && state.recovery}>
+        <Stack.Protected
+          guard={!!state.session && state.recovery}
+          redirectTo={fallbackRoute}
+        >
           <Stack.Screen name="update-password" />
         </Stack.Protected>
-        <Stack.Protected guard={!!state.session && !state.recovery}>
+        <Stack.Protected
+          guard={!!state.session && !state.recovery}
+          redirectTo={fallbackRoute}
+        >
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="habits" />
         </Stack.Protected>
         <Stack.Screen name="callback" />
       </Stack>

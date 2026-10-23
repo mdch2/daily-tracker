@@ -9,11 +9,14 @@ Las pruebas están en tests y se aceptan también archivos *.test.ts(x) junto al
 La cobertura inicial comprueba configuración inválida/clave privilegiada, validación antes del backend, compatibilidad con contraseñas existentes, propagación de errores, conservación del formulario, recuperación de controles y atomicidad/Unicode/concurrencia del almacenamiento seguro.
 No se agregan pruebas de rachas ni porcentajes que aún no existen.
 
+La primera entrega de [hábitos](habits.md) incorpora reglas puras con fecha explícita, límites de cantidades, validación de las seis combinaciones, adaptación de filas/RPC, reintentos de identidad estable, conflictos, conservación de entradas, formulario de creación, calendario sin valores implícitos y protección de rutas. Una prueba de UI conserva el borrador ante un fallo del refresco de contexto; otra distingue guardado confirmado de refresco fallido. La concurrencia y autorización se verifican en PostgreSQL real exclusivamente en backend.
+
 ## Integración real
 
 Solo en daily-tracker-supabase, su comando pnpm db:test ejecuta pgTAP sobre PostgreSQL local migrado. El móvil no contiene SQL ni ejecuta pruebas de infraestructura. Las pruebas transaccionales crean dos usuarios sintéticos y revierten todo.
 Comprueban creación de perfiles desde Auth, RLS activada, lectura por dueño, invisibilidad ajena, actualización permitida, escritura cruzada sin efecto, rechazo de INSERT/DELETE/cambio de propietario/timestamps, zona inválida y acceso anónimo.
 El proveedor de autenticación del cliente puede simularse en pruebas de UI; esa simulación no demuestra seguridad de base de datos.
+El backend dispone además de `pnpm db:test:auth`: verifica el mínimo de contraseña, el envío real al buzón local, confirmación, callback, intercambio PKCE S256 y perfil mediante REST autenticado; elimina su usuario y mensaje sintéticos al terminar. En móvil, `auth-crypto.test.ts` verifica el vector RFC 7636 y el desafío enviado por el SDK con el adaptador nativo simulado; las pruebas de repositorio/UI cubren los errores seguros y el reintento sin perder entradas.
 
 Antes de cada módulo: pruebas unitarias de reglas, integración de repositorios y contratos SQL pertinentes.
 Para hábitos, fijar reloj, fecha de negocio, zona IANA y programación efectiva antes de verificar rachas; incluir medianoche y horario de verano cuando corresponda.

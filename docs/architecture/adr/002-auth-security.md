@@ -1,6 +1,6 @@
 # ADR-002: autenticación técnica y aislamiento
 
-- Estado: aceptada para la base; onboarding comercial pendiente. Ubicación de SQL actualizada por [ADR-004](004-permanent-foundations.md): exclusivamente repositorio backend.
+- Estado: aceptada para la base; onboarding comercial pendiente. Ubicación de SQL actualizada por [ADR-004](004-permanent-foundations.md): exclusivamente repositorio backend. Acceso al MVP definido por [ADR-005](005-mvp-account-required.md): cuenta obligatoria, sin modo invitado.
 - Fecha: 2026-10-16.
 
 ## Contexto

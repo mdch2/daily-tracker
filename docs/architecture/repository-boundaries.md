@@ -37,7 +37,11 @@ Los comandos db:start, db:reset y db:test se retiraron del móvil y están en ba
 
 pnpm check:boundaries, incluido en pnpm check, rechaza SQL y directorios de infraestructura backend en el móvil. Los imports relativos y la procedencia de los tipos requieren además revisión de arquitectura.
 
-## Límite de verificación actual
+## Estado de verificación: 22 de octubre de 2026
+
+PostgreSQL local está disponible. La migración incremental de hábitos se aplicó en backend; sus pruebas pgTAP, reproducción de migraciones de aplicación y concurrencia se ejecutaron allí. Se generaron tipos con su comando y se importaron en móvil, con igualdad del artefacto. No se aplicaron cambios remotos. El detalle de evidencia está en [validation.md](validation.md).
+
+## Historial: límite durante la separación inicial
 
 Docker no responde. No se aplicaron migraciones ni se generaron tipos desde PostgreSQL.
 El archivo database.types.ts preexistente sigue identificado como **snapshot manual histórico** para conservar la compatibilidad del cliente; no se ha presentado como generado ni ampliado. Su sustitución por el primer artefacto real del backend es una deuda explícita bloqueada por PostgreSQL, no una autorización para editar tipos a mano en futuras tareas.

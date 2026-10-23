@@ -6,10 +6,7 @@
     "version": "0.1.0",
     "orientation": "default",
     "userInterfaceStyle": "automatic",
-    "platforms": [
-      "ios",
-      "android"
-    ],
+    "platforms": ["ios", "android"],
     "plugins": [
       "expo-router",
       "expo-secure-store",
@@ -28,12 +25,10 @@
         "expo-localization",
         {
           "supportsRTL": false,
-          "supportedLocales": [
-            "en",
-            "es"
-          ]
+          "supportedLocales": ["en", "es"]
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true

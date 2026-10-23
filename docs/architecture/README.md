@@ -1,6 +1,6 @@
 # Arquitectura de Daily Tracker
 
-Estado: fundamentos implementados. Feature-First + Clean Architecture pragmática + monolito modular móvil.
+Estado: fundamentos y [primera entrega de hábitos](habits.md) implementados. Feature-First + Clean Architecture pragmática + monolito modular móvil.
 La separación se aplica donde existe una responsabilidad, sin generar cuatro carpetas por cada módulo previsto.
 
 ## Requisitos permanentes
@@ -56,10 +56,11 @@ Idioma y tema se persisten en SecureStore mediante un store Zustand de preferenc
 
 ## Sistema de diseño provisional
 
-Tokens semánticos claros/oscuros, tipografía de sistema, espaciados, radios, elevación y objetivo táctil mínimo de 48.
-Text, Button, Input, Screen y mensajes de error/carga existen porque el acceso los usa. Los enlaces respetan tema y área táctil.
-Card, Modal, EmptyState, iconografía y sombras de marca se incorporarán al disponer de diseños de Stitch o consumidores reales.
-No hay logotipo, fuentes descargadas ni paleta comercial. Screen integra área segura, scroll y teclado.
+La primera aplicación de Stitch al acceso usa tokens semánticos claros/oscuros, acento verde/lima, superficies carbón y Manrope empaquetada en cuatro pesos. La identidad comercial continúa siendo provisional; el motivo de cuatro bloques del acceso es un recurso visual de la propuesta.
+Text, Button, Input, Screen y mensajes de error/carga existen porque el acceso los usa. Los enlaces respetan tema y área táctil mínima de 48. Input integra foco, icono, ayudas y mostrar/ocultar contraseña.
+El panel modal de preferencias permite cambiar idioma y tema antes del acceso conservando el formulario. Feather proporciona la iconografía de controles, con etiquetas accesibles independientes del glifo.
+expo-font y @expo-google-fonts/manrope cargan los archivos empaquetados sin consultar servicios externos. react-native-web es solo una dependencia de desarrollo para inspección visual; no habilita una plataforma web del producto ni almacenamiento de sesión alternativo. Screen integra área segura, scroll y teclado.
+La referencia, el alcance y las diferencias del mock se documentan en [diseño de autenticación](../design/authentication.md).
 Las rutas se cargan mediante Router; no hay listas ni grandes consultas que optimizar todavía.
 
 ## Fuentes consultadas

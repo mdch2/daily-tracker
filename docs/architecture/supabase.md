@@ -7,6 +7,7 @@ Este documento describe la integración **cliente**. El esquema, SQL, RLS, confi
 Cliente central en src/infrastructure/supabase/client.ts; bootstrap lo instancia solo si hay URL y clave publicable válidas.
 No hay credenciales incluidas. HTTPS obligatorio salvo loopback y 10.0.2.2 del emulador.
 El cliente usa Auth PKCE, persistSession y autoRefreshToken; detectSessionInUrl está deshabilitado.
+Antes de crear el cliente nativo, `auth-crypto.ts` completa las capacidades ausentes de WebCrypto con `expo-crypto`, ya instalado: aleatoriedad segura y `subtle.digest` limitado a SHA-256. Conserva implementaciones existentes y no altera web. Así PKCE usa S256 en Hermes sin degradar a `plain` ni generar verificadores con Math.random. Véase [Expo Crypto](https://docs.expo.dev/versions/v58.0.0/sdk/crypto/).
 No se ha contratado, creado, enlazado ni modificado un proyecto alojado.
 
 En el repositorio backend, config.toml prepara PostgreSQL 17, API solo public, Auth Email y buzón de pruebas local.
@@ -28,8 +29,13 @@ Fallos de borrado se propagan. Nunca registrar payloads, errores de SDK con cont
 ## Registro y recuperación
 
 Registro e inicio de sesión usan acciones con validación Zod, adaptadas por AuthRepository.
-La contraseña nueva requiere 12–128 caracteres; el login permite contraseñas existentes sin imponer retroactivamente esa longitud mínima.
-El backend debe configurar al menos el mismo mínimo. No se alteran contraseñas ni cuentas desde SQL propio.
+La contraseña nueva requiere 8–128 caracteres; el login permite contraseñas existentes sin imponer retroactivamente esa longitud mínima.
+El backend debe configurar también un mínimo de 8 caracteres. No se alteran contraseñas ni cuentas desde SQL propio.
+La configuración local de `daily-tracker-supabase/supabase/config.toml` fija `minimum_password_length = 8`, alineada con el cliente. Tras editar configuración Auth, `pnpm db:restart` en backend detiene e inicia los servicios conservando datos. `db:reset` no es necesario para aplicar esta política; un proyecto alojado necesita su propia configuración autorizada.
+
+En Android, `127.0.0.1` es el propio emulador. Usar `http://10.0.2.2:54321` en `.env` o crear explícitamente `adb reverse tcp:54321 tcp:54321`; el reenvío de Metro no incluye Supabase. Reiniciar Expo y recargar tras cambiar `.env`.
+
+Los errores conocidos de Auth se reducen a códigos de dominio: conexión, política de contraseña, límite de solicitudes y fallo genérico. Presentación los traduce en es/en y conserva las entradas para reintentar. No se exponen mensajes crudos del servidor ni la existencia de una cuenta.
 
 Confirmación y recuperación usan dailytracker://callback, intercambio de code PKCE y una pantalla protegida para actualizar contraseña.
 Permitir también dailytracker://callback?mode=recovery en Supabase Auth.
@@ -46,12 +52,13 @@ La API solo expone public. private no tiene permisos de uso del cliente.
 Las funciones de trigger fijan search_path y revocan EXECUTE público; solo crear perfil requiere SECURITY DEFINER.
 profiles habilita RLS y no concede escritura de id, created_at ni updated_at.
 Una cuenta puede consultar y actualizar su perfil, nunca el de otra. Los roles anon no pueden acceder.
+En hábitos v1, la edición directa del perfil se limita a display_name. El calendario inicial se confirma por RPC; hábitos, definiciones y estados diarios solo conceden lectura propia. Las RPC de escritura de calendario/hábitos necesitan SECURITY DEFINER con search_path vacío y autorización explícita por auth.uid(), porque no se concede DML directo. Véase [contrato de hábitos](habits.md).
 La comprobación ejecutable está en supabase/tests/database/profiles.test.sql **del repositorio backend**. Su ejecución real depende del motor Docker; revisar validation.md, no asumir que pasó. El móvil no contiene SQL ni ejecuta estas pruebas.
 
 ## Entornos y siguientes pasos
 
 1. En daily-tracker-supabase, arrancar Docker Linux y ejecutar pnpm db:start.
-2. Solo en el backend y con datos locales descartables, pnpm db:reset, pnpm db:test y pnpm db:types.
+2. En backend, aplicar pendientes con `pnpm exec supabase migration up --local`, ejecutar `pnpm db:test` y `pnpm db:types`. Reservar db:reset exclusivamente para instancias descartables; no hace falta resetear la base en uso.
 3. En móvil, importar el artefacto generado con pnpm db:types. Obtener URL/clave publicable y completar .env sin credenciales privilegiadas.
 4. En remoto, revisar la migración y aplicarla con el procedimiento de despliegue autorizado; configurar URLs, Email y SMTP.
 5. Validar registro, confirmación, relanzamiento, expiración/refresh, cierre y recuperación en iOS/Android reales.
