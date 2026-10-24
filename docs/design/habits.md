@@ -34,7 +34,7 @@ Verificación final: `pnpm check` correcto con 154 pruebas en 21 suites y export
 
 ## Detalle y corrección de registros
 
-Referencia: [preview «Editar Hábito» de Stitch](https://stitch.google.com/preview/17936847200751344870?node-id=9adc5b3182bf4073b174d555e3bb464d). Alcance confirmado: adaptar el detalle visual y la corrección de registros, conservando el contrato actual. La pantalla se titula «Detalle del hábito» porque nombre, meta y frecuencia permanecen fijos. No se incorpora el lápiz de configuración sin comportamiento, ni categorías, rachas, porcentajes, horario ideal o hitos ilustrativos.
+Referencia: [preview «Editar Hábito» de Stitch](https://stitch.google.com/preview/17936847200751344870?node-id=9adc5b3182bf4073b174d555e3bb464d). El alcance inicial fue el detalle visual y la corrección de registros, manteniendo fijos nombre, meta y frecuencia. La ampliación del 23 de octubre descrita abajo habilita su edición real. Se mantiene «Detalle del hábito» como título del recorrido; no se incorporan categorías, rachas, porcentajes, horario ideal ni hitos ilustrativos.
 
 La composición conserva encabezado, tarjeta de identidad, selector de período, mapa con leyenda, registro seleccionado e historial reciente. Los períodos son reales: semana de la cuenta, mes calendario, tres meses terminando en el mes seleccionado y año calendario. Sus flechas recorren períodos anteriores hasta el inicio del hábito. El mapa se adapta al ancho y permite desplazamiento horizontal cuando sea necesario; la consulta de fechas se hace con controles accesibles y el historial desplegable de 14 fechas, incluyendo ausencia de registros.
 
@@ -43,3 +43,11 @@ La composición conserva encabezado, tarjeta de identidad, selector de período,
 Se mantienen `Screen`, los proveedores y layouts centrales, protección de rutas y preferencias es/en y light/dark/system. No se cambia SQL, RLS, RPC, tipos generados ni configuración de rate limits: Auth conserva el manejo de 429, y la limitación efectiva de solicitudes corresponde al backend.
 
 Verificación del detalle: componentes reales con adaptadores sintéticos en la carpeta temporal del sistema; español oscuro a 390 × 844 e inglés claro a 360 × 800. Se confirmó la corrección de 5 a 24 páginas y su refresco. `pnpm check` pasó con 162 pruebas en 23 suites; exportaciones Android/iOS con Hermes correctas. Las pruebas incluyen años bisiestos, límites de semana, navegación histórica, lectura fallida, correcciones antiguas de solo lectura y reintento al cruzar medianoche. Esta comprobación en navegador no verifica el emulador ni escrituras reales en Supabase.
+
+## Edición y simplificación cuantitativa — 23 de octubre de 2026
+
+El lápiz abre un formulario real de nombre, frecuencia y mínimo cuantitativo. El nombre cambia inmediatamente; los otros cambios desde la próxima semana de la cuenta, con fecha visible antes del guardado y configuración pendiente en el detalle/listado. La unidad y el modo de medición se conservan. Las correcciones, el mapa y los valores históricos usan la definición de cada fecha; véase [ADR-007](../architecture/adr/007-habit-editing.md).
+
+Creación y edición comparten `HabitScheduleFields`; ambos paneles usan `HabitSheet`. `HabitDefinitionSummary` muestra configuración guardada y pendiente. El registro cuantitativo diario deja una acción principal para sumar, incluye la unidad y explica su efecto. «Corregir el total del día» cambia explícitamente a sustitución; en fechas anteriores comienza en ese modo. La recarga queda para errores/conflictos. Se conservan el borrador ante fallos, la identidad de operación y el guardado confirmado.
+
+`pnpm check`: 174 pruebas en 24 suites; exportaciones Android/iOS con Hermes correctas. El backend pasó 216 comprobaciones pgTAP, migración aislada con conservación exacta de fixtures y concurrencia de renombres/edición. Tipos regenerados e importados. Computer Use no encontró navegadores conectados en esta sesión: la revisión visual de esta ampliación y el recorrido en emulador siguen pendientes. Las capturas anteriores documentan la entrega previa.

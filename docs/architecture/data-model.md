@@ -7,7 +7,7 @@ ProfileRepository confirma el calendario inicial mediante RPC y consulta el cont
 La ausencia de un perfil se distingue de un fallo de consulta; la zona nula no autoriza a inferir una política de negocio.
 La zona de negocio es una zona IANA elegida para la cuenta, compartida entre dispositivos y sin cambio automático al viajar o cambiar la zona del teléfono. La primera entrega confirma explícitamente zona e inicio de semana lunes/domingo; los cambios manuales posteriores siguen aplazados. Véase [hábitos](habits.md) y ADR-007 del backend.
 
-HabitRepository consume hábitos, su definición inicial inmutable y el estado diario confirmado, y registra operaciones por RPC con idempotencia y revisión. Los contratos de rutinas, objetivos y diario siguen pendientes.
+HabitRepository consume hábitos con updatedAt y versiones de definición por effectiveFrom, además del estado diario confirmado. El nombre cambia inmediatamente; frecuencia y mínimo cuantitativo desde la próxima semana de la cuenta, conservando unidad, modalidad y calendario. `rename_habit` y `edit_habit` reciben UUID de operación y updatedAt observado; el segundo devuelve la fecha efectiva autoritativa. Las correcciones resuelven la definición de su fecha. Los contratos de rutinas, objetivos y diario siguen pendientes. Véase [ADR-007](adr/007-habit-editing.md).
 Dashboard, calendario y estadísticas consumirán las mismas reglas y registros; el idioma de presentación no redefine fechas ni historial.
 
 El único artefacto del esquema permitido en el móvil es src/infrastructure/supabase/database.types.ts.

@@ -2,7 +2,7 @@
 
 Mobile MVP foundation for iOS and Android. The name is provisional; no final commercial brand identity has been established.
 
-This release includes navigation, authentication, profiles and the first habit recording flow: binary/quantity habits, three frequencies, explicit account calendar and seven-day corrections. Routines, goals, full calendar/statistics, journaling, pauses and streaks remain deferred. See [habit contracts](docs/architecture/habits.md).
+This release includes navigation, authentication, profiles and habit recording: binary/quantity habits, three frequencies, explicit account calendar and seven-day corrections. Names can be edited immediately; frequency and quantity goals take effect next account week while preserving history. Routines, goals, full calendar/statistics, journaling, pauses and streaks remain deferred. See [habit contracts](docs/architecture/habits.md).
 
 ## Requirements
 

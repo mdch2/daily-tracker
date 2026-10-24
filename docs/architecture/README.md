@@ -1,6 +1,7 @@
 # Arquitectura de Daily Tracker
 
 Estado: fundamentos y [primera entrega de hábitos](habits.md) implementados. Feature-First + Clean Architecture pragmática + monolito modular móvil.
+La edición de hábitos conserva reglas históricas y aplica frecuencia/meta desde la próxima semana de la cuenta: [ADR-007](adr/007-habit-editing.md).
 La separación se aplica donde existe una responsabilidad, sin generar cuatro carpetas por cada módulo previsto.
 
 ## Requisitos permanentes

@@ -2,13 +2,15 @@ import { useEffect, useRef, useState } from 'react';
 import { randomUUID } from 'expo-crypto';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { Pressable } from 'react-native';
+import { useTheme } from '@/shared/theme/use-theme';
 import {
   operationErrorCode,
   type OperationErrorCode,
 } from '@/shared/domain/operation-error';
 import { Button, ErrorMessage, Input, Text } from '@/shared/ui/primitives';
 import type { Habit, HabitDayRecord, RecordHabitDay } from '../domain/habit';
-import { canRecord } from '../domain/habit-rules';
+import { canRecord, habitAtDate } from '../domain/habit-rules';
 import {
   createHabitActions,
   parseMilliunits,
@@ -16,7 +18,7 @@ import {
 import { useHabitRepository } from './habit-context';
 
 export function HabitDayEditor({
-  habit,
+  habit: sourceHabit,
   date,
   today,
   record,
@@ -32,12 +34,17 @@ export function HabitDayEditor({
   onLock: (locked: boolean) => void;
   dataCurrent?: boolean;
 }) {
+  const habit = habitAtDate(sourceHabit, date);
   const { t } = useTranslation();
+  const { colors, tokens } = useTheme();
   const repository = useHabitRepository();
   const mutation = useMutation({
     mutationFn: createHabitActions(repository).record,
   });
   const [amount, setAmount] = useState('');
+  const [quantityMode, setQuantityMode] = useState<'add_amount' | 'set_total'>(
+    date === today ? 'add_amount' : 'set_total',
+  );
   const [baseRevision, setBaseRevision] = useState(record?.revision ?? 0);
   const [pending, setPending] = useState<RecordHabitDay | null>(null);
   const [error, setError] = useState<OperationErrorCode | null>(null);
@@ -150,8 +157,17 @@ export function HabitDayEditor({
       {!writable && <Text>{t('habits.readOnly')}</Text>}
       {habit.definition.measurementMode === 'quantity' && (
         <Input
-          label={t('habits.entryAmount')}
-          hint={t('habits.amountHint')}
+          label={t(
+            quantityMode === 'add_amount'
+              ? 'habits.quantityEntry.addLabel'
+              : 'habits.quantityEntry.totalLabel',
+            { unit: habit.definition.unitLabel },
+          )}
+          hint={t(
+            quantityMode === 'add_amount'
+              ? 'habits.quantityEntry.addHint'
+              : 'habits.quantityEntry.totalHint',
+          )}
           value={amount}
           onChangeText={setAmount}
           keyboardType="decimal-pad"
@@ -195,24 +211,49 @@ export function HabitDayEditor({
       ) : (
         <>
           <Button
-            title={t('habits.add')}
+            title={t(
+              quantityMode === 'add_amount' ? 'habits.add' : 'habits.setTotal',
+            )}
             disabled={blocked}
             loading={mutation.isPending}
             onPress={() => {
-              void save('add_amount');
+              void save(quantityMode);
             }}
           />
-          <Button
-            title={t('habits.setTotal')}
-            variant="secondary"
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t(
+              quantityMode === 'add_amount'
+                ? 'habits.quantityEntry.correctTotal'
+                : 'habits.quantityEntry.backToAdd',
+            )}
+            accessibilityState={{ disabled: blocked }}
             disabled={blocked}
             onPress={() => {
-              void save('set_total');
+              setQuantityMode((value) =>
+                value === 'add_amount' ? 'set_total' : 'add_amount',
+              );
+              setAmount('');
             }}
-          />
+            style={{
+              minHeight: tokens.minimumTouchTarget,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <Text
+              style={{ color: colors.link, textAlign: 'center', fontSize: 14 }}
+            >
+              {t(
+                quantityMode === 'add_amount'
+                  ? 'habits.quantityEntry.correctTotal'
+                  : 'habits.quantityEntry.backToAdd',
+              )}
+            </Text>
+          </Pressable>
         </>
       )}
-      {!pending && (
+      {!pending && (reviewRequired || !dataCurrent || error !== null) && (
         <Button
           title={t('habits.reload')}
           variant="secondary"

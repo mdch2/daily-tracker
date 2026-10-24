@@ -6,6 +6,7 @@ import {
   MAX_MILLIUNITS,
   type Habit,
   type HabitDayRecord,
+  type HabitDefinition,
 } from '../domain/habit';
 import type { HabitRepository } from '../domain/habit-repository';
 
@@ -46,7 +47,8 @@ const habitRow = z.object({
   name: z.string().min(1).max(100),
   start_date: z.iso.date(),
   created_at: timestamp,
-  habit_definitions: z.array(definitionRow).length(1),
+  updated_at: timestamp,
+  habit_definitions: z.array(definitionRow).min(1),
 });
 const dayRow = z
   .object({
@@ -81,12 +83,26 @@ function parse<T>(schema: z.ZodType<T>, data: unknown): T {
   return result.data;
 }
 function toHabit(row: z.infer<typeof habitRow>): Habit {
-  const definition = row.habit_definitions[0];
+  const definitions = [...row.habit_definitions].sort((a, b) =>
+    a.effective_from.localeCompare(b.effective_from),
+  );
+  const definition = definitions[0];
   if (
     !definition ||
     definition.habit_id !== row.id ||
     definition.user_id !== row.user_id ||
-    definition.effective_from !== row.start_date
+    definition.effective_from !== row.start_date ||
+    new Set(definitions.map((value) => value.effective_from)).size !==
+      definitions.length ||
+    definitions.some(
+      (value) =>
+        value.habit_id !== row.id ||
+        value.user_id !== row.user_id ||
+        value.measurement_mode !== definition.measurement_mode ||
+        value.unit_label !== definition.unit_label ||
+        value.time_zone !== definition.time_zone ||
+        value.week_start_day !== definition.week_start_day,
+    )
   )
     throw new OperationError('service');
   return {
@@ -94,30 +110,37 @@ function toHabit(row: z.infer<typeof habitRow>): Habit {
     name: row.name,
     startDate: row.start_date,
     createdAt: row.created_at,
-    definition: {
-      id: definition.id,
-      effectiveFrom: definition.effective_from,
-      timeZone: definition.time_zone,
-      weekStartDay: definition.week_start_day,
-      ...(definition.measurement_mode === 'binary'
-        ? { measurementMode: 'binary' as const }
+    updatedAt: row.updated_at,
+    definition: toDefinition(definition),
+    definitionHistory: definitions.map(toDefinition),
+  };
+}
+function toDefinition(
+  definition: z.infer<typeof definitionRow>,
+): HabitDefinition {
+  return {
+    id: definition.id,
+    effectiveFrom: definition.effective_from,
+    timeZone: definition.time_zone,
+    weekStartDay: definition.week_start_day,
+    ...(definition.measurement_mode === 'binary'
+      ? { measurementMode: 'binary' as const }
+      : {
+          measurementMode: 'quantity' as const,
+          targetMilliunits: definition.target_milliunits!,
+          unitLabel: definition.unit_label!,
+        }),
+    ...(definition.schedule_type === 'daily'
+      ? { scheduleType: 'daily' as const }
+      : definition.schedule_type === 'weekdays'
+        ? {
+            scheduleType: 'weekdays' as const,
+            weekdayMask: definition.weekday_mask!,
+          }
         : {
-            measurementMode: 'quantity' as const,
-            targetMilliunits: definition.target_milliunits!,
-            unitLabel: definition.unit_label!,
+            scheduleType: 'weekly' as const,
+            weeklyTarget: definition.weekly_target!,
           }),
-      ...(definition.schedule_type === 'daily'
-        ? { scheduleType: 'daily' as const }
-        : definition.schedule_type === 'weekdays'
-          ? {
-              scheduleType: 'weekdays' as const,
-              weekdayMask: definition.weekday_mask!,
-            }
-          : {
-              scheduleType: 'weekly' as const,
-              weeklyTarget: definition.weekly_target!,
-            }),
-    },
   };
 }
 function toDay(row: z.infer<typeof dayRow>): HabitDayRecord {
@@ -201,6 +224,62 @@ export function createHabitRepository(client: BackendClient): HabitRepository {
       if (parse(z.uuid(), data) !== input.id)
         throw new OperationError('service');
       return input.id;
+    },
+    async edit(input) {
+      const { data, error } = await client.rpc('edit_habit', {
+        p_operation_id: input.operationId,
+        p_habit_id: input.habitId,
+        p_name: input.name,
+        p_expected_updated_at: input.expectedUpdatedAt,
+        p_schedule_type: input.scheduleType,
+        ...(input.targetMilliunits === null
+          ? {}
+          : { p_target_milliunits: input.targetMilliunits }),
+        ...(input.scheduleType === 'weekdays'
+          ? { p_weekday_mask: input.weekdayMask }
+          : {}),
+        ...(input.scheduleType === 'weekly'
+          ? { p_weekly_target: input.weeklyTarget }
+          : {}),
+      });
+      if (error) throw mapOperationError(error);
+      const receipt = parse(
+        z.object({
+          operation_id: z.uuid(),
+          habit_id: z.uuid(),
+          updated_at: timestamp,
+          effective_from: z.iso.date(),
+        }),
+        data,
+      );
+      if (
+        receipt.operation_id !== input.operationId ||
+        receipt.habit_id !== input.habitId
+      )
+        throw new OperationError('service');
+      return { effectiveFrom: receipt.effective_from };
+    },
+    async rename(input) {
+      const { data, error } = await client.rpc('rename_habit', {
+        p_operation_id: input.operationId,
+        p_habit_id: input.habitId,
+        p_name: input.name,
+        p_expected_updated_at: input.expectedUpdatedAt,
+      });
+      if (error) throw mapOperationError(error);
+      const receipt = parse(
+        z.object({
+          operation_id: z.uuid(),
+          habit_id: z.uuid(),
+          updated_at: timestamp,
+        }),
+        data,
+      );
+      if (
+        receipt.operation_id !== input.operationId ||
+        receipt.habit_id !== input.habitId
+      )
+        throw new OperationError('service');
     },
     async record(input) {
       const { data, error } = await client.rpc('record_habit_day', {

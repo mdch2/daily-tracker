@@ -142,6 +142,30 @@
     "complete": "Marcar como hecho",
     "undo": "Marcar como no hecho",
     "entryAmount": "Cantidad",
+    "rename": {
+      "title": "Editar nombre",
+      "description": "El nuevo nombre aparece de inmediato. Tus registros y sus metas se conservan.",
+      "currentName": "Nombre guardado: {{name}}",
+      "save": "Guardar nombre"
+    },
+    "edit": {
+      "title": "Editar hábito",
+      "save": "Guardar cambios",
+      "effective": "El nombre cambia ahora. La frecuencia y la meta se aplicarán desde el {{date}}. El historial se conserva.",
+      "unitFixed": "Unidad: {{unit}}. La unidad y el tipo de medición se conservan.",
+      "planned": "Próxima configuración",
+      "pendingFrom": "Cambio programado para el {{date}}",
+      "weeklyFrequency_one": "{{days}} día por semana",
+      "weeklyFrequency_other": "{{days}} días por semana"
+    },
+    "quantityEntry": {
+      "addLabel": "Cantidad a sumar ({{unit}})",
+      "totalLabel": "Total del día ({{unit}})",
+      "addHint": "Se sumará a lo que ya llevas registrado.",
+      "totalHint": "Reemplaza el total de esta fecha. Usa cero para dejarlo en cero.",
+      "correctTotal": "Corregir el total del día",
+      "backToAdd": "Volver a sumar una cantidad"
+    },
     "add": "Añadir aporte",
     "setTotal": "Fijar total",
     "readOnly": "Solo lectura. Los registros y correcciones requieren una fecha elegible de hoy o de los siete días anteriores.",
@@ -264,7 +288,7 @@
       "showRecent": "Registros recientes",
       "empty": "No hay registros en este período. Usa los controles de fecha para consultar un día.",
       "updated": "Actualizado el {{value}}",
-      "fixedConfiguration": "El nombre, la meta y la frecuencia son fijos. Puedes corregir registros de fechas elegibles de hoy y los siete días anteriores."
+      "fixedConfiguration": "Los cambios de meta y frecuencia se aplican desde la próxima semana de la cuenta. Puedes corregir registros elegibles de hoy y los siete días anteriores con sus reglas históricas."
     }
   },
   "preferences": {

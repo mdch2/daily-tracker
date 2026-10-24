@@ -14,25 +14,38 @@ import { useTheme } from '@/shared/theme/use-theme';
 import { useLocalizedFormatters } from '@/shared/i18n/use-localized-formatters';
 import { operationErrorCode } from '@/shared/domain/operation-error';
 import type { Habit } from '../domain/habit';
-import { addBusinessDays, canRecord, dayStatus } from '../domain/habit-rules';
+import {
+  addBusinessDays,
+  canRecord,
+  dayStatus,
+  habitAtDate,
+  pendingDefinition,
+} from '../domain/habit-rules';
 import { readHabitWindow } from '../application/read-habit-window';
 import { useHabitRepository } from './habit-context';
 import { HabitSummary, HabitValue } from './habit-summary';
 import { HabitIconButton } from './habit-list-card';
 import { HabitRecordSheet } from './habit-record-sheet';
+import { HabitSettingsEditor } from './habit-settings-editor';
+import { HabitDefinitionSummary } from './habit-definition-summary';
 import { HabitMapLegend } from './habit-heatmap';
 import { HabitPeriodMap } from './habit-period-map';
 import { habitDetailPeriod, type HabitPeriod } from './habit-detail-period';
 
 function HabitHistory({
-  habit,
+  habit: sourceHabit,
   context,
   initialDate,
+  detailError,
+  retryDetail,
 }: {
   habit: Habit;
   context: ReadyBusinessContext;
   initialDate: string;
+  detailError: unknown;
+  retryDetail: () => void;
 }) {
+  const habit = habitAtDate(sourceHabit, context.today);
   const { t } = useTranslation();
   const { colors, tokens } = useTheme();
   const { state } = useAuth();
@@ -45,6 +58,7 @@ function HabitHistory({
   const [date, setDate] = useState(initialDate);
   const [expanded, setExpanded] = useState(false);
   const [historyPage, setHistoryPage] = useState(0);
+  const [editingName, setEditingName] = useState(false);
   const [inspection, setInspection] = useState<{
     initialDate: string;
     from: string;
@@ -73,6 +87,7 @@ function HabitHistory({
   });
   const records = days.data ?? [];
   const current = days.isSuccess;
+  const planned = pendingDefinition(habit, context.today);
   const quantity =
     habit.definition.measurementMode === 'quantity' ? habit.definition : null;
   const goal = quantity
@@ -146,6 +161,14 @@ function HabitHistory({
             onPress={() => router.push('/(tabs)/more')}
           />
         </View>
+        {!!detailError && (
+          <>
+            <ErrorMessage
+              message={t(`habits.errors.${operationErrorCode(detailError)}`)}
+            />
+            <Button title={t('common.retry')} onPress={retryDetail} />
+          </>
+        )}
         <View style={{ ...card, flexDirection: 'row', alignItems: 'center' }}>
           <View
             style={{
@@ -176,7 +199,28 @@ function HabitHistory({
               {t(`habits.frequencyOptions.${habit.definition.scheduleType}`)}
             </Text>
           </View>
+          <HabitIconButton
+            label={t('habits.edit.title')}
+            icon="edit-2"
+            disabled={!!detailError}
+            onPress={() => setEditingName(true)}
+          />
         </View>
+        {planned && (
+          <View style={card}>
+            <Text accessibilityRole="header" weight="bold">
+              {t('habits.edit.planned')}
+            </Text>
+            <Text>
+              {t('habits.edit.pendingFrom', {
+                date: format.businessDate(planned.effectiveFrom, {
+                  dateStyle: 'full',
+                }),
+              })}
+            </Text>
+            <HabitDefinitionSummary definition={planned} />
+          </View>
+        )}
         <View
           accessibilityRole="tablist"
           accessibilityLabel={t('habits.detail.period')}
@@ -476,6 +520,13 @@ function HabitHistory({
           onClose={() => setInspection(null)}
         />
       )}
+      {editingName && (
+        <HabitSettingsEditor
+          habit={habit}
+          today={context.today}
+          onClose={() => setEditingName(false)}
+        />
+      )}
     </>
   );
 }
@@ -502,7 +553,7 @@ function HabitDetail({
         <Text>{t('habits.loading')}</Text>
       </Screen>
     );
-  if (query.isError || !query.data)
+  if (!query.data)
     return (
       <Screen>
         <ErrorMessage
@@ -523,6 +574,10 @@ function HabitDetail({
     <HabitHistory
       key={id}
       habit={query.data}
+      detailError={query.error}
+      retryDetail={() => {
+        void query.refetch();
+      }}
       context={context}
       initialDate={
         initialDate < query.data.startDate ? query.data.startDate : initialDate

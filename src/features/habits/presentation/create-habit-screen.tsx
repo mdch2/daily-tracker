@@ -21,6 +21,7 @@ import {
 import { Icon } from '@/shared/ui/icon';
 import { useTheme } from '@/shared/theme/use-theme';
 import { HabitFormCard, HabitFormChoice } from './habit-form-controls';
+import { HabitScheduleFields } from './habit-schedule-fields';
 import type { CreateHabit, Measurement, Schedule } from '../domain/habit';
 import {
   createHabitActions,
@@ -198,78 +199,15 @@ function CreateHabitForm() {
         />
       </HabitFormCard>
 
-      <HabitFormCard>
-        <Text accessibilityRole="header" weight="bold">
-          {t('habits.scheduledFrequency')}
-        </Text>
-        <Text style={{ color: colors.muted, fontSize: 14 }}>
-          {t('habits.frequencyDescription')}
-        </Text>
-        <View
-          style={{
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            gap: tokens.spacing.sm,
-          }}
-        >
-          {(['daily', 'weekdays', 'weekly'] as const).map((value) => (
-            <View key={value} style={{ flexGrow: 1, flexBasis: 80 }}>
-              <HabitFormChoice
-                title={t(`habits.frequencyOptions.${value}`)}
-                label={t(`habits.${value}`)}
-                selected={schedule === value}
-                disabled={disabled}
-                onPress={() => setSchedule(value)}
-              />
-            </View>
-          ))}
-        </View>
-        {schedule === 'weekdays' && (
-          <>
-            <HabitFormChoice
-              title={t('habits.workweek')}
-              icon="calendar"
-              selected={mask === 31}
-              disabled={disabled}
-              onPress={() => setMask(31)}
-            />
-            <View
-              style={{
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                justifyContent: 'center',
-                marginHorizontal: -tokens.spacing.md,
-              }}
-            >
-              {([1, 2, 3, 4, 5, 6, 7] as const).map((day) => (
-                <View
-                  key={day}
-                  style={{ flexBasis: tokens.minimumTouchTarget }}
-                >
-                  <HabitFormChoice
-                    title={t(`habits.dayInitials.${day}`)}
-                    label={t(`habits.days.${day}`)}
-                    selected={(mask & (1 << (day - 1))) !== 0}
-                    disabled={disabled}
-                    onPress={() => setMask((value) => value ^ (1 << (day - 1)))}
-                  />
-                </View>
-              ))}
-            </View>
-          </>
-        )}
-        {schedule === 'weekly' && (
-          <Input
-            label={t('habits.weeklyTarget')}
-            hint={t('habits.weeklyHint')}
-            value={weekly}
-            onChangeText={setWeekly}
-            keyboardType="number-pad"
-            maxLength={1}
-            editable={!disabled}
-          />
-        )}
-      </HabitFormCard>
+      <HabitScheduleFields
+        schedule={schedule}
+        mask={mask}
+        weekly={weekly}
+        disabled={disabled}
+        onScheduleChange={setSchedule}
+        onMaskChange={setMask}
+        onWeeklyChange={setWeekly}
+      />
 
       <HabitFormCard>
         <View

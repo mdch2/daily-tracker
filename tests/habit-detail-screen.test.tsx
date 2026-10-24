@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { fireEvent, screen, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HabitDetailScreen } from '@/features/habits/presentation/habit-detail-screen';
 import { HabitRepositoryContext } from '@/features/habits/presentation/habit-context';
@@ -79,6 +79,63 @@ async function open(
 }
 
 describe('habit details and corrections', () => {
+  it('schedules frequency and quantity changes next week while preserving today and historical goals', async () => {
+    const { repository } = await open();
+    repository.edit.mockImplementation(async (input) => {
+      const planned = {
+        ...habit.definition,
+        id: '31000000-0000-4000-8000-000000000009',
+        effectiveFrom: '2026-10-26',
+        scheduleType: 'weekly' as const,
+        weeklyTarget: 3,
+        measurementMode: 'quantity' as const,
+        targetMilliunits: 30000,
+        unitLabel: 'pages',
+      };
+      repository.findById.mockResolvedValue({
+        ...habit,
+        name: input.name,
+        definitionHistory: [habit.definition, planned],
+        updatedAt: '2026-10-21T14:00:00Z',
+      });
+      return { effectiveFrom: planned.effectiveFrom };
+    });
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Edit habit' }),
+    );
+    await fireEvent.changeText(
+      screen.getByLabelText('Habit name'),
+      'New reading name',
+    );
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Days per week, without fixed days' }),
+    );
+    await fireEvent.changeText(
+      screen.getByLabelText('Different days per week'),
+      '3',
+    );
+    await fireEvent.changeText(screen.getByLabelText('Minimum per day'), '30');
+    await fireEvent.press(screen.getByRole('button', { name: 'Save changes' }));
+    await waitFor(() =>
+      expect(screen.queryByLabelText('Habit name')).not.toBeOnTheScreen(),
+    );
+    expect(repository.edit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'New reading name',
+        scheduleType: 'weekly',
+        weeklyTarget: 3,
+        targetMilliunits: 30000,
+        expectedUpdatedAt: habit.updatedAt,
+      }),
+    );
+    expect(repository.rename).not.toHaveBeenCalled();
+    expect(
+      screen.getByText('Change scheduled for Monday, October 26, 2026'),
+    ).toBeOnTheScreen();
+    expect(screen.getByText('Goal: 20 pages / day')).toBeOnTheScreen();
+    expect(screen.getByText('Goal: 30 pages / day')).toBeOnTheScreen();
+    expect(screen.getAllByText('Confirmed: 5 / 20 pages')).not.toHaveLength(0);
+  });
   beforeEach(() => {
     mockToday = '2026-10-21';
     mockDate = undefined;
@@ -105,7 +162,13 @@ describe('habit details and corrections', () => {
     await fireEvent.press(
       screen.getByRole('button', { name: 'View or correct record' }),
     );
-    await fireEvent.changeText(await screen.findByLabelText('Amount'), '24');
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Correct the daily total' }),
+    );
+    await fireEvent.changeText(
+      screen.getByLabelText('Daily total (pages)'),
+      '24',
+    );
     await fireEvent.press(screen.getByRole('button', { name: 'Set total' }));
     await screen.findByText('Saved and confirmed.');
     expect(repository.record).toHaveBeenCalledWith(
@@ -118,7 +181,7 @@ describe('habit details and corrections', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Close' }));
     expect(screen.getAllByText('Confirmed: 24 / 20 pages')).toHaveLength(2);
   });
-  it('keeps old records read-only and does not offer configuration changes', async () => {
+  it('keeps old records read-only', async () => {
     mockDate = '2026-10-01';
     await open();
     await screen.findByRole('image');
@@ -130,6 +193,102 @@ describe('habit details and corrections', () => {
     );
     expect(screen.getByRole('button', { name: 'Set total' })).toBeDisabled();
     expect(screen.queryByLabelText('Habit name')).not.toBeOnTheScreen();
+  });
+  it('renames the habit and refreshes the confirmed detail', async () => {
+    const { repository } = await open();
+    repository.rename.mockImplementation(async (input) => {
+      repository.findById.mockResolvedValue({
+        ...habit,
+        name: input.name,
+        updatedAt: '2026-10-21T14:00:00Z',
+      });
+    });
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Edit habit' }),
+    );
+    await fireEvent.changeText(
+      screen.getByLabelText('Habit name'),
+      'Renamed reading',
+    );
+    await fireEvent.press(screen.getByRole('button', { name: 'Save changes' }));
+    await waitFor(() =>
+      expect(screen.queryByLabelText('Habit name')).not.toBeOnTheScreen(),
+    );
+    expect(
+      screen.getByRole('header', { name: 'Renamed reading' }),
+    ).toBeOnTheScreen();
+    expect(repository.rename).toHaveBeenCalledWith(
+      expect.objectContaining({
+        habitId: habit.id,
+        name: 'Renamed reading',
+        expectedUpdatedAt: habit.updatedAt,
+      }),
+    );
+  });
+  it('keeps an uncertain rename through a background read failure and retries the same payload', async () => {
+    const { repository, client } = await open();
+    repository.rename.mockRejectedValueOnce(new OperationError('network'));
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Edit habit' }),
+    );
+    await fireEvent.changeText(
+      screen.getByLabelText('Habit name'),
+      'Kept draft',
+    );
+    await fireEvent.press(screen.getByRole('button', { name: 'Save changes' }));
+    await screen.findByRole('button', { name: 'Retry the same save' });
+    expect(screen.getByRole('button', { name: 'Close' })).toBeDisabled();
+    repository.findById.mockRejectedValueOnce(new OperationError('network'));
+    await act(async () => {
+      await client.invalidateQueries({
+        queryKey: ['habits', mockUserId, 'detail'],
+      });
+    });
+    expect(screen.getByDisplayValue('Kept draft')).toBeOnTheScreen();
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Retry the same save' }),
+    );
+    await waitFor(() =>
+      expect(screen.queryByLabelText('Habit name')).not.toBeOnTheScreen(),
+    );
+    expect(repository.rename.mock.calls[0]?.[0]).toEqual(
+      repository.rename.mock.calls[1]?.[0],
+    );
+  });
+  it('requires review after a name conflict while preserving the draft', async () => {
+    const { repository } = await open();
+    repository.rename.mockRejectedValueOnce(new OperationError('conflict'));
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Edit habit' }),
+    );
+    await fireEvent.changeText(
+      screen.getByLabelText('Habit name'),
+      'My correction',
+    );
+    await fireEvent.press(screen.getByRole('button', { name: 'Save changes' }));
+    await screen.findByRole('button', { name: 'Reload current state' });
+    expect(
+      screen.queryByRole('button', { name: 'Save changes' }),
+    ).not.toBeOnTheScreen();
+    const updatedAt = '2026-10-21T14:00:00Z';
+    repository.findById.mockResolvedValue({
+      ...habit,
+      name: 'Another device',
+      updatedAt,
+    });
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Reload current state' }),
+    );
+    await screen.findByText('Saved name: Another device');
+    expect(screen.getByDisplayValue('My correction')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Save changes' }));
+    await waitFor(() => expect(repository.rename).toHaveBeenCalledTimes(2));
+    expect(repository.rename.mock.calls[1]?.[0].expectedUpdatedAt).toBe(
+      updatedAt,
+    );
+    expect(repository.rename.mock.calls[0]?.[0].operationId).not.toBe(
+      repository.rename.mock.calls[1]?.[0].operationId,
+    );
   });
   it('does not present failed batches as empty history and recovers', async () => {
     await open((repository) =>
@@ -151,7 +310,13 @@ describe('habit details and corrections', () => {
     await fireEvent.press(
       screen.getByRole('button', { name: 'View or correct record' }),
     );
-    await fireEvent.changeText(await screen.findByLabelText('Amount'), '24');
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Correct the daily total' }),
+    );
+    await fireEvent.changeText(
+      screen.getByLabelText('Daily total (pages)'),
+      '24',
+    );
     repository.record.mockRejectedValueOnce(new OperationError('network'));
     await fireEvent.press(screen.getByRole('button', { name: 'Set total' }));
     await screen.findByRole('button', { name: 'Retry the same save' });

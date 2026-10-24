@@ -11,6 +11,8 @@ import {
   dayStatus,
   weeklyProgress,
   weekStart,
+  habitAtDate,
+  pendingDefinition,
 } from '../domain/habit-rules';
 
 export function HabitIconButton({
@@ -51,7 +53,7 @@ export function HabitIconButton({
 }
 
 export function HabitListCard({
-  habit,
+  habit: sourceHabit,
   record,
   records,
   today,
@@ -68,6 +70,7 @@ export function HabitListCard({
   onInspect: () => void;
   onRecord: () => void;
 }>) {
+  const habit = habitAtDate(sourceHabit, today);
   const { t } = useTranslation();
   const { colors, tokens } = useTheme();
   const format = useLocalizedFormatters();
@@ -83,6 +86,7 @@ export function HabitListCard({
       : null;
   const quantity =
     habit.definition.measurementMode === 'quantity' ? habit.definition : null;
+  const planned = pendingDefinition(habit, today);
   const goal = quantity
     ? t('habits.dailyMinimum', {
         value: format.number(quantity.targetMilliunits / 1000, {
@@ -138,6 +142,13 @@ export function HabitListCard({
               {habit.name}
             </Text>
             <Text style={{ color: colors.muted, fontSize: 12 }}>{goal}</Text>
+            {planned && (
+              <Text style={{ color: colors.link, fontSize: 12 }}>
+                {t('habits.edit.pendingFrom', {
+                  date: format.businessDate(planned.effectiveFrom),
+                })}
+              </Text>
+            )}
             <Text
               style={{
                 color:

@@ -142,6 +142,30 @@
     "complete": "Mark as done",
     "undo": "Mark as not done",
     "entryAmount": "Amount",
+    "rename": {
+      "title": "Edit name",
+      "description": "The new name appears immediately. Your records and their goals are preserved.",
+      "currentName": "Saved name: {{name}}",
+      "save": "Save name"
+    },
+    "edit": {
+      "title": "Edit habit",
+      "save": "Save changes",
+      "effective": "The name changes now. Frequency and goal will apply from {{date}}. History is preserved.",
+      "unitFixed": "Unit: {{unit}}. The unit and measurement type stay the same.",
+      "planned": "Upcoming configuration",
+      "pendingFrom": "Change scheduled for {{date}}",
+      "weeklyFrequency_one": "{{days}} day per week",
+      "weeklyFrequency_other": "{{days}} days per week"
+    },
+    "quantityEntry": {
+      "addLabel": "Amount to add ({{unit}})",
+      "totalLabel": "Daily total ({{unit}})",
+      "addHint": "This adds to what you have already recorded.",
+      "totalHint": "Replaces the total for this date. Use zero to reset it to zero.",
+      "correctTotal": "Correct the daily total",
+      "backToAdd": "Back to adding an amount"
+    },
     "add": "Add contribution",
     "setTotal": "Set total",
     "readOnly": "Read only. New records and corrections require an eligible date from today or the previous seven days.",
@@ -264,7 +288,7 @@
       "showRecent": "Recent records",
       "empty": "No records in this period. Use the date controls to inspect a day.",
       "updated": "Updated {{value}}",
-      "fixedConfiguration": "Name, goal and frequency are fixed. Eligible records can be corrected for today and the previous seven days."
+      "fixedConfiguration": "Goal and frequency changes apply from the next account week. Eligible records for today and the previous seven days keep their historical rules."
     }
   },
   "preferences": {

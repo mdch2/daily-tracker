@@ -127,7 +127,10 @@ describe('daily and historical habit views', () => {
         name: 'Record today for Synthetic reading',
       }),
     );
-    await fireEvent.changeText(await screen.findByLabelText('Amount'), '2,5');
+    await fireEvent.changeText(
+      await screen.findByLabelText('Amount to add (pages)'),
+      '2,5',
+    );
     repository.record.mockRejectedValueOnce(new OperationError('network'));
     await fireEvent.press(
       screen.getByRole('button', { name: 'Add contribution' }),
@@ -146,7 +149,9 @@ describe('daily and historical habit views', () => {
       repository.record.mock.calls[1]?.[0],
     );
     await fireEvent.press(screen.getByRole('button', { name: 'Close' }));
-    expect(screen.queryByLabelText('Amount')).not.toBeOnTheScreen();
+    expect(
+      screen.queryByLabelText('Amount to add (pages)'),
+    ).not.toBeOnTheScreen();
   });
   it('opens the full detail at the selected historical window', async () => {
     await open((repository) =>
@@ -184,7 +189,10 @@ describe('daily and historical habit views', () => {
         name: 'Record today for Synthetic reading',
       }),
     );
-    await fireEvent.changeText(await screen.findByLabelText('Amount'), '2,5');
+    await fireEvent.changeText(
+      await screen.findByLabelText('Amount to add (pages)'),
+      '2,5',
+    );
     repository.record.mockRejectedValueOnce(new OperationError('network'));
     await fireEvent.press(
       screen.getByRole('button', { name: 'Add contribution' }),
