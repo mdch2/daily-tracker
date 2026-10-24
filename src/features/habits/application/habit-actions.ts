@@ -75,5 +75,33 @@ export function createHabitActions(repository: HabitRepository) {
       if (!parsed.success) throw new OperationError('invalidInput');
       return repository.record(parsed.data);
     },
+    rename(input: unknown) {
+      const parsed = z
+        .object({
+          operationId: z.uuid(),
+          habitId: z.uuid(),
+          name: z.string().trim().min(1).max(100),
+          expectedUpdatedAt: z.iso.datetime({ offset: true }),
+        })
+        .safeParse(input);
+      if (!parsed.success) throw new OperationError('invalidInput');
+      return repository.rename(parsed.data);
+    },
+    edit(input: unknown) {
+      const parsed = z
+        .intersection(
+          z.object({
+            operationId: z.uuid(),
+            habitId: z.uuid(),
+            name: z.string().trim().min(1).max(100),
+            expectedUpdatedAt: z.iso.datetime({ offset: true }),
+            targetMilliunits: amount.min(1).nullable(),
+          }),
+          schedule,
+        )
+        .safeParse(input);
+      if (!parsed.success) throw new OperationError('invalidInput');
+      return repository.edit(parsed.data);
+    },
   };
 }

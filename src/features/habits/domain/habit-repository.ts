@@ -4,6 +4,8 @@ import type {
   HabitDayRecord,
   HabitOperationReceipt,
   RecordHabitDay,
+  RenameHabit,
+  EditHabit,
 } from './habit';
 
 export interface HabitRepository {
@@ -15,5 +17,7 @@ export interface HabitRepository {
     to: string,
   ): Promise<HabitDayRecord[]>;
   create(input: CreateHabit): Promise<string>;
+  rename(input: RenameHabit): Promise<void>;
+  edit(input: EditHabit): Promise<{ effectiveFrom: string }>;
   record(input: RecordHabitDay): Promise<HabitOperationReceipt>;
 }

@@ -1,5 +1,29 @@
 import type { Habit, HabitDayRecord } from './habit';
 
+export function definitionFor(habit: Habit, date: string) {
+  const definitions = habit.definitionHistory ?? [habit.definition];
+  const first = definitions.reduce(
+    (earliest, definition) =>
+      definition.effectiveFrom < earliest.effectiveFrom ? definition : earliest,
+    habit.definition,
+  );
+  return definitions
+    .filter((definition) => definition.effectiveFrom <= date)
+    .reduce(
+      (latest, definition) =>
+        definition.effectiveFrom > latest.effectiveFrom ? definition : latest,
+      first,
+    );
+}
+export function habitAtDate(habit: Habit, date: string): Habit {
+  return { ...habit, definition: definitionFor(habit, date) };
+}
+export function pendingDefinition(habit: Habit, today: string) {
+  return habit.definitionHistory
+    ?.filter((definition) => definition.effectiveFrom > today)
+    .sort((a, b) => a.effectiveFrom.localeCompare(b.effectiveFrom))[0];
+}
+
 // Arithmetic on calendar labels, never conversion of an instant to a business date.
 export function addBusinessDays(date: string, days: number): string {
   const value = new Date(date + 'T00:00:00.000Z');
@@ -12,12 +36,14 @@ export function weekStart(date: string, firstDay: 1 | 7): string {
 }
 export function isEligible(habit: Habit, date: string): boolean {
   if (date < habit.startDate) return false;
+  habit = habitAtDate(habit, date);
   if (habit.definition.scheduleType !== 'weekdays') return true;
   const isoDay = new Date(date + 'T00:00:00.000Z').getUTCDay() || 7;
   return (habit.definition.weekdayMask & (1 << (isoDay - 1))) !== 0;
 }
 export function isCompleted(habit: Habit, record?: HabitDayRecord): boolean {
   if (!record) return false;
+  habit = habitAtDate(habit, record.date);
   return habit.definition.measurementMode === 'binary'
     ? record.binaryValue === true
     : record.amountMilliunits !== null &&
@@ -48,6 +74,7 @@ export function dayStatus(
   if (date < habit.startDate) return 'notStarted';
   if (!isEligible(habit, date)) return 'notScheduled';
   if (date > today) return 'future';
+  habit = habitAtDate(habit, date);
   if (isCompleted(habit, record)) return 'completed';
   if (habit.definition.scheduleType !== 'weekly' && date < today)
     return 'missed';
@@ -60,6 +87,7 @@ export function weeklyProgress(
   start: string,
   today: string,
 ) {
+  habit = habitAtDate(habit, start);
   if (habit.definition.scheduleType !== 'weekly')
     throw new Error('Weekly schedule required');
   const end = addBusinessDays(start, 7);

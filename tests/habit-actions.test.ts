@@ -8,6 +8,31 @@ import { OperationError } from '@/shared/domain/operation-error';
 import { habitId, operationId, repositoryStub } from './helpers/habit-fixtures';
 
 describe('habit write boundaries', () => {
+  it('validates a rename and trims its name before persistence', async () => {
+    const repository = repositoryStub();
+    const actions = createHabitActions(repository);
+    const input = {
+      operationId,
+      habitId,
+      name: ' Renamed ',
+      expectedUpdatedAt: '2026-10-21T12:00:00Z',
+    };
+    await actions.rename(input);
+    expect(repository.rename).toHaveBeenCalledWith({
+      ...input,
+      name: 'Renamed',
+    });
+    for (const invalid of [
+      { name: ' ' },
+      { name: 'x'.repeat(101) },
+      { expectedUpdatedAt: 'invalid' },
+      { operationId: 'invalid' },
+    ])
+      expect(() => actions.rename({ ...input, ...invalid })).toThrow(
+        OperationError,
+      );
+    expect(repository.rename).toHaveBeenCalledTimes(1);
+  });
   it.each([
     ['0', 0],
     ['0.001', 1],

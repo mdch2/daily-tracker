@@ -142,6 +142,30 @@
     "complete": "Mark as done",
     "undo": "Mark as not done",
     "entryAmount": "Amount",
+    "rename": {
+      "title": "Edit name",
+      "description": "The new name appears immediately. Your records and their goals are preserved.",
+      "currentName": "Saved name: {{name}}",
+      "save": "Save name"
+    },
+    "edit": {
+      "title": "Edit habit",
+      "save": "Save changes",
+      "effective": "The name changes now. Frequency and goal will apply from {{date}}. History is preserved.",
+      "unitFixed": "Unit: {{unit}}. The unit and measurement type stay the same.",
+      "planned": "Upcoming configuration",
+      "pendingFrom": "Change scheduled for {{date}}",
+      "weeklyFrequency_one": "{{days}} day per week",
+      "weeklyFrequency_other": "{{days}} days per week"
+    },
+    "quantityEntry": {
+      "addLabel": "Amount to add ({{unit}})",
+      "totalLabel": "Daily total ({{unit}})",
+      "addHint": "This adds to what you have already recorded.",
+      "totalHint": "Replaces the total for this date. Use zero to reset it to zero.",
+      "correctTotal": "Correct the daily total",
+      "backToAdd": "Back to adding an amount"
+    },
     "add": "Add contribution",
     "setTotal": "Set total",
     "readOnly": "Read only. New records and corrections require an eligible date from today or the previous seven days.",
@@ -208,6 +232,63 @@
       "5": "F",
       "6": "S",
       "7": "S"
+    },
+    "myHabits": "My habits",
+    "compactWeekProgress": "Flexible week · {{days}} / {{target}} days",
+    "new": "New",
+    "views": {
+      "daily": "Daily view",
+      "history": "History view"
+    },
+    "all": "All",
+    "filterEmpty": "There are no habits of this type on this page.",
+    "dailyMinimum": "Goal: {{value}} {{unit}} / day",
+    "todayStatus": "Today · {{status}}",
+    "recordedAmount": "Recorded: {{value}} {{unit}}",
+    "currentUnavailable": "Current state unavailable.",
+    "inspect": "Inspect the history of {{name}}",
+    "recordToday": "Record today for {{name}}",
+    "inspectHint": "Tap a habit to inspect each date in its history. The side button opens today's entry.",
+    "mapRange": "16 weeks · {{from}} – {{to}}",
+    "mapDescription": "History of {{name}}, from {{from}} to {{to}}. Inspect each date using the habit name.",
+    "mapUnavailable": "The map could not be loaded. Retry to see its states.",
+    "previousDay": "Previous date",
+    "nextDay": "Next date",
+    "legend": {
+      "completed": "Completed",
+      "partial": "Partial",
+      "pending": "No completion",
+      "missed": "Missed",
+      "notScheduled": "Not scheduled / not started",
+      "future": "Future"
+    },
+    "trackedCount_one": "{{value}} habit tracked",
+    "trackedCount_other": "{{value}} habits tracked",
+    "pageHabitCount_one": "{{value}} habit on this page",
+    "pageHabitCount_other": "{{value}} habits on this page",
+    "accountDate": "Today: {{date}} · {{zone}}",
+    "detail": {
+      "title": "Habit details",
+      "active": "Active",
+      "period": "Activity period",
+      "periods": {
+        "week": "Week",
+        "month": "Month",
+        "quarter": "3 months",
+        "year": "Year"
+      },
+      "map": "Activity map",
+      "range": "{{from}} – {{to}}",
+      "previousPeriod": "Previous period",
+      "nextPeriod": "Next period",
+      "mapDescription": "Activity of {{name}}, from {{from}} to {{to}}. Use the date controls or history to inspect individual records. Scroll horizontally for the full map.",
+      "inspectRecord": "View or correct record",
+      "recentHistory": "Recent history",
+      "showAll": "View all dates",
+      "showRecent": "Recent records",
+      "empty": "No records in this period. Use the date controls to inspect a day.",
+      "updated": "Updated {{value}}",
+      "fixedConfiguration": "Goal and frequency changes apply from the next account week. Eligible records for today and the previous seven days keep their historical rules."
     }
   },
   "preferences": {

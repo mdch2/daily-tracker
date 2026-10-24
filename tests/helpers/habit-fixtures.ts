@@ -10,6 +10,7 @@ export const habit: Habit = {
   name: 'Synthetic reading',
   startDate: '2026-10-01',
   createdAt: '2026-10-01T12:00:00Z',
+  updatedAt: '2026-10-01T12:00:00Z',
   definition: {
     id: definitionId,
     effectiveFrom: '2026-10-01',
@@ -52,6 +53,14 @@ export function repositoryStub(): jest.Mocked<HabitRepository> {
       Parameters<HabitRepository['readDays']>
     >(async () => []),
     create: jest.fn(async (input) => input.id),
+    rename: jest.fn<
+      ReturnType<HabitRepository['rename']>,
+      Parameters<HabitRepository['rename']>
+    >(async () => undefined),
+    edit: jest.fn<
+      ReturnType<HabitRepository['edit']>,
+      Parameters<HabitRepository['edit']>
+    >(async () => ({ effectiveFrom: '2026-10-26' })),
     record: jest.fn(async (input) => ({
       operationId: input.operationId,
       habitId: input.habitId,

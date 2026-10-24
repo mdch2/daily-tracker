@@ -40,7 +40,10 @@ describe('confirmed habit editing', () => {
     async (language) => {
       const { repository, refresh } = await open(language);
       repository.record.mockRejectedValueOnce(new OperationError('network'));
-      const input = language === 'en' ? 'Amount' : 'Cantidad';
+      const input =
+        language === 'en'
+          ? 'Amount to add (pages)'
+          : 'Cantidad a sumar (pages)';
       await fireEvent.changeText(screen.getByLabelText(input), '250');
       await fireEvent.press(
         screen.getByRole('button', {
@@ -63,7 +66,20 @@ describe('confirmed habit editing', () => {
       expect(repository.record.mock.calls[0]?.[0]).toEqual(
         repository.record.mock.calls[1]?.[0],
       );
-      await fireEvent.changeText(screen.getByLabelText(input), '750');
+      await fireEvent.press(
+        screen.getByRole('button', {
+          name:
+            language === 'en'
+              ? 'Correct the daily total'
+              : 'Corregir el total del día',
+        }),
+      );
+      await fireEvent.changeText(
+        screen.getByLabelText(
+          language === 'en' ? 'Daily total (pages)' : 'Total del día (pages)',
+        ),
+        '750',
+      );
       await fireEvent.press(
         screen.getByRole('button', {
           name: language === 'en' ? 'Set total' : 'Fijar total',
@@ -80,7 +96,13 @@ describe('confirmed habit editing', () => {
   it('requires a reviewed refresh after a conflict, preserving the correction', async () => {
     const { repository, refresh } = await open();
     repository.record.mockRejectedValueOnce(new OperationError('conflict'));
-    await fireEvent.changeText(screen.getByLabelText('Amount'), '750');
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Correct the daily total' }),
+    );
+    await fireEvent.changeText(
+      screen.getByLabelText('Daily total (pages)'),
+      '750',
+    );
     await fireEvent.press(screen.getByRole('button', { name: 'Set total' }));
     await screen.findByRole('alert');
     expect(screen.getByDisplayValue('750')).toBeOnTheScreen();
@@ -107,7 +129,10 @@ describe('confirmed habit editing', () => {
   it('keeps a confirmed save distinct from a failed refresh', async () => {
     const { refresh, repository } = await open();
     refresh.mockRejectedValueOnce(new OperationError('network'));
-    await fireEvent.changeText(screen.getByLabelText('Amount'), '250');
+    await fireEvent.changeText(
+      screen.getByLabelText('Amount to add (pages)'),
+      '250',
+    );
     await fireEvent.press(
       screen.getByRole('button', { name: 'Add contribution' }),
     );
@@ -126,8 +151,74 @@ describe('confirmed habit editing', () => {
     const { repository } = await open('en', '2026-10-29');
     expect(screen.getByRole('button', { name: 'Set total' })).toBeDisabled();
     expect(
-      screen.getByRole('button', { name: 'Add contribution' }),
+      screen.getByRole('button', { name: 'Back to adding an amount' }),
     ).toBeDisabled();
     expect(repository.record).not.toHaveBeenCalled();
+  });
+  it('starts with one save action and makes replacing the total explicit, including zero', async () => {
+    const { repository } = await open();
+    expect(
+      screen.getByRole('button', { name: 'Add contribution' }),
+    ).toBeOnTheScreen();
+    expect(
+      screen.queryByRole('button', { name: 'Set total' }),
+    ).not.toBeOnTheScreen();
+    expect(
+      screen.queryByRole('button', { name: 'Reload current state' }),
+    ).not.toBeOnTheScreen();
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Correct the daily total' }),
+    );
+    expect(
+      screen.queryByRole('button', { name: 'Add contribution' }),
+    ).not.toBeOnTheScreen();
+    await fireEvent.changeText(
+      screen.getByLabelText('Daily total (pages)'),
+      '0',
+    );
+    await fireEvent.press(screen.getByRole('button', { name: 'Set total' }));
+    await screen.findByText('Saved and confirmed.');
+    expect(repository.record).toHaveBeenCalledWith(
+      expect.objectContaining({
+        kind: 'set_total',
+        amountMilliunits: 0,
+        expectedRevision: 2,
+      }),
+    );
+  });
+  it('uses the revision for this habit when a refresh contains other habits on the same date', async () => {
+    const { refresh, repository } = await open();
+    repository.record.mockRejectedValueOnce(new OperationError('conflict'));
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Correct the daily total' }),
+    );
+    await fireEvent.changeText(
+      screen.getByLabelText('Daily total (pages)'),
+      '25',
+    );
+    await fireEvent.press(screen.getByRole('button', { name: 'Set total' }));
+    await screen.findByRole('alert');
+    refresh.mockResolvedValueOnce([
+      {
+        ...day('2026-10-21', 9000, 19),
+        habitId: '31000000-0000-4000-8000-000000000099',
+      },
+      day('2026-10-21', 20000, 4),
+    ]);
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Reload current state' }),
+    );
+    await screen.findByText(
+      'Current state loaded. Review it and confirm your correction again.',
+    );
+    await fireEvent.changeText(
+      screen.getByLabelText('Daily total (pages)'),
+      '25',
+    );
+    await fireEvent.press(screen.getByRole('button', { name: 'Set total' }));
+    await waitFor(() => expect(repository.record).toHaveBeenCalledTimes(2));
+    expect(repository.record.mock.calls[1]?.[0]).toMatchObject({
+      expectedRevision: 4,
+    });
   });
 });

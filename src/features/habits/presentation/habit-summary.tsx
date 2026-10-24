@@ -7,10 +7,11 @@ import {
   dayStatus,
   weeklyProgress,
   weekStart,
+  habitAtDate,
 } from '../domain/habit-rules';
 
 export function HabitValue({
-  habit,
+  habit: sourceHabit,
   record,
 }: {
   habit: Habit;
@@ -19,6 +20,7 @@ export function HabitValue({
   const { t } = useTranslation();
   const format = useLocalizedFormatters();
   if (!record) return <Text>{t('habits.noRecord')}</Text>;
+  const habit = habitAtDate(sourceHabit, record.date);
   if (habit.definition.measurementMode === 'binary')
     return (
       <Text>
@@ -44,7 +46,7 @@ export function HabitValue({
   );
 }
 export function HabitSummary({
-  habit,
+  habit: sourceHabit,
   records,
   date,
   today,
@@ -54,6 +56,7 @@ export function HabitSummary({
   date: string;
   today: string;
 }) {
+  const habit = habitAtDate(sourceHabit, date);
   const { t } = useTranslation();
   const format = useLocalizedFormatters();
   const record = records.find(

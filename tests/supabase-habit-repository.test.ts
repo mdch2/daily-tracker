@@ -16,6 +16,7 @@ const row = {
   name: 'Reading',
   start_date: '2026-10-01',
   created_at: timestamp,
+  updated_at: timestamp,
   habit_definitions: [
     {
       id: definitionId,
@@ -68,6 +69,87 @@ function clientStub(data: unknown, error: { code: string } | null = null) {
   };
 }
 describe('habit Supabase boundary', () => {
+  it('reads ordered definition history without treating a future version as current', async () => {
+    const first = row.habit_definitions[0]!;
+    const future = {
+      ...first,
+      id: operationId,
+      effective_from: '2026-10-26',
+      target_milliunits: 30000,
+    };
+    const value = await createHabitRepository(
+      clientStub({ ...row, habit_definitions: [future, first] }).client,
+    ).findById(habitId);
+    expect(value?.definition.id).toBe(definitionId);
+    expect(
+      value?.definitionHistory?.map((definition) => definition.id),
+    ).toEqual([definitionId, operationId]);
+    await expect(
+      createHabitRepository(
+        clientStub({
+          ...row,
+          habit_definitions: [first, { ...future, unit_label: 'ml' }],
+        }).client,
+      ).findById(habitId),
+    ).rejects.toMatchObject({ code: 'service' });
+  });
+  it('sends configuration edits with a concurrency token and reads the server effective date', async () => {
+    const { client, rpc } = clientStub({
+      operation_id: operationId,
+      habit_id: habitId,
+      updated_at: timestamp,
+      effective_from: '2026-10-26',
+    });
+    await expect(
+      createHabitRepository(client).edit({
+        operationId,
+        habitId,
+        name: 'Updated',
+        expectedUpdatedAt: timestamp,
+        scheduleType: 'weekly',
+        weeklyTarget: 3,
+        targetMilliunits: 30000,
+      }),
+    ).resolves.toEqual({ effectiveFrom: '2026-10-26' });
+    expect(rpc).toHaveBeenCalledWith('edit_habit', {
+      p_operation_id: operationId,
+      p_habit_id: habitId,
+      p_name: 'Updated',
+      p_expected_updated_at: timestamp,
+      p_schedule_type: 'weekly',
+      p_weekly_target: 3,
+      p_target_milliunits: 30000,
+    });
+  });
+  it('renames by RPC with the observed token and validates the receipt identity', async () => {
+    const { client, rpc } = clientStub({
+      operation_id: operationId,
+      habit_id: habitId,
+      updated_at: timestamp,
+    });
+    const input = {
+      operationId,
+      habitId,
+      name: 'Updated',
+      expectedUpdatedAt: timestamp,
+    };
+    await createHabitRepository(client).rename(input);
+    expect(rpc).toHaveBeenCalledWith('rename_habit', {
+      p_operation_id: operationId,
+      p_habit_id: habitId,
+      p_name: 'Updated',
+      p_expected_updated_at: timestamp,
+    });
+    await expect(
+      createHabitRepository(
+        clientStub({
+          operation_id: userId,
+          habit_id: habitId,
+          updated_at: timestamp,
+        }).client,
+      ).rename(input),
+    ).rejects.toMatchObject({ code: 'service' });
+  });
   it('validates definitions and returns a bounded deterministic page', async () => {
     const { client, query } = clientStub([row]);
     expect(await createHabitRepository(client).list(30)).toMatchObject({

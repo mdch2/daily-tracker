@@ -142,6 +142,30 @@
     "complete": "Marcar como hecho",
     "undo": "Marcar como no hecho",
     "entryAmount": "Cantidad",
+    "rename": {
+      "title": "Editar nombre",
+      "description": "El nuevo nombre aparece de inmediato. Tus registros y sus metas se conservan.",
+      "currentName": "Nombre guardado: {{name}}",
+      "save": "Guardar nombre"
+    },
+    "edit": {
+      "title": "Editar hábito",
+      "save": "Guardar cambios",
+      "effective": "El nombre cambia ahora. La frecuencia y la meta se aplicarán desde el {{date}}. El historial se conserva.",
+      "unitFixed": "Unidad: {{unit}}. La unidad y el tipo de medición se conservan.",
+      "planned": "Próxima configuración",
+      "pendingFrom": "Cambio programado para el {{date}}",
+      "weeklyFrequency_one": "{{days}} día por semana",
+      "weeklyFrequency_other": "{{days}} días por semana"
+    },
+    "quantityEntry": {
+      "addLabel": "Cantidad a sumar ({{unit}})",
+      "totalLabel": "Total del día ({{unit}})",
+      "addHint": "Se sumará a lo que ya llevas registrado.",
+      "totalHint": "Reemplaza el total de esta fecha. Usa cero para dejarlo en cero.",
+      "correctTotal": "Corregir el total del día",
+      "backToAdd": "Volver a sumar una cantidad"
+    },
     "add": "Añadir aporte",
     "setTotal": "Fijar total",
     "readOnly": "Solo lectura. Los registros y correcciones requieren una fecha elegible de hoy o de los siete días anteriores.",
@@ -208,6 +232,63 @@
       "5": "V",
       "6": "S",
       "7": "D"
+    },
+    "myHabits": "Mis hábitos",
+    "compactWeekProgress": "Semana flexible · {{days}} / {{target}} días",
+    "new": "Nuevo",
+    "views": {
+      "daily": "Vista diaria",
+      "history": "Vista histórica"
+    },
+    "all": "Todos",
+    "filterEmpty": "No hay hábitos de este tipo en esta página.",
+    "dailyMinimum": "Meta: {{value}} {{unit}} / día",
+    "todayStatus": "Hoy · {{status}}",
+    "recordedAmount": "Registrado: {{value}} {{unit}}",
+    "currentUnavailable": "Estado actual no disponible.",
+    "inspect": "Inspeccionar el historial de {{name}}",
+    "recordToday": "Registrar hoy en {{name}}",
+    "inspectHint": "Toca un hábito para consultar cada fecha de su historial. El botón lateral abre el registro de hoy.",
+    "mapRange": "16 semanas · {{from}} – {{to}}",
+    "mapDescription": "Historial de {{name}}, del {{from}} al {{to}}. Consulta cada fecha desde el nombre del hábito.",
+    "mapUnavailable": "No se pudo cargar el mapa. Reintenta para consultar sus estados.",
+    "previousDay": "Fecha anterior",
+    "nextDay": "Fecha siguiente",
+    "legend": {
+      "completed": "Cumplido",
+      "partial": "Parcial",
+      "pending": "Sin cumplimiento",
+      "missed": "No cumplido",
+      "notScheduled": "No programado / sin comenzar",
+      "future": "Futuro"
+    },
+    "trackedCount_one": "{{value}} hábito en seguimiento",
+    "trackedCount_other": "{{value}} hábitos en seguimiento",
+    "pageHabitCount_one": "{{value}} hábito en esta página",
+    "pageHabitCount_other": "{{value}} hábitos en esta página",
+    "accountDate": "Hoy: {{date}} · {{zone}}",
+    "detail": {
+      "title": "Detalle del hábito",
+      "active": "Activo",
+      "period": "Período de actividad",
+      "periods": {
+        "week": "Semana",
+        "month": "Mes",
+        "quarter": "3 meses",
+        "year": "Año"
+      },
+      "map": "Mapa de actividad",
+      "range": "{{from}} – {{to}}",
+      "previousPeriod": "Período anterior",
+      "nextPeriod": "Período siguiente",
+      "mapDescription": "Actividad de {{name}}, del {{from}} al {{to}}. Usa los controles de fecha o el historial para consultar cada registro. Desliza horizontalmente para ver todo el mapa.",
+      "inspectRecord": "Consultar o corregir registro",
+      "recentHistory": "Historial reciente",
+      "showAll": "Ver todas las fechas",
+      "showRecent": "Registros recientes",
+      "empty": "No hay registros en este período. Usa los controles de fecha para consultar un día.",
+      "updated": "Actualizado el {{value}}",
+      "fixedConfiguration": "Los cambios de meta y frecuencia se aplican desde la próxima semana de la cuenta. Puedes corregir registros elegibles de hoy y los siete días anteriores con sus reglas históricas."
     }
   },
   "preferences": {

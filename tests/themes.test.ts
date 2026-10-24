@@ -49,6 +49,7 @@ describe('mandatory themes', () => {
         [colors.error, colors.background],
         [colors.link, colors.background],
         [colors.link, colors.surface],
+        [colors.link, colors.field],
         [colors.muted, colors.background],
         [colors.muted, colors.field],
         [colors.error, colors.errorSurface],

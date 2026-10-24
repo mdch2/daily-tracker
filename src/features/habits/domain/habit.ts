@@ -12,18 +12,22 @@ export type Schedule =
   | { scheduleType: 'weekdays'; weekdayMask: number }
   | { scheduleType: 'weekly'; weeklyTarget: number };
 export type CreateHabit = { id: string; name: string } & Measurement & Schedule;
+export type HabitDefinition = Measurement &
+  Schedule & {
+    id: string;
+    effectiveFrom: string;
+    timeZone: string;
+    weekStartDay: 1 | 7;
+  };
 export type Habit = {
   id: string;
   name: string;
   startDate: string;
   createdAt: string;
-  definition: Measurement &
-    Schedule & {
-      id: string;
-      effectiveFrom: string;
-      timeZone: string;
-      weekStartDay: 1 | 7;
-    };
+  updatedAt: string;
+  definition: HabitDefinition;
+  // Absent only for legacy single-definition domain values. The adapter always supplies history.
+  definitionHistory?: readonly HabitDefinition[];
 };
 export type HabitDayRecord = {
   habitId: string;
@@ -44,6 +48,14 @@ export type RecordHabitDay = {
   | { kind: 'add_amount'; amountMilliunits: number }
   | { kind: 'set_total'; amountMilliunits: number; expectedRevision: number }
 );
+export type RenameHabit = {
+  operationId: string;
+  habitId: string;
+  name: string;
+  expectedUpdatedAt: string;
+};
+export type EditHabit = RenameHabit &
+  Schedule & { targetMilliunits: number | null };
 export type HabitOperationReceipt = {
   operationId: string;
   habitId: string;
