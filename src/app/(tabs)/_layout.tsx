@@ -49,6 +49,19 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="routines"
+        options={{
+          title: t('navigation.routines'),
+          tabBarIcon: ({ color, size }) => (
+            <Icon
+              name="layers"
+              color={typeof color === 'string' ? color : undefined}
+              size={size}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="more"
         options={{
           title: t('navigation.more'),

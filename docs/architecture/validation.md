@@ -1,5 +1,20 @@
 # Verificación
 
+## Rutinas v1: cierre del 28 de octubre de 2026
+
+Implementación autorizada únicamente para Rutinas, según [ADR-009](adr/009-routines-v1.md) y [contrato cliente](routines.md). Metas personales continúa sin implementar.
+
+- `pnpm check` repetido al retomar el cierre: correcto, **220 pruebas en 31 suites**, límites de repositorios, lint sin advertencias, formato y TypeScript. Incluye elegibilidad, pasos obligatorios/opcionales, historial, vínculos con Hábitos, lectura fallida, creación y edición con borrador conservado, revisión visible tras conflicto y recuperación de un guardado confirmado sin reenviar la edición.
+- Backend local: migración incremental `20261027000100_routines.sql` aplicada el 27, sin reset ni cambios remotos. Al retomar el 28 Docker estaba detenido; se inició y se conservaron sus volúmenes. Después, `pnpm db:test`: **301 comprobaciones pgTAP correctas en seis archivos**, incluidas **85 nuevas de Rutinas**, con propietario A, usuario B, anon e identidad ausente.
+- `pnpm db:test:routines:isolated`: correcto el 28. Reproducción completa de migraciones, conservación de perfil/hábito/definición/registro previo y pruebas con dos conexiones reales: creación y registro duplicados, revisiones/configuraciones obsoletas, edición simultánea con registro y archivo repetido. Los fixtures se revierten; solo se elimina la base temporal creada por el runner. Su Auth mínimo sintético no equivale a recrear todo el servicio Auth.
+- Tipos generados en backend desde PostgreSQL local y después importados con `pnpm db:types` del móvil. Igualdad SHA-256 comprobada el 28: `12B67C8228958A2C98F7345F1C07B77486BB21DA4931FDC5D10B41FAD1C17D30`. Sin edición manual del artefacto.
+- Bundles finales Android/iOS generados correctamente el 27 con `pnpm exec expo export --platform android --platform ios --output-dir dist/routines-mobile --max-workers 2`, después de los ajustes de recuperación. No sustituyen una compilación nativa o pruebas en dispositivos.
+- Lint SQL local del 27: sin problemas en las funciones de Rutinas; persiste la advertencia previa de variable no usada en `create_habit`. No se modifica esa función ni la historia de migraciones para una limpieza ajena a Rutinas.
+- `pnpm exec expo install --check --pnpm`, repetido el 28, **no está limpio**: solicita parches para expo, expo-constants, expo-dev-client, expo-font, expo-linking, expo-localization, expo-router, expo-status-bar, expo-system-ui y jest-expo. No se añadieron dependencias ni se actualizaron versiones o el lockfile durante esta tarea. Se conservan las exclusiones de Jest ya documentadas.
+- Referencias originales de Rutinas conservadas sin reformatear. Se extrajo `Sheet` por sus consumidores reales en Hábitos y Rutinas; es/en y light/dark/system reutilizan las preferencias y tokens existentes. Las pruebas comprueban progreso accesible y los estados pertinentes, pero no certifican fidelidad visual nativa ni lectores de pantalla.
+- Revisión visual pendiente: se generó el 27 una vista web aislada con componentes reales y repositorios sintéticos en memoria, sin sesión ni escrituras Supabase. El host de acceso del navegador no permitió crear una pestaña dedicada; la revisión automática rechazó acceder a Chrome por mostrar Stitch y posible contenido privado ajeno. Al retomar el 28 también rechazó el inventario visual por ese riesgo. Se requiere una ventana dedicada a Rutinas y autorización de inspección; no se eludió ese bloqueo.
+- No hay cambios remotos, implementación de Metas personales, SQL de servidor en móvil ni configuración temporal de QA en los archivos de producto. La revisión de diff, enlaces y hashes confirma los límites entre repositorios y la conservación de los tipos y referencias.
+
 ## Hábitos v1: 22 de octubre de 2026
 
 - `pnpm check`: correcto, **141 pruebas en 19 suites**, límites de repositorio, lint sin warnings, formato y TypeScript. Incluye reglas de las tres frecuencias, cantidades exactas, cierre de períodos, semana parcial, correcciones, adaptadores, reintentos, conflictos, calendario explícito, conservación de entradas, rutas protegidas y regresiones de Auth/preferencias.

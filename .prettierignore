@@ -10,3 +10,7 @@ supabase/.branches
 # Original Stitch exports, preserved as design references.
 docs/design/home/code.html
 docs/design/home/DESIGN.md
+docs/design/routines/code.html
+docs/design/routines/DESIGN.md
+docs/design/goals/code.html
+docs/design/goals/DESIGN.md

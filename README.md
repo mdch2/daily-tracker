@@ -2,7 +2,11 @@
 
 Mobile MVP foundation for iOS and Android. The name is provisional; no final commercial brand identity has been established.
 
-This release includes navigation, authentication, profiles and habit recording: binary/quantity habits, three frequencies, explicit account calendar and seven-day corrections. Names can be edited immediately; frequency and quantity goals take effect next account week while preserving history. Routines, goals, full calendar/statistics, journaling, pauses and streaks remain deferred. See [habit contracts](docs/architecture/habits.md).
+This release includes navigation, authentication, profiles, habit recording and [routines](docs/architecture/routines.md). Habits support binary/quantity recording, three frequencies, explicit account calendar and seven-day corrections. Routine steps combine their own records and linked habits, with today's-only routine recording and preserved history. Names can be edited immediately; habit frequency/goals and routine structure take effect next account week. Personal goals, full calendar/statistics, journaling, pauses and streaks remain deferred. See [habit contracts](docs/architecture/habits.md).
+
+The functional definitions of routines and personal goals are approved in [ADR-008](docs/architecture/adr/008-routines-personal-goals.md). Routines are implemented according to [ADR-009](docs/architecture/adr/009-routines-v1.md); personal goals and their executable contracts remain pending. Personal goals will track quantities or equally weighted milestones, with manual or habit-linked progress chosen per goal.
+
+The [pre-implementation plan](docs/architecture/routines-goals-plan.md) specifies the approved five-tab navigation, today's-only routine recording, one habit per linked goal, and proposals for the remaining rules and client contracts. Database design belongs to the backend repository. Visual references received in `docs/design/routines` and `docs/design/goals` are preserved unchanged; their functional differences are documented before screen implementation.
 
 ## Requirements
 
@@ -101,6 +105,7 @@ src/
     auth/              # Domain, application, infrastructure, presentation
     profile/           # Contract, adapter, and context consumed by dashboard
     habits/            # Habit rules, recording actions, Supabase adapter and screens
+    routines/          # Own/linked steps, dated definitions, recording, history and archive
     dashboard/         # Stitch home, account week and confirmed daily habit overview
   infrastructure/
     supabase/          # Client, SecureStore, and database types

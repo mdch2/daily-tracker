@@ -9,6 +9,9 @@ export type OperationErrorCode =
   | 'conflict'
   | 'calendarLocked'
   | 'amountLimit'
+  | 'archived'
+  | 'flexibleOptional'
+  | 'noRequiredOverlap'
   | 'network'
   | 'service';
 

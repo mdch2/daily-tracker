@@ -75,6 +75,9 @@ export function HabitSettingsEditor({
 
   async function refresh() {
     await client.invalidateQueries({
+      queryKey: ['routines', state.session?.userId],
+    });
+    await client.invalidateQueries({
       queryKey: ['habits', state.session?.userId],
       refetchType: 'none',
     });
