@@ -12,11 +12,11 @@ La referencia recibida de Stitch es [screen.png](screen.png), con su [HTML origi
 
 ## Diferencias intencionales de la maqueta
 
-El home muestra hábitos reales, sin inventar rutinas, horarios, sincronización offline ni rachas. El saludo utiliza el nombre del perfil cuando está disponible. La búsqueda filtra el listado del día sin alterar el resumen. El distintivo de apariencia refleja el tema resuelto.
+El home muestra hábitos reales y, desde Rutinas v1, una sección independiente de rutinas programadas para la fecha, con progreso confirmado y acceso al detalle. Sus conteos no se mezclan con los de Hábitos. No se inventan horarios, sincronización offline ni rachas. El saludo utiliza el nombre del perfil cuando está disponible. La búsqueda filtra el listado de hábitos del día sin alterar el resumen. El distintivo de apariencia refleja el tema resuelto.
 
 El resumen muestra un conteo y una barra de las metas programadas en la fecha, usando las reglas compartidas de elegibilidad, definición histórica y cumplimiento. Los hábitos flexibles de X días por semana aparecen como oportunidades de registro y se excluyen de las obligaciones diarias. No se implementan porcentajes agregados ni comparaciones semanales pendientes de contrato; la tarjeta de ritmo semanal permite acceder al progreso existente en Hábitos.
 
-La navegación conserva Hoy, Hábitos y Más. Progreso sigue pendiente y no se añade una pestaña sin un recorrido implementado.
+La navegación incorpora Hoy, Hábitos, Rutinas y Más. Metas completará los cinco destinos aprobados cuando se implemente; no se añade una pestaña sin un recorrido real. Progreso sigue pendiente.
 
 ## Verificación
 

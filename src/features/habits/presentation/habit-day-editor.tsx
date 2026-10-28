@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { randomUUID } from 'expo-crypto';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Pressable } from 'react-native';
 import { useTheme } from '@/shared/theme/use-theme';
@@ -38,6 +38,7 @@ export function HabitDayEditor({
   const { t } = useTranslation();
   const { colors, tokens } = useTheme();
   const repository = useHabitRepository();
+  const client = useQueryClient();
   const mutation = useMutation({
     mutationFn: createHabitActions(repository).record,
   });
@@ -127,6 +128,7 @@ export function HabitDayEditor({
       setAmount('');
       setReloading(true);
       try {
+        await client.invalidateQueries({ queryKey: ['routines'] });
         const rows = await refresh();
         if (mounted.current) {
           setBaseRevision(

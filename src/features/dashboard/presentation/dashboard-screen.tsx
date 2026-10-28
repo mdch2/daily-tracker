@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { DashboardRoutines } from '@/features/routines/presentation/dashboard-routines';
 import { ActivityIndicator, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
@@ -337,6 +338,7 @@ function DashboardContent({ context }: { context: ReadyBusinessContext }) {
             )}
           </>
         )}
+        <DashboardRoutines date={date} today={context.today} />
       </Screen>
       {inspection && (
         <HabitRecordSheet

@@ -37,6 +37,9 @@ async function openApp(initialUrl: string) {
         '(tabs)/index': () => <Text>Dashboard screen</Text>,
         '(tabs)/habits': () => <Text>Habits screen</Text>,
         '(tabs)/more': () => <Text>Preferences screen</Text>,
+        '(tabs)/routines': () => <Text>Routines screen</Text>,
+        'routines/new': () => <Text>Create routine screen</Text>,
+        'routines/[id]': () => <Text>Routine detail screen</Text>,
         'habits/new': () => <Text>Create habit screen</Text>,
         'habits/[id]': () => <Text>Habit detail screen</Text>,
         'update-password': () => <Text>Update password screen</Text>,
@@ -70,7 +73,15 @@ describe('startup navigation', () => {
     expect(view.getPathname()).toBe('/');
   });
 
-  it.each(['/habits', '/habits/new', '/habits/synthetic-id', '/more'])(
+  it.each([
+    '/habits',
+    '/habits/new',
+    '/habits/synthetic-id',
+    '/more',
+    '/routines',
+    '/routines/new',
+    '/routines/synthetic-id',
+  ])(
     'protects the habit route %s without a session',
     async (url) => {
       const view = await openApp(url);

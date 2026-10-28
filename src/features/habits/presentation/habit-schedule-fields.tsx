@@ -13,6 +13,7 @@ export function HabitScheduleFields({
   onScheduleChange,
   onMaskChange,
   onWeeklyChange,
+  allowWeekly = true,
 }: {
   schedule: Schedule['scheduleType'];
   mask: number;
@@ -21,6 +22,7 @@ export function HabitScheduleFields({
   onScheduleChange: (value: Schedule['scheduleType']) => void;
   onMaskChange: (value: number) => void;
   onWeeklyChange: (value: string) => void;
+  allowWeekly?: boolean;
 }) {
   const { t } = useTranslation();
   const { colors, tokens } = useTheme();
@@ -39,7 +41,10 @@ export function HabitScheduleFields({
           gap: tokens.spacing.sm,
         }}
       >
-        {(['daily', 'weekdays', 'weekly'] as const).map((value) => (
+        {(allowWeekly
+          ? (['daily', 'weekdays', 'weekly'] as const)
+          : (['daily', 'weekdays'] as const)
+        ).map((value) => (
           <View key={value} style={{ flexGrow: 1, flexBasis: 80 }}>
             <HabitFormChoice
               title={t(`habits.frequencyOptions.${value}`)}

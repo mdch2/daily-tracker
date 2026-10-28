@@ -18,6 +18,7 @@ export function useBusinessContext() {
   const refresh = useCallback(async () => {
     await refetch();
     await client.invalidateQueries({ queryKey: ['habits', userId] });
+    await client.invalidateQueries({ queryKey: ['routines', userId] });
   }, [client, refetch, userId]);
   useEffect(() => {
     const listener = AppState.addEventListener('change', (value) => {

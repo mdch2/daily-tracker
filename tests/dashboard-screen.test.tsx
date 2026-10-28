@@ -4,6 +4,8 @@ import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { DashboardScreen } from '@/features/dashboard/presentation/dashboard-screen';
 import { HabitRepositoryContext } from '@/features/habits/presentation/habit-context';
+import { RoutineRepositoryContext } from '@/features/routines/presentation/routine-context';
+import { routineRepositoryStub } from './helpers/routine-fixtures';
 import { ProfileRepositoryContext } from '@/features/profile/presentation/profile-context';
 import type { ProfileRepository } from '@/features/profile/domain/profile-repository';
 import { OperationError } from '@/shared/domain/operation-error';
@@ -66,7 +68,9 @@ async function open(
     <QueryClientProvider client={client}>
       <ProfileRepositoryContext.Provider value={profiles}>
         <HabitRepositoryContext.Provider value={repository}>
-          <DashboardScreen />
+          <RoutineRepositoryContext.Provider value={routineRepositoryStub()}>
+            <DashboardScreen />
+          </RoutineRepositoryContext.Provider>
         </HabitRepositoryContext.Provider>
       </ProfileRepositoryContext.Provider>
     </QueryClientProvider>

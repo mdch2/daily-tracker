@@ -43,6 +43,7 @@ function RootNavigator() {
         >
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="habits" />
+          <Stack.Screen name="routines" />
         </Stack.Protected>
         <Stack.Screen name="callback" />
       </Stack>

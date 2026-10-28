@@ -12,6 +12,8 @@ import { createAuthRepository } from '@/features/auth/infrastructure/supabase-au
 import { createProfileRepository } from '@/features/profile/infrastructure/supabase-profile-repository';
 import { createHabitRepository } from '@/features/habits/infrastructure/supabase-habit-repository';
 import { HabitRepositoryContext } from '@/features/habits/presentation/habit-context';
+import { createRoutineRepository } from '@/features/routines/infrastructure/supabase-routine-repository';
+import { RoutineRepositoryContext } from '@/features/routines/presentation/routine-context';
 import { AuthProvider } from '@/features/auth/presentation/auth-provider';
 import { ProfileRepositoryContext } from '@/features/profile/presentation/profile-context';
 import { Screen, Text } from '@/shared/ui/primitives';
@@ -30,6 +32,7 @@ function createRuntime() {
     auth: createAuthRepository(client),
     profiles: createProfileRepository(client),
     habits: createHabitRepository(client),
+    routines: createRoutineRepository(client),
   };
 }
 function BackendProvider({ children }: PropsWithChildren) {
@@ -43,7 +46,9 @@ function BackendProvider({ children }: PropsWithChildren) {
     <AuthProvider repository={runtime.auth}>
       <ProfileRepositoryContext.Provider value={runtime.profiles}>
         <HabitRepositoryContext.Provider value={runtime.habits}>
-          {children}
+          <RoutineRepositoryContext.Provider value={runtime.routines}>
+            {children}
+          </RoutineRepositoryContext.Provider>
         </HabitRepositoryContext.Provider>
       </ProfileRepositoryContext.Provider>
     </AuthProvider>
