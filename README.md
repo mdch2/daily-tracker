@@ -101,7 +101,7 @@ src/
     auth/              # Domain, application, infrastructure, presentation
     profile/           # Contract, adapter, and context consumed by dashboard
     habits/            # Habit rules, recording actions, Supabase adapter and screens
-    dashboard/         # Initial technical screen
+    dashboard/         # Stitch home, account week and confirmed daily habit overview
   infrastructure/
     supabase/          # Client, SecureStore, and database types
   shared/

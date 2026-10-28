@@ -18,6 +18,13 @@ jest.mock('@/features/auth/presentation/auth-provider', () => ({
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
+// Navigation isolation replaces AppProviders; supply the tab theme independently.
+jest.mock('@/shared/theme/use-theme', () => ({
+  useTheme: () => {
+    const { palettes, tokens } = jest.requireActual('@/shared/theme/tokens');
+    return { colors: palettes.light, tokens, mode: 'light' };
+  },
+}));
 
 async function openApp(initialUrl: string) {
   return renderRouter(

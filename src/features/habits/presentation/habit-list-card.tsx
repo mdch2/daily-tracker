@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/shared/theme/use-theme';
 import { useLocalizedFormatters } from '@/shared/i18n/use-localized-formatters';
 import { Text } from '@/shared/ui/primitives';
-import { Icon, type IconName } from '@/shared/ui/icon';
+import { Icon } from '@/shared/ui/icon';
+import { IconButton as HabitIconButton } from '@/shared/ui/icon-button';
 import type { Habit, HabitDayRecord } from '../domain/habit';
 import {
   canRecord,
@@ -15,42 +16,7 @@ import {
   pendingDefinition,
 } from '../domain/habit-rules';
 
-export function HabitIconButton({
-  label,
-  icon,
-  onPress,
-  disabled = false,
-  active = false,
-}: {
-  label: string;
-  icon: IconName;
-  onPress: () => void;
-  disabled?: boolean;
-  active?: boolean;
-}) {
-  const { colors, tokens } = useTheme();
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={{ disabled }}
-      disabled={disabled}
-      onPress={onPress}
-      style={({ pressed }) => ({
-        minWidth: tokens.minimumTouchTarget,
-        minHeight: tokens.minimumTouchTarget,
-        padding: tokens.spacing.sm,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: tokens.radius.control,
-        opacity: disabled ? 0.5 : pressed ? 0.75 : 1,
-        backgroundColor: active ? colors.action : colors.elevated,
-      })}
-    >
-      <Icon name={icon} color={active ? colors.onAction : colors.text} />
-    </Pressable>
-  );
-}
+export { IconButton as HabitIconButton } from '@/shared/ui/icon-button';
 
 export function HabitListCard({
   habit: sourceHabit,
