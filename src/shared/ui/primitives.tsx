@@ -18,6 +18,7 @@ import {
   useState,
   type ComponentRef,
   type PropsWithChildren,
+  type ReactNode,
   type Ref,
 } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -53,10 +54,36 @@ export function Text({
 export function Screen({
   children,
   contentStyle,
-}: PropsWithChildren<{ contentStyle?: StyleProp<ViewStyle> }>) {
+  header,
+  bottomSafeArea = true,
+}: PropsWithChildren<{
+  contentStyle?: StyleProp<ViewStyle>;
+  header?: ReactNode;
+  bottomSafeArea?: boolean;
+}>) {
   const { colors, tokens } = useTheme();
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+    <SafeAreaView
+      edges={
+        bottomSafeArea
+          ? ['top', 'bottom', 'left', 'right']
+          : ['top', 'left', 'right']
+      }
+      style={{ flex: 1, backgroundColor: colors.background }}
+    >
+      {header && (
+        <View
+          style={{
+            width: '100%',
+            maxWidth: 520,
+            alignSelf: 'center',
+            paddingHorizontal: 20,
+            paddingVertical: 12,
+          }}
+        >
+          {header}
+        </View>
+      )}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}

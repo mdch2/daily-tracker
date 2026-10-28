@@ -4,8 +4,9 @@ import { PreferencesControls } from '@/shared/preferences/preferences-controls';
 import { useTheme } from '@/shared/theme/use-theme';
 import { Icon } from '@/shared/ui/icon';
 import { Screen, Text } from '@/shared/ui/primitives';
+import type { PropsWithChildren } from 'react';
 
-export function PreferencesScreen() {
+export function PreferencesScreen({ children }: PropsWithChildren) {
   const { t } = useTranslation();
   const { colors, tokens } = useTheme();
   return (
@@ -32,6 +33,7 @@ export function PreferencesScreen() {
       >
         <PreferencesControls />
       </View>
+      {children}
     </Screen>
   );
 }
