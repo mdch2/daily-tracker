@@ -129,6 +129,10 @@ export function HabitDayEditor({
       setReloading(true);
       try {
         await client.invalidateQueries({ queryKey: ['routines'] });
+        await client.invalidateQueries(
+          { queryKey: ['goals'] },
+          { throwOnError: true },
+        );
         const rows = await refresh();
         if (mounted.current) {
           setBaseRevision(

@@ -38,6 +38,16 @@ describe('mandatory languages', () => {
       );
     }
   });
+  it('preserves Spanish accents and question punctuation in the catalog', () => {
+    const corruptedKeys = Object.entries(entries(resources.es.translation))
+      .filter(([, value]) => {
+        const opening = value.match(/¿/g)?.length ?? 0;
+        const closing = value.match(/\?/g)?.length ?? 0;
+        return opening !== closing || /\uFFFD|\p{L}\?\p{L}/u.test(value);
+      })
+      .map(([key]) => key);
+    expect(corruptedKeys).toEqual([]);
+  });
   it('uses English when a requested language is unsupported', async () => {
     const i18n = createAppI18n('es');
     await i18n.changeLanguage('fr');

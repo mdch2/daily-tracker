@@ -4,6 +4,16 @@ import {
 } from '@/shared/domain/operation-error';
 
 const codes: Record<string, OperationErrorCode> = {
+  GL001: 'unauthorized',
+  GL002: 'calendarRequired',
+  GL003: 'invalidInput',
+  GL004: 'notFound',
+  GL005: 'operationReused',
+  GL006: 'outsideWindow',
+  GL007: 'ineligibleDate',
+  GL008: 'conflict',
+  GL009: 'archived',
+  GL010: 'amountLimit',
   HT001: 'unauthorized',
   HT002: 'calendarRequired',
   HT003: 'invalidInput',

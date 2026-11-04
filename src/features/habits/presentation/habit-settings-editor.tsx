@@ -74,6 +74,10 @@ export function HabitSettingsEditor({
   const disabled = busy || !!pending || saved;
 
   async function refresh() {
+    await client.invalidateQueries(
+      { queryKey: ['goals', state.session?.userId] },
+      { throwOnError: true },
+    );
     await client.invalidateQueries({
       queryKey: ['routines', state.session?.userId],
     });

@@ -3,7 +3,7 @@
 - Estado: aceptada para las reglas descritas; implementación y contratos técnicos pendientes.
 - Confirmación: 2026-10-27.
 
-Implementación posterior: Rutinas v1 está implementada localmente según [ADR-009](009-routines-v1.md). Metas personales conserva su definición funcional y continúa sin implementar. Las secciones de pendientes de este ADR registran el contexto previo al cierre de Rutinas.
+Resoluciones posteriores: Rutinas v1 está implementada localmente según [ADR-009](009-routines-v1.md). Las reglas detalladas y el alcance visual de Metas v1 se aprobaron el 28 de octubre de 2026 en [ADR-010](010-personal-goals-v1.md) y [su definición vigente](../goals-v1.md), sin implementar todavía. Las secciones de pendientes de este ADR conservan el contexto original; prevalecen esas resoluciones para cada módulo.
 
 Ampliación confirmada en la misma fecha: cinco pestañas (Hoy, Hábitos, Rutinas, Metas y Más); un hábito por meta vinculada, reutilizable en varias metas; registro y corrección desde Rutinas solo hoy. La propuesta detallada para estructura, reglas restantes y contratos cliente está en el [plan de rutinas y metas](../routines-goals-plan.md); el diseño de persistencia se documenta en el repositorio backend.
 

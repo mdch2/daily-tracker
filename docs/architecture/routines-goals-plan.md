@@ -1,8 +1,10 @@
 # Plan de rutinas y metas personales
 
-Fecha: 2026-10-27. Especificación previa a implementación. Las reglas confirmadas están en [ADR-008](adr/008-routines-personal-goals.md). Las decisiones adicionales de este plan son una propuesta concreta para revisión, no funcionalidades disponibles. El diseño de tablas, restricciones, índices y autorización vive exclusivamente en el backend, en `docs/routines-goals-plan.md` de `daily-tracker-supabase`.
+Fecha inicial: 2026-10-27. Actualización: 2026-10-28. Especificación previa a implementación. Las reglas iniciales están en [ADR-008](adr/008-routines-personal-goals.md); las decisiones de producto de Metas v1 están aprobadas en [ADR-010](adr/010-personal-goals-v1.md) y [su definición vigente](goals-v1.md). Los contratos técnicos siguientes siguen siendo propuestas, no funcionalidades disponibles. El diseño de tablas, restricciones, índices y autorización vive exclusivamente en el backend, en `docs/routines-goals-plan.md` de `daily-tracker-supabase`, y debe conciliarse con la aprobación de Metas v1.
 
-Actualización: el usuario autoriza implementar únicamente Rutinas. El [contrato v1](routines.md) y [ADR-009](adr/009-routines-v1.md) describen su implementación y prevalecen sobre las propuestas de ese módulo. Metas personales continúa sin implementar. La navegación actual añade solo Rutinas; Metas se incorporará cuando tenga un recorrido completo.
+Resolución del 30 de octubre: el [contrato técnico de Metas](goals-service-contract.md) y [ADR-011](adr/011-goal-service-contract.md) sustituyen los nombres y propuestas técnicas de Metas de este plan; el diseño backend vigente está en su `docs/goals-v1.md`, ya conciliado con las reglas aprobadas. No hay RPC de Metas implementadas todavía.
+
+Actualización del 27 de octubre: el usuario autoriza implementar únicamente Rutinas. El [contrato v1](routines.md) y [ADR-009](adr/009-routines-v1.md) describen su implementación y prevalecen sobre las propuestas de ese módulo. Metas personales continúa sin implementar. La navegación actual añade solo Rutinas; Metas se incorporará cuando tenga un recorrido completo.
 
 ## Alcance y decisiones confirmadas
 
@@ -13,7 +15,7 @@ Actualización: el usuario autoriza implementar únicamente Rutinas. El [contrat
 - Inicio y fecha límite opcional para metas. Una meta vencida permite continuar, reprogramar o archivar. Una corrección puede reducir el progreso y deshacer el logro.
 - La programación y el registro de un hábito no se duplican ni se alteran por incluirlo en una rutina o meta. Las unidades deben ser compatibles.
 
-Las siguientes secciones concretan recomendaciones para cubrir los casos que aún no estaban definidos. Los valores de límites y las políticas nuevas requieren revisión de producto antes de implementar.
+Las siguientes secciones conservan el plan inicial, actualizado con las decisiones aprobadas de Metas v1. Su definición de producto está cerrada; las firmas y mecanismos técnicos deben concretarse y verificarse al implementar.
 
 ## Estructura dentro de la aplicación
 
@@ -69,12 +71,12 @@ El nombre de la rutina cambia inmediatamente. Pasos, obligatoriedad, orden y pro
 
 Archivar bloquea nuevos registros y ediciones, conserva el historial y elimina la rutina de las fechas posteriores al archivo. No borra hábitos, pasos ni registros. Inicialmente no se ofrece eliminación definitiva ni restauración; tampoco pausas o rachas propias. El archivo no impide corregir los hábitos desde su módulo dentro de su ventana ni oculta esos cambios al consultar una fecha previa.
 
-## Metas: propuesta de reglas completas
+## Metas: reglas aprobadas para v1
 
 ### Definición y validaciones
 
-- Nombre de 1–100 caracteres; descripción opcional de hasta 2.000. Ausencia de descripción se representa como nulo, no como un error.
-- Inicio elegido explícitamente, hoy o una fecha futura de la cuenta. No se incorporan registros anteriores al inicio ni importaciones retroactivas anteriores a la creación.
+- Nombre de 1–100 caracteres; descripción opcional de hasta 400. Ausencia o descripción vacía normalizada se representa como nulo, no como un error.
+- Inicio elegido explícitamente, hoy o una fecha futura de la cuenta, sin inicio retroactivo. Una meta vinculada creada hoy incluye el registro completo de hoy aunque sea anterior a su creación. No se incorporan fechas anteriores al inicio.
 - Fecha límite opcional, igual o posterior al inicio. Se vence al comenzar el día siguiente a esa fecha en la zona de cuenta, sin sumar 24 horas a un instante.
 - Cantidad objetivo positiva, unidad de 1–30 caracteres, hasta tres decimales y rango de hábitos: máximo 999999999.999 unidades. Se usan milésimas enteras, no sumas en coma flotante.
 - De 1 a 30 hitos con nombre de 1–100 caracteres, ordenados y de igual peso. Sin hitos vacíos ni metas sin denominador.
@@ -84,9 +86,9 @@ Archivar bloquea nuevos registros y ediciones, conserva el historial y elimina l
 
 Para cantidad, se permite sumar un aporte positivo al total de una fecha o corregir ese total, incluido cero. Los registros diarios se acumulan desde el inicio hasta hoy. No hay cantidades negativas; una disminución o retirada se refleja corrigiendo explícitamente un total diario existente.
 
-Se propone la misma ventana de siete fechas anteriores más hoy para aportes y correcciones manuales de metas, limitada además por el inicio. Esta es una propuesta propia de Metas, no una extensión de la decisión de Rutinas ni una regla ya confirmada. No se permite introducir un saldo inicial sin fecha de registro; puede registrarse como aporte de hoy.
+La ventana aprobada para cantidades manuales comprende siete fechas anteriores más hoy, limitada además por el inicio. No se permite introducir un saldo inicial sin fecha de registro; puede registrarse como aporte de hoy.
 
-Para hitos, cada uno se confirma o revierte explícitamente. Al confirmar se elige fecha entre inicio y hoy, dentro de esa ventana; al corregir se comprueba tanto la fecha guardada como la nueva. Los hitos fuera de la ventana quedan consultables, sin reversión tardía en esta propuesta. Se debe mostrar esa restricción antes de confirmar.
+Para hitos manuales, cada uno se confirma, corrige de fecha o revierte explícitamente durante toda la meta sin archivar. Las fechas confirmadas deben estar entre inicio y hoy. No se aplica la ventana de siete días: un hito antiguo puede corregirse o revertirse, conservando historial de cambios.
 
 No se registra progreso antes del inicio ni después del archivo. Superar la fecha límite no cierra la escritura: permite seguir avanzando.
 
@@ -109,11 +111,11 @@ La falta de registro no es un aporte confirmado de cero, aunque no incremente el
 
 En cantidad, el avance es el valor acumulado frente al objetivo. En hitos, es el número completado frente al total de hitos; un hito aún no alcanzado no aporta una fracción de su peso. La barra se limita a 100 %, el porcentaje entero se trunca hacia abajo y el valor real conserva el exceso. No se muestra 100 % antes de lograr la meta por efecto del redondeo.
 
-Se proponen estos estados, con prioridad: archivada, programada (inicio futuro), lograda, vencida (límite pasado sin lograr) y en curso. Una meta lograda permanece lograda al pasar su fecha límite mientras siga cumpliendo el objetivo. El archivo se presenta como estado de ciclo de vida y mantiene visible el progreso alcanzado.
+Los estados aprobados, con prioridad, son: archivada, programada (inicio futuro), lograda, vencida (límite pasado sin lograr) y en curso. Una meta lograda permanece lograda al pasar su fecha límite mientras siga cumpliendo el objetivo y permite seguir acumulando mientras no se archive. El archivo se presenta como estado de ciclo de vida y mantiene visible el progreso alcanzado.
 
 Nombre y descripción se editan inmediatamente. Fecha límite y cantidad objetivo también, con revisión de concurrencia e historial de antes/después, sin cambiar registros ni fechas de origen. Se permite quitar la fecha límite o reprogramarla a otra igual o posterior al inicio. Cambiar la cantidad objetivo puede lograr o reabrir la meta. Los hitos, sus umbrales y su orden se fijan al crear; añadirlos, quitarlos o reordenarlos exige otra meta en esta entrega.
 
-Archivar detiene nuevas fechas de contribución y escrituras manuales, conserva el historial y no elimina el hábito. Las correcciones permitidas de un hábito en fechas incluidas en la ventana de la meta siguen reflejándose en el progreso archivado; no se presenta como una certificación inmutable. Sin eliminación definitiva ni restauración inicialmente.
+Archivar bloquea escrituras manuales y cambios de configuración, conserva el historial consultable y no elimina el hábito. En metas vinculadas se incluye toda la fecha de archivo: tanto registros posteriores ese mismo día como correcciones permitidas de fechas incluidas siguen reflejándose en el progreso. Desde el día siguiente no se acumula. No se presenta como una certificación inmutable. Sin eliminación definitiva ni restauración en v1.
 
 ## Contratos cliente y límites de módulos
 
@@ -147,7 +149,7 @@ Un fallo en cualquier bloque impide publicar un resumen parcial como si fuera co
 
 ## Diseño y estados de pantalla
 
-Referencias recibidas e inspeccionadas: [rutinas](../design/routines/README.md) y [metas](../design/goals/README.md). Sus documentos registran las diferencias con el alcance: navegación, horarios, sesiones guiadas, métricas, rachas y vínculos entre medidas incompatibles. Los exportados orientan composición y recursos; las maquetas no amplían las reglas ni justifican datos ficticios.
+Referencias recibidas e inspeccionadas: [rutinas](../design/routines/README.md) y [metas](../design/goals/README.md). Sus documentos registran las diferencias con el alcance: navegación, horarios, sesiones guiadas, métricas, rachas y vínculos entre medidas incompatibles. Los exportados orientan composición y recursos; las maquetas no amplían las reglas ni justifican datos ficticios. Metas v1 conserva tarjetas, filtros/conteos reales por estado y los recorridos completos, con hitos pendientes en el detalle. Quedan fuera el resumen de próximos hitos entre metas, categorías, pronósticos, avance global ponderado y alineación semanal.
 
 Cada recorrido debe cubrir carga, vacío, datos, error y recuperación; validación, guardado, conflicto, archivo y fechas no editables donde correspondan. Las metas vinculadas muestran origen y medida y ofrecen abrir el hábito, sin controles de aporte manual. El detalle de rutina distingue pasos propios, vinculados, obligatorios, opcionales y no elegibles. Las confirmaciones de archivo explican conservación del historial y bloqueo de escrituras.
 
