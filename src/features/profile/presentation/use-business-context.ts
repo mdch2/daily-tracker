@@ -19,6 +19,7 @@ export function useBusinessContext() {
     await refetch();
     await client.invalidateQueries({ queryKey: ['habits', userId] });
     await client.invalidateQueries({ queryKey: ['routines', userId] });
+    await client.invalidateQueries({ queryKey: ['goals', userId] });
   }, [client, refetch, userId]);
   useEffect(() => {
     const listener = AppState.addEventListener('change', (value) => {

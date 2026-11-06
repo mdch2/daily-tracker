@@ -62,6 +62,19 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="goals"
+        options={{
+          title: t('navigation.goals'),
+          tabBarIcon: ({ color, size }) => (
+            <Icon
+              name="flag"
+              color={typeof color === 'string' ? color : undefined}
+              size={size}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="more"
         options={{
           title: t('navigation.more'),

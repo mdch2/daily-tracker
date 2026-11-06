@@ -2,8 +2,8 @@
 
 Estado: fundamentos, [hábitos](habits.md) y [Rutinas v1](routines.md) implementados. Feature-First + Clean Architecture pragmática + monolito modular móvil.
 La edición de hábitos conserva reglas históricas y aplica frecuencia/meta desde la próxima semana de la cuenta: [ADR-007](adr/007-habit-editing.md).
-Las definiciones funcionales de rutinas y metas personales están aprobadas en [ADR-008](adr/008-routines-personal-goals.md). Rutinas está implementada según [ADR-009](adr/009-routines-v1.md); Metas personales sigue pendiente.
-El [plan previo a implementación](routines-goals-plan.md) detalla navegación, reglas propuestas, límites de módulos, contratos cliente y criterios de aceptación. El diseño de datos reside en el repositorio backend; las referencias de rutinas y metas están recibidas en `docs/design/routines` y `docs/design/goals`, con sus diferencias funcionales documentadas.
+Las definiciones funcionales de rutinas y metas personales están aprobadas en [ADR-008](adr/008-routines-personal-goals.md). Rutinas está implementada según [ADR-009](adr/009-routines-v1.md). [Metas v1](goals-v1.md) tiene reglas detalladas y alcance visual aprobados en [ADR-010](adr/010-personal-goals-v1.md); su implementación y contratos ejecutables siguen pendientes.
+El [plan previo a implementación](routines-goals-plan.md) detalla navegación, límites de módulos y criterios de aceptación. El [contrato técnico de Metas](goals-service-contract.md), definido en [ADR-011](adr/011-goal-service-contract.md), concreta lecturas/escrituras, historial y recuperación, ya conciliado con el diseño backend en su propio repositorio. Queda implementarlo y verificarlo. Las referencias de rutinas y metas están recibidas en `docs/design/routines` y `docs/design/goals`, con sus diferencias funcionales documentadas.
 La separación se aplica donde existe una responsabilidad, sin generar cuatro carpetas por cada módulo previsto.
 
 ## Requisitos permanentes

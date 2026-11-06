@@ -38,6 +38,9 @@ async function openApp(initialUrl: string) {
         '(tabs)/habits': () => <Text>Habits screen</Text>,
         '(tabs)/more': () => <Text>Preferences screen</Text>,
         '(tabs)/routines': () => <Text>Routines screen</Text>,
+        '(tabs)/goals': () => <Text>Goals screen</Text>,
+        'goals/new': () => <Text>Create goal screen</Text>,
+        'goals/[id]': () => <Text>Goal detail screen</Text>,
         'routines/new': () => <Text>Create routine screen</Text>,
         'routines/[id]': () => <Text>Routine detail screen</Text>,
         'habits/new': () => <Text>Create habit screen</Text>,
@@ -81,6 +84,9 @@ describe('startup navigation', () => {
     '/routines',
     '/routines/new',
     '/routines/synthetic-id',
+    '/goals',
+    '/goals/new',
+    '/goals/synthetic-id',
   ])(
     'protects the habit route %s without a session',
     async (url) => {
@@ -96,6 +102,13 @@ describe('startup navigation', () => {
     const view = await openApp('/habits/synthetic-id');
     expect(screen.getByText('Habit detail screen')).toBeOnTheScreen();
     expect(view.getPathname()).toBe('/habits/synthetic-id');
+  }, 15000);
+
+  it('opens goal detail for an authenticated deep link', async () => {
+    mockSession = { userId: 'synthetic-user' };
+    const view = await openApp('/goals/synthetic-id');
+    expect(screen.getByText('Goal detail screen')).toBeOnTheScreen();
+    expect(view.getPathname()).toBe('/goals/synthetic-id');
   }, 15000);
 
   it('opens password recovery instead of the dashboard during recovery', async () => {
