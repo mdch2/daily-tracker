@@ -12,6 +12,7 @@ Aplica a modelos persistidos, contratos de entrada o salida, consultas, integrid
 ## Procedimiento
 
 1. Identifica dónde se originan, validan, escriben y leen los datos del cambio. Si aún no existe almacenamiento, resuelve la decisión necesaria antes de crear un adaptador; no selecciones proveedor, ORM o backend por defecto.
+   Aplicar docs/architecture/repository-boundaries.md: las escrituras de esquema, migraciones y restricciones pertenecen al repositorio backend; el móvil solo valida entradas, adapta servicios e importa tipos generados. Preferencias de idioma/tema son locales al dispositivo y no deben incorporarse al esquema remoto por omisión.
 2. Define el contrato mínimo: identificadores estables, campos requeridos y opcionales, tipos, límites, relaciones y propietario si existen cuentas. Diferencia ausencia, valor nulo y cero cuando tengan efectos distintos. Incorpora solo campos con uso en el caso actual.
 3. Distingue fechas de calendario de instantes. Preserva la fecha de negocio y la información temporal necesarias para el contrato; no derives todos los días de una conversión implícita a UTC ni de la zona del equipo que ejecuta el código.
 4. Coloca las validaciones en el límite de entrada y las restricciones de integridad donde se aceptan las escrituras. Si hay varias entradas, reutiliza el contrato sin acoplarlo a formularios. Valida referencias a entidades existentes y, si aplica, su pertenencia al usuario.
