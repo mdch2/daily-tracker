@@ -16,6 +16,7 @@ import { HabitDayEditor } from './habit-day-editor';
 import { HabitSummary } from './habit-summary';
 import { HabitIconButton } from './habit-list-card';
 import { HabitSheet } from './habit-sheet';
+import { useDiscardConfirmation } from '@/shared/presentation/use-form-navigation';
 
 export function HabitRecordSheet({
   habit,
@@ -70,8 +71,15 @@ export function HabitRecordSheet({
   const dataCurrent = days.isSuccess;
   const [date, setDate] = useState(initialDate);
   const [locked, setLocked] = useState(false);
+  const [dirty, setDirty] = useState(false);
+  const confirmDiscard = useDiscardConfirmation(locked, dirty);
   return (
-    <HabitSheet title={habit.name} locked={locked} onClose={onClose}>
+    <HabitSheet
+      title={habit.name}
+      locked={locked}
+      onClose={onClose}
+      dirty={dirty}
+    >
       <View
         style={{
           flexDirection: 'row',
@@ -84,7 +92,11 @@ export function HabitRecordSheet({
             label={t('habits.previousDay')}
             icon="chevron-left"
             disabled={locked || date <= from}
-            onPress={() => setDate((value) => addBusinessDays(value, -1))}
+            onPress={() =>
+              confirmDiscard(() =>
+                setDate((value) => addBusinessDays(value, -1)),
+              )
+            }
           />
         )}
         <Text
@@ -103,7 +115,11 @@ export function HabitRecordSheet({
             label={t('habits.nextDay')}
             icon="chevron-right"
             disabled={locked || date >= to}
-            onPress={() => setDate((value) => addBusinessDays(value, 1))}
+            onPress={() =>
+              confirmDiscard(() =>
+                setDate((value) => addBusinessDays(value, 1)),
+              )
+            }
           />
         )}
       </View>
@@ -132,6 +148,7 @@ export function HabitRecordSheet({
           )}
           refresh={refresh}
           onLock={setLocked}
+          onDirtyChange={setDirty}
           dataCurrent={dataCurrent}
         />
       )}

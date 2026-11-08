@@ -9,6 +9,7 @@ import type { ReactNode } from 'react';
 
 const mockReplace = jest.fn();
 jest.mock('expo-router', () => ({
+  usePreventRemove: () => jest.fn(),
   useRouter: () => ({ replace: mockReplace }),
 }));
 jest.mock('@/shared/ui/route-link', () => {
@@ -79,10 +80,10 @@ describe('create habit form', () => {
     await fireEvent.press(
       screen.getByRole('button', { name: 'Days per week, without fixed days' }),
     );
-    await fireEvent.changeText(
-      screen.getByLabelText('Different days per week'),
-      '3',
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Different days per week' }),
     );
+    await fireEvent.press(screen.getByRole('radio', { name: '3' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Create habit' }));
     await waitFor(() => expect(repository.create).toHaveBeenCalledTimes(1));
     expect(repository.create.mock.calls[0]?.[0]).toMatchObject({

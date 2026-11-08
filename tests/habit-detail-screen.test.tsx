@@ -110,10 +110,10 @@ describe('habit details and corrections', () => {
     await fireEvent.press(
       screen.getByRole('button', { name: 'Days per week, without fixed days' }),
     );
-    await fireEvent.changeText(
-      screen.getByLabelText('Different days per week'),
-      '3',
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Different days per week' }),
     );
+    await fireEvent.press(screen.getByRole('radio', { name: '3' }));
     await fireEvent.changeText(screen.getByLabelText('Minimum per day'), '30');
     await fireEvent.press(screen.getByRole('button', { name: 'Save changes' }));
     await waitFor(() =>
@@ -144,8 +144,13 @@ describe('habit details and corrections', () => {
     const { repository } = await open();
     await screen.findByRole('image');
     expect(
-      screen.getByRole('tab', { name: 'Year', selected: true }),
+      screen.getByRole('tab', { name: 'Week', selected: true }),
     ).toBeOnTheScreen();
+    expect(repository.readDays).toHaveBeenCalledWith(
+      [habit.id],
+      '2026-10-19',
+      '2026-10-25',
+    );
     await fireEvent.press(screen.getByRole('tab', { name: 'Month' }));
     await screen.findByRole('image');
     expect(repository.readDays).toHaveBeenCalledWith(

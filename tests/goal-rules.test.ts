@@ -20,10 +20,35 @@ const base = {
   operationId: goalOperationId,
   name: 'Synthetic goal',
   description: null,
+  reward: null,
   startDate: '2026-10-21',
   deadline: null,
 };
 describe('goal rules and write validation', () => {
+  it('normalizes optional rewards and counts Unicode characters consistently', () => {
+    const input = {
+      ...base,
+      mode: 'amount',
+      progressSource: 'manual',
+      unitLabel: 'units',
+      targetMilliunits: 1000,
+    };
+    expect(
+      createGoalSchema.parse({ ...input, reward: '   ' }).reward,
+    ).toBeNull();
+    expect(
+      createGoalSchema.parse({ ...input, reward: '  Synthetic reward  ' })
+        .reward,
+    ).toBe('Synthetic reward');
+    expect(
+      createGoalSchema.safeParse({ ...input, reward: '🎁'.repeat(400) })
+        .success,
+    ).toBe(true);
+    expect(
+      createGoalSchema.safeParse({ ...input, reward: '🎁'.repeat(401) })
+        .success,
+    ).toBe(false);
+  });
   it('applies seven prior calendar dates to quantity only', () => {
     expect(canRecordGoal(goalDefinition, '2026-10-14', '2026-10-21')).toBe(
       true,

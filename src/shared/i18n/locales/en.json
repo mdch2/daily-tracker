@@ -1,4 +1,35 @@
 {
+  "reminders": {
+    "title": "Reminders",
+    "explanation": "Uses your phone's time. Repeats on your chosen days, even after completing the activity.",
+    "deviceHint": "On this device only. Open the app after changing time zones. The system may delay delivery.",
+    "enabled": "Configured time: {{time}}",
+    "disabled": "No reminder configured",
+    "enable": "Set up reminder",
+    "edit": "Edit reminder",
+    "disable": "Turn off reminder",
+    "save": "Save and enable",
+    "cancel": "Cancel",
+    "saved": "Reminder updated and confirmed on this device.",
+    "hour": "Hour (0–23)",
+    "minute": "Minutes (0–59)",
+    "days": "Reminder days",
+    "settings": "Open phone settings",
+    "reset": "Turn off all reminders on this device",
+    "manage": "Set up alerts from each habit or routine's details. Up to 8 reminders on this device. Signing out removes them; you will need to set them up again.",
+    "count": "Saved schedules: {{count}}",
+    "notificationTitle": "Your reminder",
+    "notificationHabit": "Take a moment for your habit. Open the app to review it.",
+    "notificationRoutine": "Take a moment for your routine. Open the app to review it.",
+    "errors": {
+      "invalid": "Enter a valid time and select at least one day.",
+      "limit": "You can set up to 8 reminders. Turn one off before adding another.",
+      "permission": "Notifications are disabled. Allow them in your phone settings and try again.",
+      "storage": "Could not read or save settings. Try again; alerts may be disabled.",
+      "schedule": "Could not confirm scheduling. Your settings are retained; tap Retry to apply them again.",
+      "unavailable": "Reminders are unavailable right now. Check your session and use a mobile build with notifications."
+    }
+  },
   "common": {
     "appName": "Daily Tracker",
     "retry": "Try again",
@@ -131,6 +162,8 @@
     "monday": "Monday",
     "sunday": "Sunday",
     "confirm": "Confirm calendar",
+    "zoneRequired": "Select your account time zone.",
+    "weekStartRequired": "Select the day your week starts on.",
     "context": "Account time zone: {{zone}} · Week starts on {{day}}"
   },
   "habits": {
@@ -395,8 +428,9 @@
     "inspectStep": "Inspect {{name}}",
     "stepDone": "Saved as done.",
     "goToday": "Go to today",
+    "weekHistory": "Weekly history",
     "archive": "Archive routine",
-    "archiveHint": "Your steps and history will be kept. New records and edits will be blocked. Linked habits remain available in Habits. Archiving cannot be undone in this version.",
+    "archiveHint": "Your steps and history will be kept. New records and edits will be blocked. Linked habits remain available in Habits. This device's reminder is turned off first, even if archiving then fails. Archiving cannot be undone in this version.",
     "confirmArchive": "Confirm archive",
     "todaySection": "Routines for this date",
     "noDayRoutines": "No routines are scheduled for this date.",
@@ -430,6 +464,10 @@
     }
   },
   "goals": {
+    "homeTitle": "Your goals",
+    "homeHint": "Up to three goals in progress or overdue. Progress is cumulative and does not change when you select another day.",
+    "homeEmpty": "You have no goals in progress or overdue.",
+    "viewAll": "View all goals",
     "title": "Goals",
     "heading": "Personal goals",
     "subtitle": "A clear direction for your everyday progress.",
@@ -443,10 +481,10 @@
     "manual": "Manual progress",
     "habit": "Link a habit",
     "start": "Start date",
-    "dateHint": "YYYY-MM-DD, in your account calendar.",
+    "dateHint": "Select a date in your account calendar.",
     "startHint": "Today or a future date. A linked goal includes the entire start date.",
     "deadline": "Deadline (optional)",
-    "deadlineHint": "YYYY-MM-DD. Leave blank for no deadline.",
+    "deadlineHint": "Select a date or leave it without a deadline.",
     "chooseHabit": "Choose a habit",
     "selectedHabit": "Selected: {{name}}",
     "sourceHint": "Use the same unit as your habit, or count completed dates. Partial quantities also contribute.",
@@ -495,6 +533,9 @@
     "pending": "Pending",
     "done": "Completed",
     "notRecorded": "No confirmed record",
+    "loadingRecord": "Checking the contribution for this date…",
+    "retryRecord": "Retry loading the record",
+    "recordDateUnavailable": "This date is outside the allowed period for recording contributions.",
     "notFound": "This goal is unavailable.",
     "readOnly": "Recording is unavailable for this date or archived goal.",
     "openHabit": "Open linked habit",
@@ -518,7 +559,8 @@
       "name": "Name",
       "description": "Description",
       "deadline": "Deadline",
-      "target_milliunits": "Target"
+      "target_milliunits": "Target",
+      "reward": "Reward"
     },
     "states": {
       "archived": "Archived",
@@ -551,6 +593,35 @@
       "archived": "This goal is archived. You can view its history.",
       "flexibleOptional": "A flexible weekly habit must be an optional step.",
       "noRequiredOverlap": "Choose at least one required step eligible on a scheduled routine day."
-    }
+    },
+    "reward": "My reward (optional)",
+    "rewardTitle": "My reward",
+    "rewardAchieved": "Goal achieved! Enjoy your reward",
+    "rewardHint": "What would you like to treat yourself to when you reach this goal? {{value}}/400 characters.",
+    "chooseHabitHint": "Search and select the habit that will contribute progress.",
+    "basicInformation": "About your goal",
+    "progressSettings": "How to track progress"
+  },
+  "fields": {
+    "select": "Select an option",
+    "search": "Search {{field}}",
+    "noResults": "No matching options.",
+    "cancel": "Cancel",
+    "confirm": "Confirm selection",
+    "noDate": "No date selected",
+    "removeDate": "No deadline",
+    "dateOutsideRange": "This date is no longer available. Choose a date within the allowed range.",
+    "time": "Time",
+    "zoneHint": "Choose the time zone for your account. It stays the same when you travel.",
+    "suggestedZone": "Suggested from your phone",
+    "timeZone": "Account time zone",
+    "required": "Complete this field.",
+    "tooLong": "Use no more than {{count}} characters.",
+    "invalidAmount": "Enter a valid positive quantity with up to 3 decimal places.",
+    "deadlineBeforeStart": "The deadline must be on or after the start date.",
+    "discardTitle": "Discard changes?",
+    "discardMessage": "Your unsaved changes will be lost.",
+    "keepEditing": "Keep editing",
+    "discard": "Discard changes"
   }
 }

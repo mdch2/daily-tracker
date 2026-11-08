@@ -79,5 +79,8 @@ describe('mandatory languages', () => {
     const date = new Date('2026-01-15T12:00:00Z');
     expect(es.date(date, { month: 'long', timeZone: 'UTC' })).toBe('enero');
     expect(en.date(date, { month: 'long', timeZone: 'UTC' })).toBe('January');
+    expect(en.timeOfDay(0, 0)).toBe('00:00');
+    expect(es.timeOfDay(23, 59)).toBe('23:59');
+    expect(en.list(['Monday', 'Sunday'])).toBe('Monday and Sunday');
   });
 });

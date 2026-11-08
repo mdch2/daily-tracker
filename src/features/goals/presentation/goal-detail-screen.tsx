@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { z } from 'zod';
 import { randomUUID } from 'expo-crypto';
-import { useLocalSearchParams, usePreventRemove, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/features/auth/presentation/auth-provider';
@@ -20,6 +20,7 @@ import {
 import { Card } from '@/shared/ui/card';
 import { IconButton } from '@/shared/ui/icon-button';
 import { Sheet } from '@/shared/ui/sheet';
+import { DateField } from '@/shared/ui/date-time-field';
 import { useTheme } from '@/shared/theme/use-theme';
 import { useLocalizedFormatters } from '@/shared/i18n/use-localized-formatters';
 import {
@@ -27,6 +28,7 @@ import {
   type OperationErrorCode,
 } from '@/shared/domain/operation-error';
 import { useConfirmedWrite } from '@/shared/presentation/use-confirmed-write';
+import { useFormNavigation } from '@/shared/presentation/use-form-navigation';
 import type {
   ArchiveGoal,
   GoalDefinition,
@@ -50,6 +52,7 @@ type EditorProps = {
   refresh: () => Promise<void>;
   onLock: (value: boolean) => void;
   onSaved: () => void;
+  onDirtyChange?: (dirty: boolean) => void;
 };
 function AmountEditor({
   goal,
@@ -58,6 +61,7 @@ function AmountEditor({
   refresh,
   onLock,
   onSaved,
+  onDirtyChange,
 }: EditorProps) {
   const { t } = useTranslation();
   const format = useLocalizedFormatters();
@@ -66,12 +70,18 @@ function AmountEditor({
   const [date, setDate] = useState(today);
   const [value, setValue] = useState('');
   const [action, setAction] = useState<'add' | 'set'>('add');
+  const dirty = date !== today || !!value || action !== 'add';
+  useEffect(() => {
+    onDirtyChange?.(dirty);
+    return () => onDirtyChange?.(false);
+  }, [dirty, onDirtyChange]);
   const [inputError, setInputError] = useState<OperationErrorCode | null>(null);
   const validDate = z.iso.date().safeParse(date).success;
   const day = useQuery({
     queryKey: ['goals', state.session?.userId, 'record-date', goal.id, date],
     queryFn: () => repository.readContributions(goal.id, date, date),
     enabled: validDate,
+    retry: false,
   });
   const write = useConfirmedWrite<RecordGoalAmount, GoalReceipt>(
     createGoalActions(repository).recordAmount,
@@ -84,12 +94,8 @@ function AmountEditor({
     onLock(write.locked);
     return () => onLock(false);
   }, [write.locked, onLock]);
-  const writable =
-    validDate &&
-    canRecordGoal(goal, date, today) &&
-    day.isSuccess &&
-    !day.isFetching &&
-    current;
+  const eligible = validDate && canRecordGoal(goal, date, today);
+  const writable = eligible && day.isSuccess && !day.isFetching && current;
   async function save() {
     setInputError(null);
     try {
@@ -117,18 +123,37 @@ function AmountEditor({
   return (
     <>
       <Text>{t('goals.manualAmountWindow')}</Text>
-      <Input
+      <DateField
         label={t('goals.recordDate')}
-        hint={t('goals.dateHint')}
         value={date}
-        onChangeText={setDate}
-        editable={!write.blocked}
+        min={
+          goal.startDate > addBusinessDays(today, -7)
+            ? goal.startDate
+            : addBusinessDays(today, -7)
+        }
+        max={today}
+        onChange={(value) => {
+          if (value) setDate(value);
+        }}
+        disabled={write.blocked}
       />
-      {day.isPending && validDate && <Text>{t('goals.loading')}</Text>}
+      {day.isFetching && validDate && (
+        <Text accessibilityLiveRegion="polite">{t('goals.loadingRecord')}</Text>
+      )}
       {day.isError && (
-        <ErrorMessage
-          message={t(`goals.errors.${operationErrorCode(day.error)}`)}
-        />
+        <>
+          <ErrorMessage
+            message={t(`goals.errors.${operationErrorCode(day.error)}`)}
+          />
+          <Button
+            title={t('goals.retryRecord')}
+            loading={day.isFetching}
+            disabled={write.locked}
+            onPress={() => {
+              void day.refetch();
+            }}
+          />
+        </>
       )}
       {day.isSuccess && (
         <Text>
@@ -163,7 +188,15 @@ function AmountEditor({
         onChangeText={setValue}
         editable={!write.blocked}
       />
-      {!writable && <Text>{t('goals.readOnly')}</Text>}
+      {!eligible && (
+        <Text>
+          {t(
+            goal.archivedAt
+              ? 'goals.errors.archived'
+              : 'goals.recordDateUnavailable',
+          )}
+        </Text>
+      )}
       {inputError && <ErrorMessage message={t(`goals.errors.${inputError}`)} />}
       <GoalWriteFeedback
         error={write.error}
@@ -200,12 +233,19 @@ function MilestoneEditor({
   onLock,
   onSaved,
   milestone,
+  onDirtyChange,
 }: EditorProps & { milestone: GoalMilestoneState }) {
   const { t } = useTranslation();
   const repository = useGoalRepository();
   const [date, setDate] = useState(
     'completionDate' in milestone ? (milestone.completionDate ?? today) : today,
   );
+  const [initialDate] = useState(date);
+  const dirty = date !== initialDate;
+  useEffect(() => {
+    onDirtyChange?.(dirty);
+    return () => onDirtyChange?.(false);
+  }, [dirty, onDirtyChange]);
   const write = useConfirmedWrite<RecordGoalMilestone, GoalReceipt>(
     createGoalActions(repository).recordMilestone,
     refresh,
@@ -237,12 +277,15 @@ function MilestoneEditor({
   return (
     <>
       <Text>{t('goals.milestoneWindow')}</Text>
-      <Input
+      <DateField
         label={t('goals.completionDate')}
-        hint={t('goals.dateHint')}
         value={date}
-        onChangeText={setDate}
-        editable={!write.blocked}
+        min={goal.startDate}
+        max={today}
+        onChange={(value) => {
+          if (value) setDate(value);
+        }}
+        disabled={write.blocked}
       />
       {!writable && <Text>{t('goals.readOnly')}</Text>}
       <GoalWriteFeedback
@@ -428,7 +471,15 @@ function EventDetails({
       )}
       {event.kind === 'create' && <Text>{display(event.after.name)}</Text>}
       {event.kind === 'edit' &&
-        (['name', 'description', 'deadline', 'target_milliunits'] as const)
+        (
+          [
+            'name',
+            'description',
+            'reward',
+            'deadline',
+            'target_milliunits',
+          ] as const
+        )
           .filter((key) => event.before?.[key] !== event.after[key])
           .map((key) => (
             <View key={key}>
@@ -659,6 +710,7 @@ function GoalDetail({
 }) {
   const { t } = useTranslation();
   const format = useLocalizedFormatters();
+  const { colors } = useTheme();
   const router = useRouter();
   const { state } = useAuth();
   const client = useQueryClient();
@@ -667,7 +719,8 @@ function GoalDetail({
     'amount' | 'edit' | 'archive' | { milestone: string } | null
   >(null);
   const [locked, setLocked] = useState(false);
-  usePreventRemove(locked);
+  const [dirty, setDirty] = useState(false);
+  const { requestLeave } = useFormNavigation(locked, dirty);
   const detail = useQuery({
     queryKey: ['goals', state.session?.userId, 'detail', id],
     queryFn: () => repository.findById(id),
@@ -684,7 +737,7 @@ function GoalDetail({
   const definition = goal?.definition;
   const current = detail.isSuccess && !detail.isFetching;
   const close = () => {
-    if (!locked) setPanel(null);
+    requestLeave(() => setPanel(null));
   };
   const saved = () => {
     setLocked(false);
@@ -746,6 +799,25 @@ function GoalDetail({
           {definition.description && (
             <Card>
               <Text>{definition.description}</Text>
+            </Card>
+          )}
+          {definition.reward && (
+            <Card>
+              <Text
+                accessibilityRole="header"
+                weight="bold"
+                style={{
+                  color:
+                    goal.state === 'achieved' ? colors.success : colors.text,
+                }}
+              >
+                {t(
+                  goal.state === 'achieved'
+                    ? 'goals.rewardAchieved'
+                    : 'goals.rewardTitle',
+                )}
+              </Text>
+              <Text>{definition.reward}</Text>
             </Card>
           )}
           {definition.archivedAt && (
@@ -861,6 +933,7 @@ function GoalDetail({
                   goal={definition}
                   context={context}
                   onLock={setLocked}
+                  onDirtyChange={setDirty}
                   onSaved={saved}
                 />
               ) : panel === 'amount' ? (
@@ -871,6 +944,7 @@ function GoalDetail({
                   refresh={refresh}
                   onLock={setLocked}
                   onSaved={saved}
+                  onDirtyChange={setDirty}
                 />
               ) : panel === 'archive' ? (
                 <ArchiveEditor
@@ -890,6 +964,7 @@ function GoalDetail({
                   refresh={refresh}
                   onLock={setLocked}
                   onSaved={saved}
+                  onDirtyChange={setDirty}
                 />
               ) : (
                 <Text>{t('goals.notFound')}</Text>

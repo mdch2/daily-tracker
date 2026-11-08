@@ -1,4 +1,35 @@
 {
+  "reminders": {
+    "title": "Recordatorios",
+    "explanation": "Hora del teléfono. Se repite los días que elijas, incluso si completas la actividad.",
+    "deviceHint": "Solo en este dispositivo. Abre la app tras cambiar de zona. El sistema puede retrasar el aviso.",
+    "enabled": "Horario configurado: {{time}}",
+    "disabled": "Sin recordatorio configurado",
+    "enable": "Configurar recordatorio",
+    "edit": "Editar recordatorio",
+    "disable": "Desactivar recordatorio",
+    "save": "Guardar y activar",
+    "cancel": "Cancelar",
+    "saved": "Recordatorio actualizado y confirmado en este dispositivo.",
+    "hour": "Hora (0–23)",
+    "minute": "Minutos (0–59)",
+    "days": "Días del recordatorio",
+    "settings": "Abrir ajustes del teléfono",
+    "reset": "Desactivar todos los recordatorios de este dispositivo",
+    "manage": "Configura los avisos desde el detalle de cada hábito o rutina. Máximo 8 recordatorios en este dispositivo. Al cerrar sesión se eliminan; tendrás que configurarlos de nuevo.",
+    "count": "Horarios guardados: {{count}}",
+    "notificationTitle": "Tu recordatorio",
+    "notificationHabit": "Dedica un momento a tu hábito. Abre la app para revisarlo.",
+    "notificationRoutine": "Dedica un momento a tu rutina. Abre la app para revisarla.",
+    "errors": {
+      "invalid": "Introduce una hora válida y selecciona al menos un día.",
+      "limit": "Puedes configurar hasta 8 recordatorios. Desactiva uno antes de añadir otro.",
+      "permission": "Las notificaciones están desactivadas. Permítelas en los ajustes del teléfono y vuelve a intentarlo.",
+      "storage": "No se pudo leer o guardar la configuración. Vuelve a intentarlo; los avisos podrían estar desactivados.",
+      "schedule": "No se pudo confirmar la programación. Conservamos la configuración; pulsa Reintentar para aplicarla de nuevo.",
+      "unavailable": "Los recordatorios no están disponibles ahora. Comprueba la sesión y usa una compilación móvil con notificaciones."
+    }
+  },
   "common": {
     "appName": "Daily Tracker",
     "retry": "Reintentar",
@@ -131,6 +162,8 @@
     "monday": "Lunes",
     "sunday": "Domingo",
     "confirm": "Confirmar calendario",
+    "zoneRequired": "Selecciona la zona horaria de tu cuenta.",
+    "weekStartRequired": "Selecciona el día en que comienza tu semana.",
     "context": "Zona de cuenta: {{zone}} · La semana comienza en {{day}}"
   },
   "habits": {
@@ -395,8 +428,9 @@
     "inspectStep": "Consultar {{name}}",
     "stepDone": "Guardado como completado.",
     "goToday": "Ir a hoy",
+    "weekHistory": "Historial de la semana",
     "archive": "Archivar rutina",
-    "archiveHint": "Se conservarán tus pasos e historial. Se bloquearán nuevos registros y ediciones. Los hábitos vinculados seguirán disponibles en Hábitos. El archivo no se puede deshacer en esta versión.",
+    "archiveHint": "Se conservarán tus pasos e historial. Se bloquearán nuevos registros y ediciones. Los hábitos vinculados seguirán disponibles en Hábitos. Primero se desactiva el recordatorio de este dispositivo, incluso si luego falla el archivo. El archivo no se puede deshacer en esta versión.",
     "confirmArchive": "Confirmar archivo",
     "todaySection": "Rutinas de esta fecha",
     "noDayRoutines": "No hay rutinas programadas para esta fecha.",
@@ -430,6 +464,10 @@
     }
   },
   "goals": {
+    "homeTitle": "Tus metas",
+    "homeHint": "Hasta tres metas en curso o vencidas. Su progreso es acumulado y no cambia al seleccionar otro día.",
+    "homeEmpty": "No tienes metas en curso ni vencidas.",
+    "viewAll": "Ver todas las metas",
     "title": "Metas",
     "heading": "Metas personales",
     "subtitle": "Una dirección clara para tu progreso cotidiano.",
@@ -443,10 +481,10 @@
     "manual": "Progreso manual",
     "habit": "Vincular un hábito",
     "start": "Fecha de inicio",
-    "dateHint": "AAAA-MM-DD, según el calendario de tu cuenta.",
+    "dateHint": "Selecciona una fecha del calendario de tu cuenta.",
     "startHint": "Hoy o una fecha futura. Una meta vinculada incluye toda la fecha inicial.",
     "deadline": "Fecha límite (opcional)",
-    "deadlineHint": "AAAA-MM-DD. Déjala vacía para no fijar un límite.",
+    "deadlineHint": "Selecciona una fecha o déjala sin límite.",
     "chooseHabit": "Elige un hábito",
     "selectedHabit": "Seleccionado: {{name}}",
     "sourceHint": "Usa la misma unidad del hábito o cuenta fechas cumplidas. Las cantidades parciales también aportan.",
@@ -495,6 +533,9 @@
     "pending": "Pendiente",
     "done": "Completado",
     "notRecorded": "Sin registro confirmado",
+    "loadingRecord": "Consultando el aporte de esta fecha…",
+    "retryRecord": "Volver a consultar el registro",
+    "recordDateUnavailable": "Esta fecha está fuera del período permitido para registrar aportes.",
     "notFound": "Esta meta no está disponible.",
     "readOnly": "No se puede registrar en esta fecha o meta archivada.",
     "openHabit": "Abrir hábito vinculado",
@@ -518,7 +559,8 @@
       "name": "Nombre",
       "description": "Descripción",
       "deadline": "Fecha límite",
-      "target_milliunits": "Objetivo"
+      "target_milliunits": "Objetivo",
+      "reward": "Recompensa"
     },
     "states": {
       "archived": "Archivada",
@@ -551,6 +593,35 @@
       "archived": "La meta está archivada. Puedes consultar su historial.",
       "flexibleOptional": "Un hábito semanal flexible debe ser un paso opcional.",
       "noRequiredOverlap": "Elige al menos un paso obligatorio elegible en algún día programado de la rutina."
-    }
+    },
+    "reward": "Mi recompensa (opcional)",
+    "rewardTitle": "Mi recompensa",
+    "rewardAchieved": "¡Meta lograda! Disfruta tu recompensa",
+    "rewardHint": "¿Qué te gustaría regalarte al lograr esta meta? {{value}}/400 caracteres.",
+    "chooseHabitHint": "Busca y selecciona el hábito que aportará el progreso.",
+    "basicInformation": "Sobre tu meta",
+    "progressSettings": "Cómo medir el progreso"
+  },
+  "fields": {
+    "select": "Selecciona una opción",
+    "search": "Buscar en {{field}}",
+    "noResults": "No hay opciones que coincidan.",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar selección",
+    "noDate": "Sin fecha seleccionada",
+    "removeDate": "Sin fecha límite",
+    "dateOutsideRange": "Esta fecha ya no está disponible. Selecciona una fecha dentro del período permitido.",
+    "time": "Hora",
+    "zoneHint": "Elige la zona horaria de tu cuenta. Se conserva cuando viajas.",
+    "suggestedZone": "Sugerida por tu teléfono",
+    "timeZone": "Zona horaria de la cuenta",
+    "required": "Completa este campo.",
+    "tooLong": "Usa como máximo {{count}} caracteres.",
+    "invalidAmount": "Introduce una cantidad positiva válida con hasta 3 decimales.",
+    "deadlineBeforeStart": "La fecha límite debe ser igual o posterior al inicio.",
+    "discardTitle": "¿Descartar los cambios?",
+    "discardMessage": "Se perderán los cambios que no hayas guardado.",
+    "keepEditing": "Seguir editando",
+    "discard": "Descartar cambios"
   }
 }

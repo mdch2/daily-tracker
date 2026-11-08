@@ -6,6 +6,8 @@ import { DashboardScreen } from '@/features/dashboard/presentation/dashboard-scr
 import { HabitRepositoryContext } from '@/features/habits/presentation/habit-context';
 import { RoutineRepositoryContext } from '@/features/routines/presentation/routine-context';
 import { routineRepositoryStub } from './helpers/routine-fixtures';
+import { GoalRepositoryContext } from '@/features/goals/presentation/goal-context';
+import { goalRepositoryStub, goalPage } from './helpers/goal-fixtures';
 import { ProfileRepositoryContext } from '@/features/profile/presentation/profile-context';
 import type { ProfileRepository } from '@/features/profile/domain/profile-repository';
 import { OperationError } from '@/shared/domain/operation-error';
@@ -49,6 +51,8 @@ async function open(
   const repository = repositoryStub();
   repository.readDays.mockResolvedValue([day('2026-10-21')]);
   configure?.(repository);
+  const goals = goalRepositoryStub();
+  goals.list.mockResolvedValue({ ...goalPage, goals: [] });
   const profiles: ProfileRepository = {
     findByUserId: async () => ({
       id: mockUserId,
@@ -69,7 +73,9 @@ async function open(
       <ProfileRepositoryContext.Provider value={profiles}>
         <HabitRepositoryContext.Provider value={repository}>
           <RoutineRepositoryContext.Provider value={routineRepositoryStub()}>
-            <DashboardScreen />
+            <GoalRepositoryContext.Provider value={goals}>
+              <DashboardScreen />
+            </GoalRepositoryContext.Provider>
           </RoutineRepositoryContext.Provider>
         </HabitRepositoryContext.Provider>
       </ProfileRepositoryContext.Provider>

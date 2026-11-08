@@ -47,6 +47,7 @@ const definition = z
     id: uuid,
     name: label(100),
     description: label(400).nullable(),
+    reward: label(400).nullable(),
     mode: z.enum(['amount', 'milestones']),
     progress_source: z.enum(['manual', 'habit']),
     start_date: z.iso.date(),
@@ -168,6 +169,7 @@ const auditValue = z
     goal_id: uuid,
     name: label(100),
     description: label(400).nullable(),
+    reward: label(400).nullable(),
     start_date: z.iso.date(),
     deadline: z.iso.date().nullable(),
     mode: z.enum(['amount', 'milestones']),
@@ -244,6 +246,7 @@ function mapped(
     id: d.id,
     name: d.name,
     description: d.description,
+    reward: d.reward,
     mode: d.mode,
     progressSource: d.progress_source,
     startDate: d.start_date,
@@ -404,20 +407,35 @@ function mapped(
   };
 }
 type Rpc =
-  | 'get_goals'
-  | 'get_goal'
+  | 'get_goals_v2'
+  | 'get_goal_v2'
   | 'get_goal_contributions'
   | 'get_goal_history'
-  | 'create_goal'
-  | 'edit_goal'
+  | 'create_goal_v2'
+  | 'edit_goal_v2'
   | 'archive_goal'
   | 'record_goal_amount'
   | 'record_goal_milestone';
 export function createGoalRepository(client: BackendClient): GoalRepository {
-  async function call(name: Rpc, input: Json) {
-    const { data, error } = await client.rpc(name, { p_input: input });
+  async function call(name: Rpc, input: Json, signal?: AbortSignal) {
+    const request = client.rpc(name, { p_input: input });
+    const { data, error } = await (signal
+      ? request.abortSignal(signal)
+      : request);
     if (error) throw mapOperationError(error);
     return data;
+  }
+  function readRpc(name: Rpc, input: Json): Promise<Json> {
+    const controller = new AbortController();
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new OperationError('network'));
+        controller.abort();
+      }, 15_000);
+      void call(name, input, controller.signal)
+        .then(resolve, reject)
+        .finally(() => clearTimeout(timeout));
+    });
   }
   async function write(
     name: Rpc,
@@ -462,7 +480,7 @@ export function createGoalRepository(client: BackendClient): GoalRepository {
             next_cursor: z.string().max(2048).nullable(),
           })
           .strict(),
-        await call('get_goals', { status, cursor }),
+        await readRpc('get_goals_v2', { status, cursor }),
       );
       const goals = r.goals.map((item) => mapped(item, r.context));
       requireResult(
@@ -489,7 +507,7 @@ export function createGoalRepository(client: BackendClient): GoalRepository {
       parsed(uuid, id, true);
       const r = parsed(
         z.object({ context, goal: read.nullable() }).strict(),
-        await call('get_goal', { goal_id: id }),
+        await readRpc('get_goal_v2', { goal_id: id }),
       );
       requireResult(r.goal === null || r.goal.definition.id === id);
       return {
@@ -505,7 +523,7 @@ export function createGoalRepository(client: BackendClient): GoalRepository {
       if (size < 1 || size > 31) throw new OperationError('invalidInput');
       const r = parsed(
         z.object({ context, days: z.array(contribution).max(31) }).strict(),
-        await call('get_goal_contributions', { goal_id: id, from, to }),
+        await readRpc('get_goal_contributions', { goal_id: id, from, to }),
       );
       requireResult(
         r.days.length === size &&
@@ -545,7 +563,7 @@ export function createGoalRepository(client: BackendClient): GoalRepository {
             next_before_sequence: rev.positive().nullable(),
           })
           .strict(),
-        await call('get_goal_history', {
+        await readRpc('get_goal_history', {
           goal_id: id,
           before_sequence: beforeSequence,
           up_to_sequence: upToSequence,
@@ -586,6 +604,7 @@ export function createGoalRepository(client: BackendClient): GoalRepository {
         goal_id: input.goalId,
         name: input.name,
         description: input.description,
+        reward: input.reward,
         start_date: input.startDate,
         deadline: input.deadline,
         mode: input.mode,
@@ -607,19 +626,20 @@ export function createGoalRepository(client: BackendClient): GoalRepository {
               })),
             }),
       };
-      const r = await write('create_goal', data, 'create');
+      const r = await write('create_goal_v2', data, 'create');
       requireResult(r.goalVersion === 1);
       return r;
     },
     async edit(input) {
       const r = await write(
-        'edit_goal',
+        'edit_goal_v2',
         {
           operation_id: input.operationId,
           goal_id: input.goalId,
           expected_version: input.expectedVersion,
           name: input.name,
           description: input.description,
+          reward: input.reward,
           deadline: input.deadline,
           target_milliunits: input.targetMilliunits,
         },

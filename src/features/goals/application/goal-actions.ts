@@ -23,6 +23,7 @@ const base = {
   ...identity,
   name: text(1, 100),
   description,
+  reward: description,
   startDate: z.iso.date(),
   deadline: z.iso.date().nullable(),
 };
@@ -104,6 +105,7 @@ export const editGoalSchema = z
     expectedVersion: revision.positive(),
     name: text(1, 100),
     description,
+    reward: description,
     deadline: z.iso.date().nullable(),
     targetMilliunits: integer.positive().nullable(),
   })

@@ -1,7 +1,9 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/shared/theme/use-theme';
-import { Input, Text } from '@/shared/ui/primitives';
+import { Text } from '@/shared/ui/primitives';
+import { SelectionField } from '@/shared/ui/selection-field';
+import { useLocalizedFormatters } from '@/shared/i18n/use-localized-formatters';
 import type { Schedule } from '../domain/habit';
 import { HabitFormCard, HabitFormChoice } from './habit-form-controls';
 
@@ -26,6 +28,7 @@ export function HabitScheduleFields({
 }) {
   const { t } = useTranslation();
   const { colors, tokens } = useTheme();
+  const format = useLocalizedFormatters();
   return (
     <HabitFormCard>
       <Text accessibilityRole="header" weight="bold">
@@ -88,14 +91,16 @@ export function HabitScheduleFields({
         </>
       )}
       {schedule === 'weekly' && (
-        <Input
+        <SelectionField
           label={t('habits.weeklyTarget')}
           hint={t('habits.weeklyHint')}
           value={weekly}
-          onChangeText={onWeeklyChange}
-          keyboardType="number-pad"
-          maxLength={1}
-          editable={!disabled}
+          onChange={onWeeklyChange}
+          options={[1, 2, 3, 4, 5, 6, 7].map((day) => ({
+            value: String(day),
+            label: format.number(day),
+          }))}
+          disabled={disabled}
         />
       )}
     </HabitFormCard>

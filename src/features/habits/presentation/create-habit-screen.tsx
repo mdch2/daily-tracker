@@ -19,6 +19,7 @@ import {
   Text,
 } from '@/shared/ui/primitives';
 import { Icon } from '@/shared/ui/icon';
+import { useFormNavigation } from '@/shared/presentation/use-form-navigation';
 import { useTheme } from '@/shared/theme/use-theme';
 import { HabitFormCard, HabitFormChoice } from './habit-form-controls';
 import { HabitScheduleFields } from './habit-schedule-fields';
@@ -58,6 +59,16 @@ function CreateHabitForm() {
     mutationFn: createHabitActions(repository).create,
   });
   const disabled = mutation.isPending || !!pending;
+  const { allowNavigation, requestLeave } = useFormNavigation(
+    disabled,
+    !!name ||
+      !!unit ||
+      !!target ||
+      !!weekly ||
+      mask !== 0 ||
+      mode !== 'binary' ||
+      schedule !== 'daily',
+  );
   async function save() {
     if (lock.current) return;
     lock.current = true;
@@ -93,6 +104,7 @@ function CreateHabitForm() {
           queryKey: ['habits', state.session?.userId],
           refetchType: 'none',
         });
+        allowNavigation();
         router.replace({ pathname: '/habits/[id]', params: { id: savedId } });
       } catch (failure) {
         if (!mounted.current) return;
@@ -122,7 +134,7 @@ function CreateHabitForm() {
           accessibilityLabel={t('habits.back')}
           accessibilityState={{ disabled }}
           disabled={disabled}
-          onPress={() => router.replace('/(tabs)/habits')}
+          onPress={() => requestLeave(() => router.replace('/(tabs)/habits'))}
           style={({ pressed }) => ({
             minHeight: tokens.minimumTouchTarget,
             minWidth: tokens.minimumTouchTarget,

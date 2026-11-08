@@ -16,7 +16,7 @@ Para una fecha programada se cuentan los obligatorios elegibles. Todos completos
 
 El adaptador consume las RPC `get_routines`, `create_routine`, `edit_routine`, `archive_routine` y `record_routine_step`, con validación Zod. El detalle/listado recibe hasta 20 rutinas y sus versiones mediante una lectura invocadora con RLS; la representación JSON evita truncar las membresías por el límite REST. Los estados propios se leen para hasta 10 rutinas/una fecha o una rutina/hasta 28 fechas; máximo 840 filas por rango histórico.
 
-`readRoutineWindow` compone estos estados y los datos de los hábitos vinculados: deduplica identidades, consulta solo esos hábitos en grupos de hasta 10 y sus días en grupos de hasta 30. No promete una instantánea global entre esas lecturas independientes; un fallo en cualquier parte impide publicar el conjunto como confirmado. El historial del detalle presenta hasta 14 fechas por ventana y permite recorrer hasta el inicio. Hoy lee todas las páginas antes de mostrar las rutinas de la fecha, incluyendo las archivadas cuando se consulta el pasado.
+`readRoutineWindow` compone estos estados y los datos de los hábitos vinculados. Deduplica identidades, consulta solo esos hábitos en grupos de hasta 10 y sus días en grupos de hasta 30. Un fallo en cualquier parte impide publicar el conjunto como confirmado. El historial del detalle abre la semana actual de la cuenta y permite recorrer semanas anteriores hasta el inicio. Hoy lee todas las páginas antes de mostrar las rutinas de la fecha, incluyendo las archivadas cuando se consulta el pasado.
 
 ## Escrituras y recuperación
 
@@ -32,4 +32,4 @@ Registrar un hábito desde Rutinas reutiliza el editor y escritor de Hábitos, c
 
 El diseño detallado, las restricciones, permisos y comprobantes pertenecen solo a `daily-tracker-supabase/docs/routines-v1.md`. Las tablas públicas conceden únicamente SELECT propio mediante RLS; el cliente no tiene DML directo ni acceso a comprobantes/helpers privados. Las escrituras RPC exigen identidad y pertenencia. Los tipos se generaron en backend desde PostgreSQL local y se importaron con `pnpm db:types`.
 
-No se implementan Metas personales, modo invitado, almacenamiento offline, pausas/rachas de rutinas, notificaciones ni temporizadores. Los resultados de pruebas, bundles y revisión visual se distinguen en [validation.md](validation.md).
+El alcance original de Rutinas v1 excluía notificaciones. [ADR-012](adr/012-local-reminders-v1.md) incorpora ahora recordatorios locales opcionales, independientes del cumplimiento; archivar desde este dispositivo desactiva su recordatorio antes de la escritura remota. Siguen fuera de este módulo modo invitado, almacenamiento offline, pausas/rachas y temporizadores. Los resultados de pruebas, bundles y revisión visual se distinguen en [validation.md](validation.md).
