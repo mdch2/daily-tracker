@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { randomUUID } from 'expo-crypto';
-import { useLocalSearchParams, useRouter, usePreventRemove } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/features/auth/presentation/auth-provider';
@@ -10,7 +10,10 @@ import type { ReadyBusinessContext } from '@/features/profile/domain/business-ca
 import { useHabitRepository } from '@/features/habits/presentation/habit-context';
 import { HabitDayEditor } from '@/features/habits/presentation/habit-day-editor';
 import { HabitSummary } from '@/features/habits/presentation/habit-summary';
-import { addBusinessDays } from '@/features/habits/domain/habit-rules';
+import {
+  addBusinessDays,
+  weekStart,
+} from '@/features/habits/domain/habit-rules';
 import { Button, ErrorMessage, Screen, Text } from '@/shared/ui/primitives';
 import { Card } from '@/shared/ui/card';
 import { Icon } from '@/shared/ui/icon';
@@ -32,6 +35,8 @@ import { useRoutineWrite } from './use-routine-write';
 import { RoutineWriteFeedback } from './routine-write-feedback';
 import { RoutineProgress } from './routine-card';
 import { RoutineForm } from './routine-form';
+import { useFormNavigation } from '@/shared/presentation/use-form-navigation';
+import { ReminderControl } from '@/features/reminders/presentation/reminder-control';
 
 function OwnStepEditor({
   routine,
@@ -135,15 +140,15 @@ function RoutineDetail({
   const [archiving, setArchiving] = useState(false);
   const [stepId, setStepId] = useState<string | null>(null);
   const [locked, setLocked] = useState(false);
+  const [dirty, setDirty] = useState(false);
   const detail = useQuery({
     queryKey: ['routines', user, 'detail', id],
     queryFn: () => repository.findById(id),
   });
   const routine = detail.data;
+  const weekFrom = weekStart(date, context.weekStartDay);
   const from =
-    routine && routine.startDate > addBusinessDays(date, -13)
-      ? routine.startDate
-      : addBusinessDays(date, -13);
+    routine && routine.startDate > weekFrom ? routine.startDate : weekFrom;
   const window = useQuery({
     queryKey: ['routines', user, 'window', routine, from, date, context.today],
     queryFn: () =>
@@ -190,7 +195,7 @@ function RoutineDetail({
       );
     },
   );
-  usePreventRemove(locked || archive.locked);
+  const { requestLeave } = useFormNavigation(locked || archive.locked, dirty);
   const result =
     routine && window.data
       ? evaluateRoutine(routine, date, context.today, window.data)
@@ -277,6 +282,12 @@ function RoutineDetail({
                 </Text>
               )}
             </Card>
+            {!routine.archivedAt && (
+              <ReminderControl
+                target={{ kind: 'routine', targetId: routine.id }}
+                disabled={!dataCurrent || locked}
+              />
+            )}
             <View
               style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
             >
@@ -416,13 +427,13 @@ function RoutineDetail({
                   weight="bold"
                   style={{ fontSize: 20 }}
                 >
-                  {t('habits.history')}
+                  {t('routines.weekHistory')}
                 </Text>
                 <View style={{ gap: 8 }}>
                   {Array.from(
                     {
                       length: Math.min(
-                        14,
+                        7,
                         (Date.parse(date) - Date.parse(from)) / 86400000 + 1,
                       ),
                     },
@@ -474,12 +485,13 @@ function RoutineDetail({
         <Sheet
           title={t('routines.edit')}
           locked={locked}
-          onClose={() => setEditing(false)}
+          onClose={() => requestLeave(() => setEditing(false))}
         >
           <RoutineForm
             routine={routine}
             context={context}
             onLock={setLocked}
+            onDirtyChange={setDirty}
             onSaved={() => setEditing(false)}
           />
         </Sheet>
@@ -492,7 +504,7 @@ function RoutineDetail({
               : selected.habit!.name
           }
           locked={locked}
-          onClose={() => setStepId(null)}
+          onClose={() => requestLeave(() => setStepId(null))}
         >
           {selected.step.kind === 'own' ? (
             <OwnStepEditor
@@ -529,6 +541,7 @@ function RoutineDetail({
                 )}
                 refresh={async () => (await refresh()).habitRecords}
                 onLock={setLocked}
+                onDirtyChange={setDirty}
                 dataCurrent={
                   dataCurrent && date === context.today && !routine.archivedAt
                 }

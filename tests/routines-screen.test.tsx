@@ -244,6 +244,23 @@ describe('routine screens and confirmed writes', () => {
     );
     expect(repository.edit).toHaveBeenCalledTimes(1);
   });
+  it('opens the current week and retains access to the previous week', async () => {
+    const { repository } = await open(<RoutineDetailScreen />);
+    await screen.findByText('Weekly history');
+    expect(repository.readDays).toHaveBeenCalledWith(
+      [routineId],
+      '2026-10-19',
+      '2026-10-21',
+    );
+    await fireEvent.press(screen.getByRole('button', { name: 'Older dates' }));
+    await waitFor(() =>
+      expect(repository.readDays).toHaveBeenCalledWith(
+        [routineId],
+        '2026-10-12',
+        '2026-10-18',
+      ),
+    );
+  });
   it('blocks own-step writing on earlier dates while retaining history inspection', async () => {
     mockParams.date = '2026-10-20';
     const { repository } = await open(<RoutineDetailScreen />);

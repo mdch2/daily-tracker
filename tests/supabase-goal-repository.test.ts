@@ -14,6 +14,7 @@ function fixture() {
       id: goalId,
       name: 'Synthetic goal',
       description: null,
+      reward: null,
       mode: 'amount',
       progress_source: 'manual',
       start_date: '2026-10-01',
@@ -44,13 +45,132 @@ function fixture() {
   return { context, goal };
 }
 function setup(data: unknown) {
-  const rpc = jest.fn().mockResolvedValue({ data, error: null });
+  const response = jest.fn().mockResolvedValue({ data, error: null });
+  const abortSignal = jest.fn();
+  const rpc = jest.fn((...args: unknown[]) => {
+    const result = response(...args);
+    return Object.assign(result, {
+      abortSignal: (signal: AbortSignal) => {
+        abortSignal(signal);
+        return result;
+      },
+    });
+  });
   return {
     rpc,
+    response,
+    abortSignal,
     repository: createGoalRepository({ rpc } as unknown as BackendClient),
   };
 }
 describe('goal Supabase contract', () => {
+  it('ends an unresponsive read and aborts its transport so it can be retried', async () => {
+    jest.useFakeTimers();
+    try {
+      const { repository, response, abortSignal } = setup(fixture());
+      response.mockImplementationOnce(() => new Promise(() => undefined));
+      const pending = repository.findById(goalId);
+      const failed = expect(pending).rejects.toMatchObject({ code: 'network' });
+      await jest.advanceTimersByTimeAsync(15_000);
+      await failed;
+      expect(abortSignal.mock.calls[0]?.[0].aborted).toBe(true);
+      expect((await repository.findById(goalId)).goal?.definition.id).toBe(
+        goalId,
+      );
+      expect(jest.getTimerCount()).toBe(0);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+  it.each([undefined, null, 'Synthetic reward'])(
+    'reads historical reward %s while accepting events created before rewards',
+    async (reward) => {
+      const values = reward === undefined ? {} : { reward };
+      const { repository } = setup({
+        context: fixture().context,
+        events: [
+          {
+            sequence: 1,
+            operation_id: goalOperationId,
+            kind: 'edit',
+            accepted_at: goalContext.readAt,
+            date: null,
+            before: values,
+            after: values,
+          },
+        ],
+        up_to_sequence: 1,
+        next_before_sequence: null,
+      });
+      const result = await repository.readHistory(goalId, null, null);
+      expect(result.events[0]?.after).toEqual(values);
+    },
+  );
+  it('reads personal rewards through the compatible v2 reader', async () => {
+    const data = fixture();
+    const { repository, rpc } = setup({
+      ...data,
+      goal: {
+        ...data.goal,
+        definition: { ...data.goal.definition, reward: 'Synthetic reward' },
+      },
+    });
+    expect((await repository.findById(goalId)).goal?.definition.reward).toBe(
+      'Synthetic reward',
+    );
+    expect(rpc).toHaveBeenCalledWith('get_goal_v2', {
+      p_input: { goal_id: goalId },
+    });
+  });
+  it('sends explicit nullable rewards in the versioned creation contract', async () => {
+    const { repository, rpc } = setup({
+      operation_id: goalOperationId,
+      goal_id: goalId,
+      kind: 'create',
+      accepted_at: goalContext.readAt,
+      goal_version: 1,
+      event_sequence: 1,
+    });
+    await repository.create({
+      operationId: goalOperationId,
+      goalId,
+      name: 'Synthetic goal',
+      description: null,
+      reward: 'Synthetic reward',
+      startDate: '2026-10-21',
+      deadline: null,
+      mode: 'amount',
+      progressSource: 'manual',
+      unitLabel: 'units',
+      targetMilliunits: 1000,
+    });
+    expect(rpc).toHaveBeenCalledWith('create_goal_v2', {
+      p_input: expect.objectContaining({ reward: 'Synthetic reward' }),
+    });
+  });
+  it('clears a reward through a versioned edit without changing the revision contract', async () => {
+    const { repository, rpc } = setup({
+      operation_id: goalOperationId,
+      goal_id: goalId,
+      kind: 'edit',
+      accepted_at: goalContext.readAt,
+      goal_version: 2,
+      event_sequence: 2,
+    });
+    await repository.edit({
+      operationId: goalOperationId,
+      goalId,
+      expectedVersion: 1,
+      name: 'Synthetic goal',
+      description: null,
+      reward: null,
+      deadline: null,
+      targetMilliunits: 1000,
+    });
+    expect(rpc).toHaveBeenCalledWith('edit_goal_v2', {
+      p_input: expect.objectContaining({ reward: null, expected_version: 1 }),
+    });
+  });
   it('validates and maps a coherent definition, progress and clock', async () => {
     const { repository } = setup(fixture());
     const result = await repository.findById(goalId);
@@ -80,16 +200,16 @@ describe('goal Supabase contract', () => {
     },
   );
   it('preserves unavailable detail and maps safe server failures', async () => {
-    const { repository, rpc } = setup({
+    const { repository, response } = setup({
       context: fixture().context,
       goal: null,
     });
     expect((await repository.findById(goalId)).goal).toBeNull();
-    rpc.mockResolvedValueOnce({ data: null, error: { code: 'GL008' } });
+    response.mockResolvedValueOnce({ data: null, error: { code: 'GL008' } });
     await expect(repository.findById(goalId)).rejects.toMatchObject({
       code: 'conflict',
     });
-    rpc.mockResolvedValueOnce({ data: null, error: { code: '' } });
+    response.mockResolvedValueOnce({ data: null, error: { code: '' } });
     await expect(repository.findById(goalId)).rejects.toMatchObject({
       code: 'network',
     });
@@ -125,7 +245,7 @@ describe('goal Supabase contract', () => {
       amount_milliunits: 0,
       revision: 2,
     };
-    const { rpc, repository } = setup(data);
+    const { rpc, repository, response } = setup(data);
     await repository.recordAmount({
       operationId: goalOperationId,
       goalId,
@@ -144,7 +264,10 @@ describe('goal Supabase contract', () => {
         expected_revision: 1,
       },
     });
-    rpc.mockResolvedValueOnce({ data: { ...data, revision: 1 }, error: null });
+    response.mockResolvedValueOnce({
+      data: { ...data, revision: 1 },
+      error: null,
+    });
     await expect(
       repository.recordAmount({
         operationId: goalOperationId,

@@ -28,6 +28,7 @@ import { HabitIconButton } from './habit-list-card';
 import { HabitRecordSheet } from './habit-record-sheet';
 import { HabitSettingsEditor } from './habit-settings-editor';
 import { HabitDefinitionSummary } from './habit-definition-summary';
+import { ReminderControl } from '@/features/reminders/presentation/reminder-control';
 import { HabitMapLegend } from './habit-heatmap';
 import { HabitPeriodMap } from './habit-period-map';
 import { habitDetailPeriod, type HabitPeriod } from './habit-detail-period';
@@ -53,7 +54,7 @@ function HabitHistory({
   const format = useLocalizedFormatters();
   const repository = useHabitRepository();
   const [anchor] = useState(initialDate);
-  const [period, setPeriod] = useState<HabitPeriod>('year');
+  const [period, setPeriod] = useState<HabitPeriod>('week');
   const [page, setPage] = useState(0);
   const [date, setDate] = useState(initialDate);
   const [expanded, setExpanded] = useState(false);
@@ -206,6 +207,10 @@ function HabitHistory({
             onPress={() => setEditingName(true)}
           />
         </View>
+        <ReminderControl
+          target={{ kind: 'habit', targetId: habit.id }}
+          disabled={!!detailError}
+        />
         {planned && (
           <View style={card}>
             <Text accessibilityRole="header" weight="bold">

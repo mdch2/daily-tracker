@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Alert } from 'react-native';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GoalsScreen } from '@/features/goals/presentation/goals-screen';
@@ -9,6 +10,8 @@ import { HabitRepositoryContext } from '@/features/habits/presentation/habit-con
 import { OperationError } from '@/shared/domain/operation-error';
 import { render } from './helpers/render-localized';
 import { repositoryStub, habit } from './helpers/habit-fixtures';
+import en from '@/shared/i18n/locales/en.json';
+import es from '@/shared/i18n/locales/es.json';
 import {
   goalContext,
   goalId,
@@ -88,6 +91,183 @@ describe('goal screens and confirmed writes', () => {
     mockPush.mockClear();
   });
   it.each([
+    ['en', 'light', en],
+    ['es', 'dark', es],
+  ] as const)(
+    'separates record loading and failure from read-only eligibility in %s',
+    async (language, theme, labels) => {
+      let rejectRead!: (error: Error) => void;
+      const pending = new Promise<never>((_, reject) => {
+        rejectRead = reject;
+      });
+      const { repository } = await open(
+        <GoalDetailScreen />,
+        language,
+        theme,
+        (repository) => {
+          repository.readContributions.mockImplementation((_id, from, to) =>
+            from === to
+              ? pending
+              : Promise.resolve({ context: goalContext, days: [] }),
+          );
+        },
+      );
+      await fireEvent.press(
+        await screen.findByRole('button', { name: labels.goals.record }),
+      );
+      expect(screen.getByText(labels.goals.loadingRecord)).toBeOnTheScreen();
+      expect(screen.queryByText(labels.goals.readOnly)).not.toBeOnTheScreen();
+      expect(
+        screen.queryByText(labels.goals.recordDateUnavailable),
+      ).not.toBeOnTheScreen();
+      expect(
+        screen.getByRole('button', { name: labels.goals.save }),
+      ).toBeDisabled();
+      await fireEvent.changeText(
+        screen.getByLabelText(labels.goals.amountLabel),
+        '42',
+      );
+      await act(async () => {
+        rejectRead(new OperationError('network'));
+      });
+      const retry = await screen.findByRole('button', {
+        name: labels.goals.retryRecord,
+      });
+      expect(screen.queryByText(labels.goals.readOnly)).not.toBeOnTheScreen();
+      expect(
+        screen.queryByText(labels.goals.recordDateUnavailable),
+      ).not.toBeOnTheScreen();
+      expect(screen.getByDisplayValue('42')).toBeOnTheScreen();
+      repository.readContributions.mockResolvedValue({
+        context: goalContext,
+        days: [],
+      });
+      await fireEvent.press(retry);
+      await waitFor(() =>
+        expect(
+          screen.getByRole('button', { name: labels.goals.save }),
+        ).toBeEnabled(),
+      );
+      expect(
+        screen.queryByText(labels.goals.loadingRecord),
+      ).not.toBeOnTheScreen();
+      expect(screen.getByDisplayValue('42')).toBeOnTheScreen();
+      expect(repository.recordAmount).not.toHaveBeenCalled();
+    },
+  );
+  it('saves the optional personal reward with the goal', async () => {
+    const { repository } = await open(<CreateGoalScreen />);
+    await fillAmount();
+    await fireEvent.changeText(
+      screen.getByLabelText('My reward (optional)'),
+      '  Synthetic cinema evening  ',
+    );
+    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() =>
+      expect(repository.create).toHaveBeenCalledWith(
+        expect.objectContaining({ reward: 'Synthetic cinema evening' }),
+      ),
+    );
+  });
+  it('shows the reward length error next to the field and retains its draft', async () => {
+    const { repository } = await open(<CreateGoalScreen />);
+    await fillAmount();
+    await fireEvent.changeText(
+      screen.getByLabelText('My reward (optional)'),
+      'a'.repeat(401),
+    );
+    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Use no more than 400 characters.',
+    );
+    expect(screen.getByDisplayValue('a'.repeat(401))).toBeOnTheScreen();
+    expect(repository.create).not.toHaveBeenCalled();
+  });
+  it('highlights the reward only while the confirmed goal is achieved', async () => {
+    const { repository, client } = await open(
+      <GoalDetailScreen />,
+      'en',
+      'dark',
+      (repository) =>
+        repository.findById.mockResolvedValue({
+          context: goalContext,
+          goal: {
+            ...goalRead,
+            state: 'achieved',
+            definition: { ...goalRead.definition, reward: 'Synthetic reward' },
+            progress: {
+              available: true,
+              accumulatedMilliunits: 100000,
+              completedMilestones: null,
+              totalMilestones: null,
+              percentage: 100,
+            },
+          },
+        }),
+    );
+    expect(
+      await screen.findByText('Goal achieved! Enjoy your reward'),
+    ).toBeOnTheScreen();
+    repository.findById.mockResolvedValue({
+      context: goalContext,
+      goal: {
+        ...goalRead,
+        definition: { ...goalRead.definition, reward: 'Synthetic reward' },
+      },
+    });
+    await act(async () => {
+      await client.invalidateQueries({ queryKey: ['goals'] });
+    });
+    expect(await screen.findByText('My reward')).toBeOnTheScreen();
+    expect(
+      screen.queryByText('Goal achieved! Enjoy your reward'),
+    ).not.toBeOnTheScreen();
+    expect(screen.getByText('Synthetic reward')).toBeOnTheScreen();
+  });
+  it('clears an existing reward through a versioned edit', async () => {
+    const { repository } = await open(
+      <GoalDetailScreen />,
+      'en',
+      'light',
+      (repository) =>
+        repository.findById.mockResolvedValue({
+          context: goalContext,
+          goal: {
+            ...goalRead,
+            definition: { ...goalRead.definition, reward: 'Synthetic reward' },
+          },
+        }),
+    );
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Edit goal' }),
+    );
+    expect(screen.getByDisplayValue('Synthetic reward')).toBeOnTheScreen();
+    await fireEvent.changeText(
+      screen.getByLabelText('My reward (optional)'),
+      '   ',
+    );
+    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() =>
+      expect(repository.edit).toHaveBeenCalledWith(
+        expect.objectContaining({ reward: null, expectedVersion: 1 }),
+      ),
+    );
+  });
+  it('asks before discarding a goal draft and keeps it after cancelling', async () => {
+    const alert = jest
+      .spyOn(Alert, 'alert')
+      .mockImplementation(() => undefined);
+    await open(<CreateGoalScreen />);
+    await fillAmount();
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Back to goals' }),
+    );
+    expect(mockReplace).not.toHaveBeenCalled();
+    expect(alert.mock.calls[0]?.[0]).toBe('Discard changes?');
+    expect(screen.getByDisplayValue('Synthetic reading')).toBeOnTheScreen();
+    alert.mockRestore();
+  });
+  it.each([
     ['es', 'light'],
     ['en', 'light'],
     ['es', 'dark'],
@@ -116,6 +296,28 @@ describe('goal screens and confirmed writes', () => {
         'No goals match this filter. Create a goal to get started.',
       ),
     ).not.toBeOnTheScreen();
+  });
+  it('keeps confirmed goals visible while refreshing', async () => {
+    const { repository } = await open(<GoalsScreen />);
+    await screen.findByText('Synthetic savings');
+    let resolveRefresh!: (
+      value: Awaited<ReturnType<typeof repository.list>>,
+    ) => void;
+    repository.list.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveRefresh = resolve;
+        }),
+    );
+    await fireEvent.press(screen.getByRole('button', { name: 'Refresh' }));
+    expect(screen.getByText('Synthetic savings')).toBeOnTheScreen();
+    expect(
+      screen.getByRole('progressbar', { name: 'Synthetic savings' }),
+    ).toBeOnTheScreen();
+    await act(async () => {
+      resolveRefresh(await goalRepositoryStub().list(null, null));
+    });
+    expect(await screen.findByText('Synthetic savings')).toBeOnTheScreen();
   });
   it('creates a quantity goal and navigates only after confirmed saving', async () => {
     const { repository } = await open(<CreateGoalScreen />);
@@ -265,9 +467,17 @@ describe('goal screens and confirmed writes', () => {
     await fireEvent.press(
       await screen.findByRole('button', { name: 'Record progress' }),
     );
-    await fireEvent.changeText(
-      screen.getByLabelText('Completion date'),
-      '2026-10-03',
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Completion date' }),
+    );
+    await fireEvent(
+      screen.getByTestId('date-picker'),
+      'valueChange',
+      {},
+      new Date('2026-10-03T12:00:00Z'),
+    );
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Confirm selection' }),
     );
     await fireEvent.press(
       screen.getByRole('button', { name: 'Confirm or update date' }),

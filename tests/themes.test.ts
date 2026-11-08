@@ -56,6 +56,7 @@ describe('mandatory themes', () => {
         [colors.muted, colors.field],
         [colors.error, colors.errorSurface],
         [colors.success, colors.successSurface],
+        [colors.success, colors.surface],
         [colors.onAction, colors.action],
         [colors.onAction, colors.actionPressed],
       ])

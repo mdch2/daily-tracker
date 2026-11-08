@@ -19,6 +19,7 @@ export const goalDefinition: GoalDefinition = {
   id: goalId,
   name: 'Synthetic savings',
   description: null,
+  reward: null,
   mode: 'amount',
   progressSource: 'manual',
   startDate: '2026-10-01',
@@ -80,63 +81,53 @@ export function goalRepositoryStub(): jest.Mocked<GoalRepository> {
     readContributions: jest
       .fn()
       .mockResolvedValue({ context: goalContext, days: [] }),
-    readHistory: jest
-      .fn()
-      .mockResolvedValue({
-        context: goalContext,
-        events: [],
-        upToSequence: 1,
-        nextBeforeSequence: null,
-      }),
+    readHistory: jest.fn().mockResolvedValue({
+      context: goalContext,
+      events: [],
+      upToSequence: 1,
+      nextBeforeSequence: null,
+    }),
     create: jest
       .fn()
       .mockImplementation(async (input) =>
         goalReceipt({ goalId: input.goalId, operationId: input.operationId }),
       ),
-    edit: jest
-      .fn()
-      .mockImplementation(async (input) =>
-        goalReceipt({
-          kind: 'edit',
-          goalVersion: input.expectedVersion + 1,
-          goalId: input.goalId,
-          operationId: input.operationId,
-        }),
-      ),
-    archive: jest
-      .fn()
-      .mockImplementation(async (input) =>
-        goalReceipt({
-          kind: 'archive',
-          goalVersion: input.expectedVersion + 1,
-          goalId: input.goalId,
-          operationId: input.operationId,
-        }),
-      ),
-    recordAmount: jest
-      .fn()
-      .mockImplementation(async (input) =>
-        goalReceipt({
-          kind: input.action === 'add' ? 'amount_add' : 'amount_set',
-          goalId: input.goalId,
-          operationId: input.operationId,
-          date: input.date,
-          amountMilliunits: input.amountMilliunits,
-          revision: 1,
-        }),
-      ),
-    recordMilestone: jest
-      .fn()
-      .mockImplementation(async (input) =>
-        goalReceipt({
-          kind: 'milestone_set',
-          goalId: input.goalId,
-          operationId: input.operationId,
-          milestoneId: input.milestoneId,
-          completed: input.completed,
-          completionDate: input.completionDate,
-          revision: input.expectedRevision + 1,
-        }),
-      ),
+    edit: jest.fn().mockImplementation(async (input) =>
+      goalReceipt({
+        kind: 'edit',
+        goalVersion: input.expectedVersion + 1,
+        goalId: input.goalId,
+        operationId: input.operationId,
+      }),
+    ),
+    archive: jest.fn().mockImplementation(async (input) =>
+      goalReceipt({
+        kind: 'archive',
+        goalVersion: input.expectedVersion + 1,
+        goalId: input.goalId,
+        operationId: input.operationId,
+      }),
+    ),
+    recordAmount: jest.fn().mockImplementation(async (input) =>
+      goalReceipt({
+        kind: input.action === 'add' ? 'amount_add' : 'amount_set',
+        goalId: input.goalId,
+        operationId: input.operationId,
+        date: input.date,
+        amountMilliunits: input.amountMilliunits,
+        revision: 1,
+      }),
+    ),
+    recordMilestone: jest.fn().mockImplementation(async (input) =>
+      goalReceipt({
+        kind: 'milestone_set',
+        goalId: input.goalId,
+        operationId: input.operationId,
+        milestoneId: input.milestoneId,
+        completed: input.completed,
+        completionDate: input.completionDate,
+        revision: input.expectedRevision + 1,
+      }),
+    ),
   };
 }

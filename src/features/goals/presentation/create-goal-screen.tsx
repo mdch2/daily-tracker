@@ -1,17 +1,19 @@
 import { useState } from 'react';
 import { View } from 'react-native';
-import { useRouter, usePreventRemove } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { BusinessCalendarGate } from '@/features/profile/presentation/business-calendar-gate';
 import { Screen, Text } from '@/shared/ui/primitives';
 import { IconButton } from '@/shared/ui/icon-button';
+import { useFormNavigation } from '@/shared/presentation/use-form-navigation';
 import { GoalForm } from './goal-form';
 
 export function CreateGoalScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const [locked, setLocked] = useState(false);
-  const allowNavigation = usePreventRemove(locked);
+  const [dirty, setDirty] = useState(false);
+  const { allowNavigation, requestLeave } = useFormNavigation(locked, dirty);
   return (
     <BusinessCalendarGate>
       {(context) => (
@@ -24,7 +26,9 @@ export function CreateGoalScreen() {
                 label={t('goals.back')}
                 icon="arrow-left"
                 disabled={locked}
-                onPress={() => router.replace('/(tabs)/goals')}
+                onPress={() =>
+                  requestLeave(() => router.replace('/(tabs)/goals'))
+                }
               />
               <Text
                 weight="bold"
@@ -39,6 +43,7 @@ export function CreateGoalScreen() {
           <GoalForm
             context={context}
             onLock={setLocked}
+            onDirtyChange={setDirty}
             onSaved={(id) => {
               setLocked(false);
               allowNavigation();

@@ -25,6 +25,7 @@ export function HabitDayEditor({
   refresh,
   onLock,
   dataCurrent = true,
+  onDirtyChange,
 }: {
   habit: Habit;
   date: string;
@@ -33,6 +34,7 @@ export function HabitDayEditor({
   refresh: () => Promise<HabitDayRecord[]>;
   onLock: (locked: boolean) => void;
   dataCurrent?: boolean;
+  onDirtyChange?: (dirty: boolean) => void;
 }) {
   const habit = habitAtDate(sourceHabit, date);
   const { t } = useTranslation();
@@ -54,6 +56,11 @@ export function HabitDayEditor({
     'saved' | 'savedRefreshFailed' | 'reviewed' | null
   >(null);
   const [reloading, setReloading] = useState(false);
+  const dirty = !!amount;
+  useEffect(() => {
+    onDirtyChange?.(dirty);
+    return () => onDirtyChange?.(false);
+  }, [dirty, onDirtyChange]);
   const lock = useRef(false);
   const mounted = useRef(true);
   useEffect(() => {

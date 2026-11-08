@@ -72,6 +72,8 @@ export function HabitSettingsEditor({
   const [error, setError] = useState<OperationErrorCode | null>(null);
   const lock = useRef(false);
   const disabled = busy || !!pending || saved;
+  const snapshot = JSON.stringify({ name, schedule, mask, weekly, target });
+  const [initialSnapshot] = useState(snapshot);
 
   async function refresh() {
     await client.invalidateQueries(
@@ -185,6 +187,7 @@ export function HabitSettingsEditor({
     <HabitSheet
       title={t('habits.edit.title')}
       locked={busy || !!pending}
+      dirty={!saved && snapshot !== initialSnapshot}
       onClose={onClose}
     >
       <Text>{t('habits.rename.description')}</Text>

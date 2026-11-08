@@ -33,7 +33,7 @@ La contraseña nueva requiere 8–128 caracteres; el login permite contraseñas 
 El backend debe configurar también un mínimo de 8 caracteres. No se alteran contraseñas ni cuentas desde SQL propio.
 La configuración local de `daily-tracker-supabase/supabase/config.toml` fija `minimum_password_length = 8`, alineada con el cliente. Tras editar configuración Auth, `pnpm db:restart` en backend detiene e inicia los servicios conservando datos. `db:reset` no es necesario para aplicar esta política; un proyecto alojado necesita su propia configuración autorizada.
 
-En Android, `127.0.0.1` es el propio emulador. Usar `http://10.0.2.2:54321` en `.env` o crear explícitamente `adb reverse tcp:54321 tcp:54321`; el reenvío de Metro no incluye Supabase. Reiniciar Expo y recargar tras cambiar `.env`.
+En Android, `127.0.0.1` es el propio emulador. Usar `http://10.0.2.2:15421` en `.env` o crear explícitamente `adb reverse tcp:15421 tcp:15421`; el reenvío de Metro no incluye Supabase. Reiniciar Expo y recargar tras cambiar `.env`.
 
 Los errores conocidos de Auth se reducen a códigos de dominio: conexión, política de contraseña, límite de solicitudes y fallo genérico. Presentación los traduce en es/en y conserva las entradas para reintentar. No se exponen mensajes crudos del servidor ni la existencia de una cuenta.
 

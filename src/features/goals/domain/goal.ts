@@ -18,6 +18,7 @@ export type GoalDefinition = {
   id: string;
   name: string;
   description: string | null;
+  reward: string | null;
   mode: 'amount' | 'milestones';
   progressSource: 'manual' | 'habit';
   startDate: string;
@@ -106,6 +107,7 @@ type CreateBase = {
   goalId: string;
   name: string;
   description: string | null;
+  reward: string | null;
   startDate: string;
   deadline: string | null;
 };
@@ -136,6 +138,7 @@ export type EditGoal = {
   expectedVersion: number;
   name: string;
   description: string | null;
+  reward: string | null;
   deadline: string | null;
   targetMilliunits: number | null;
 };
