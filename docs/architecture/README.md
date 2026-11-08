@@ -2,11 +2,13 @@
 
 Estado: fundamentos, [hábitos](habits.md) y [Rutinas v1](routines.md) implementados. Feature-First + Clean Architecture pragmática + monolito modular móvil.
 La edición de hábitos conserva reglas históricas y aplica frecuencia/meta desde la próxima semana de la cuenta: [ADR-007](adr/007-habit-editing.md).
-Las definiciones funcionales de rutinas y metas personales están aprobadas en [ADR-008](adr/008-routines-personal-goals.md). Rutinas está implementada según [ADR-009](adr/009-routines-v1.md). [Metas v1](goals-v1.md) tiene reglas detalladas y alcance visual aprobados en [ADR-010](adr/010-personal-goals-v1.md); su implementación y contratos ejecutables siguen pendientes.
-El [plan previo a implementación](routines-goals-plan.md) detalla navegación, límites de módulos y criterios de aceptación. El [contrato técnico de Metas](goals-service-contract.md), definido en [ADR-011](adr/011-goal-service-contract.md), concreta lecturas/escrituras, historial y recuperación, ya conciliado con el diseño backend en su propio repositorio. Queda implementarlo y verificarlo. Las referencias de rutinas y metas están recibidas en `docs/design/routines` y `docs/design/goals`, con sus diferencias funcionales documentadas.
+Las definiciones funcionales de rutinas y metas personales están aprobadas en [ADR-008](adr/008-routines-personal-goals.md). Rutinas está implementada según [ADR-009](adr/009-routines-v1.md) y [Metas v1](goals-v1.md) según [ADR-010](adr/010-personal-goals-v1.md), con cantidad/hitos, fuente manual o vinculada, historial, edición y archivo.
+El [contrato técnico de Metas](goals-service-contract.md), definido en [ADR-011](adr/011-goal-service-contract.md), está implementado en ambos repositorios y recibe recompensa opcional mediante RPC v2 compatibles con clientes anteriores. Los controles semánticos, fechas/horas nativas, búsqueda y recompensa se documentan en [ADR-013](adr/013-form-controls-and-goal-rewards.md). Las referencias de rutinas y metas permanecen en `docs/design/routines` y `docs/design/goals`; [la auditoría](../design/usability-audit.md) detalla las adaptaciones. La evidencia ejecutada y los límites nativos están en [validation.md](validation.md).
 La separación se aplica donde existe una responsabilidad, sin generar cuatro carpetas por cada módulo previsto.
 
 ## Requisitos permanentes
+
+Los [recordatorios locales v1](adr/012-local-reminders-v1.md) de Hábitos/Rutinas se integran mediante `expo-notifications`. Sus preferencias cifradas pertenecen al dispositivo/identidad y no cambian los contratos remotos ni las reglas de cumplimiento. La hora elegida sigue el teléfono; calendario y registros mantienen la zona de cuenta.
 
 Dos repositorios independientes: el [backend](repository-boundaries.md) posee todo el esquema/SQL/infraestructura y el móvil solo consume servicios e importa tipos. [Idiomas es/en y temas light/dark/system](localization-and-themes.md) son obligatorios, con preferencias persistentes y controles provisionales. Estas decisiones se recogen en [ADR-004](adr/004-permanent-foundations.md).
 
@@ -15,14 +17,14 @@ Dos repositorios independientes: el [backend](repository-boundaries.md) posee to
 | Tecnología                             | Versión base              | Motivo                                                                                    |
 | -------------------------------------- | ------------------------- | ----------------------------------------------------------------------------------------- |
 | Node / pnpm                            | 22.14.0 / 10.28.2         | Runtime instalado compatible, gestor solicitado y lockfile reproducible.                  |
-| Expo / React Native / React            | 58.0.14 / 0.88.0 / 19.3.0 | Conjunto estable publicado y matriz Expo verificada.                                      |
-| Expo Router                            | 58.0.23                   | Navegación por archivos, rutas delgadas y guards.                                         |
+| Expo / React Native / React            | 58.0.23 / 0.88.1 / 19.3.0 | Conjunto estable publicado y matriz Expo verificada.                                      |
+| Expo Router                            | 58.0.30                   | Navegación por archivos, rutas delgadas y guards.                                         |
 | TypeScript                             | 6.0.3                     | Versión del template Expo; strict, exactOptionalPropertyTypes y noUncheckedIndexedAccess. |
 | Supabase JS                            | 2.118.0                   | Auth, cliente tipado y acceso PostgreSQL con RLS.                                         |
 | TanStack Query                         | 5.104.3                   | Caché y estado de consultas remotas; claves incluyen usuario.                             |
 | Zustand                                | 5.0.15                    | Preferencia visual compartida, sin copiar datos remotos.                                  |
 | React Hook Form / Zod / resolvers      | 7.90.0 / 4.6.7 / 5.9.1    | Formularios y validación de límites externos.                                             |
-| Jest / jest-expo / RNTL                | 30.5.2 / 58.0.11 / 14.1.0 | Preset nativo compatible y pruebas de interacción.                                        |
+| Jest / jest-expo / RNTL                | 30.5.2 / 58.0.14 / 14.1.0 | Preset nativo compatible y pruebas de interacción.                                        |
 | ESLint / eslint-config-expo / Prettier | 9.39.5 / 58.0.4 / 3.9.10  | Reglas Expo y formato uniforme.                                                           |
 
 El lockfile fija las resoluciones reales; los rangos permiten parches compatibles. ESLint 10 se descartó porque los plugins actuales de Expo declaran compatibilidad solo hasta 9; existe una advertencia de deprecación que se revisará al actualizar el preset. No se ignoran peers incompatibles.
@@ -31,7 +33,7 @@ La instalación hoisted de pnpm simplifica resolución de Metro/Jest. No hay ges
 
 ## Compatibilidad Android
 
-Daily Tracker requiere **Android 11 (API 30)** como mínimo. `app.json` configura `expo-build-properties` (~58.0.11) con `minSdkVersion: 30`, `compileSdkVersion: 37` y `targetSdkVersion: 36`, compatibles con Expo 58 y el requisito vigente de Google Play. El plugin aplica los valores al generar el proyecto nativo; no basta con exportar JavaScript ni ejecutar Expo Go. La verificación y los pasos de compilación están en [compatibilidad Android](android-compatibility.md).
+Daily Tracker requiere **Android 11 (API 30)** como mínimo. `app.json` configura `expo-build-properties` (~58.0.12) con `minSdkVersion: 30`, `compileSdkVersion: 37` y `targetSdkVersion: 36`, compatibles con Expo 58 y el requisito vigente de Google Play. El plugin aplica los valores al generar el proyecto nativo; no basta con exportar JavaScript ni ejecutar Expo Go. La verificación y los pasos de compilación están en [compatibilidad Android](android-compatibility.md).
 
 ## Responsabilidades y dependencias
 

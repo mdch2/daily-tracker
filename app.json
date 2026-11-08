@@ -4,12 +4,14 @@
     "slug": "daily-tracker",
     "scheme": "dailytracker",
     "version": "0.1.0",
+    "icon": "./assets/icons/icon.png",
     "orientation": "default",
     "userInterfaceStyle": "automatic",
     "platforms": ["ios", "android"],
     "plugins": [
       "expo-router",
       "expo-secure-store",
+      "expo-notifications",
       "expo-status-bar",
       [
         "expo-build-properties",
@@ -46,7 +48,12 @@
     },
     "owner": "mdch2s-team",
     "android": {
-      "package": "com.mdch2steam.dailytracker"
+      "package": "com.mdch2steam.dailytracker",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icons/adaptive-foreground.png",
+        "monochromeImage": "./assets/icons/adaptive-monochrome.png",
+        "backgroundColor": "#0b0f0e"
+      }
     }
   }
 }

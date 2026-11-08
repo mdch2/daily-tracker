@@ -77,7 +77,8 @@ function GoalList({ context }: { context: ReadyBusinessContext }) {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ gap: 8 }}
+        style={{ flexGrow: 0 }}
+        contentContainerStyle={{ gap: 8, alignItems: 'flex-start' }}
       >
         {([null, ...goalStates] as const).map((value) => (
           <Button
@@ -106,7 +107,7 @@ function GoalList({ context }: { context: ReadyBusinessContext }) {
         </Card>
       )}
       {list.isFetching && !list.isPending && <Text>{t('goals.loading')}</Text>}
-      {list.isSuccess && !list.isFetching && (
+      {list.isSuccess && (
         <>
           <Card>
             <Text weight="bold">{t('goals.summary')}</Text>

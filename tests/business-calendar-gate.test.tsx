@@ -54,27 +54,51 @@ async function open(context: BusinessContext) {
   return { repository, client };
 }
 describe('explicit account calendar', () => {
+  it('identifies missing calendar selections without starting a write', async () => {
+    const { repository } = await open({
+      configured: false,
+      serverTime: '2026-10-21T12:00:00Z',
+    });
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Confirm calendar' }),
+    );
+    expect(
+      screen.getByText('Select your account time zone.'),
+    ).toBeOnTheScreen();
+    expect(
+      screen.getByText('Select the day your week starts on.'),
+    ).toBeOnTheScreen();
+    expect(repository.initializeHabitCalendar).not.toHaveBeenCalled();
+  });
   it('has no implicit zone or week start and preserves the input after failure', async () => {
     const { repository } = await open({
       configured: false,
       serverTime: '2026-10-21T12:00:00Z',
     });
     await screen.findByText('Choose your account calendar');
-    expect(screen.getByLabelText('IANA time zone')).toHaveProp('value', '');
-    expect(screen.getByRole('button', { name: 'Monday' })).toHaveProp(
+    expect(
+      screen.getByRole('button', { name: 'Account time zone' }),
+    ).toHaveProp('accessibilityValue', { text: 'Select an option' });
+    expect(screen.getByRole('radio', { name: 'Monday' })).toHaveProp(
       'accessibilityState',
-      expect.objectContaining({ selected: false }),
+      expect.objectContaining({ checked: false }),
+    );
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Account time zone' }),
     );
     await fireEvent.changeText(
-      screen.getByLabelText('IANA time zone'),
-      'America/Bogota',
+      screen.getByLabelText('Search Account time zone'),
+      'Bogota',
+    );
+    await fireEvent.press(
+      screen.getByRole('radio', { name: 'America/Bogota' }),
     );
     await fireEvent.press(
       screen.getByRole('button', { name: 'Confirm calendar' }),
     );
     await screen.findByRole('alert');
     expect(repository.initializeHabitCalendar).not.toHaveBeenCalled();
-    await fireEvent.press(screen.getByRole('button', { name: 'Monday' }));
+    await fireEvent.press(screen.getByRole('radio', { name: 'Monday' }));
     repository.initializeHabitCalendar.mockRejectedValueOnce(
       new OperationError('network'),
     );
@@ -84,7 +108,9 @@ describe('explicit account calendar', () => {
     await waitFor(() =>
       expect(repository.initializeHabitCalendar).toHaveBeenCalledTimes(1),
     );
-    expect(screen.getByDisplayValue('America/Bogota')).toBeOnTheScreen();
+    expect(
+      screen.getByRole('button', { name: 'Account time zone' }),
+    ).toHaveProp('accessibilityValue', { text: 'America/Bogota' });
     repository.getBusinessContext.mockResolvedValue(ready);
     await fireEvent.press(
       screen.getByRole('button', { name: 'Confirm calendar' }),

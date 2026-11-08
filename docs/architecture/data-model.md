@@ -1,5 +1,7 @@
 # Contrato de datos consumido por la app
 
+Actualización 2026-11-07: Metas incorpora `reward: string | null` en su definición y entradas de creación/edición, con máximo de 400 puntos de código Unicode, texto recortado y vacío a nulo. El backend lo versiona junto a la configuración, conserva el valor al archivar o editar desde un cliente v1 y lo proyecta en `create_goal_v2`, `edit_goal_v2`, `get_goal_v2` y `get_goals_v2`. Las lecturas v1 conservan su forma. Historial de edición incluye valores anterior/posterior. Véanse [contrato de Metas](goals-service-contract.md) y [ADR-013](adr/013-form-controls-and-goal-rewards.md).
+
 El esquema y su diseño detallado pertenecen exclusivamente a [mdch2/daily-tracker-supabase](https://github.com/mdch2/daily-tracker-supabase), en docs/data-model.md. Este repositorio no define migraciones, RLS, SQL ni configuración backend.
 
 La app consume profiles mediante ProfileRepository: id, displayName opcional y timeZone opcional. El adaptador transforma nombres del servicio y valida filas con Zod antes de entregarlas a presentación.

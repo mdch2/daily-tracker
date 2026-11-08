@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <mask id="medal-cutouts">
+      <rect width="1024" height="1024" fill="white" />
+      <circle cx="512" cy="442" r="205" fill="black" />
+      <circle cx="512" cy="442" r="185" fill="white" />
+      <path d="M430 440 L487 498 L600 382" fill="none" stroke="black" stroke-width="42" stroke-linecap="round" stroke-linejoin="round" />
+    </mask>
+  </defs>
+  <g fill="#c7df65" mask="url(#medal-cutouts)">
+    <path d="M395 570 L500 613 L440 790 L396 739 L337 756 Z" />
+    <path d="M524 613 L629 570 L687 756 L628 739 L584 790 Z" />
+    <circle cx="512" cy="442" r="225" />
+  </g>
+</svg>

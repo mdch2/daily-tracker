@@ -2,13 +2,9 @@ import { useRef, useState, type ReactNode } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
-import {
-  Button,
-  ErrorMessage,
-  Input,
-  Screen,
-  Text,
-} from '@/shared/ui/primitives';
+import { Button, ErrorMessage, Screen, Text } from '@/shared/ui/primitives';
+import { TimeZoneField } from '@/shared/ui/time-zone-field';
+import { ChoiceGroup } from '@/shared/ui/choice-group';
 import { operationErrorCode } from '@/shared/domain/operation-error';
 import { useAuth } from '@/features/auth/presentation/auth-provider';
 import type {
@@ -26,6 +22,7 @@ function CalendarSetup({ reload }: { reload: () => void }) {
   const client = useQueryClient();
   const [timeZone, setTimeZone] = useState('');
   const [firstDay, setFirstDay] = useState<WeekStartDay | null>(null);
+  const [attempted, setAttempted] = useState(false);
   const submitting = useRef(false);
   const mutation = useMutation({
     mutationFn: createCalendarActions(repository).initialize,
@@ -34,25 +31,26 @@ function CalendarSetup({ reload }: { reload: () => void }) {
     <Screen>
       <Text accessibilityRole="header">{t('calendar.title')}</Text>
       <Text>{t('calendar.description')}</Text>
-      <Input
-        label={t('calendar.timeZone')}
-        hint={t('calendar.zoneHint')}
+      <TimeZoneField
         value={timeZone}
-        onChangeText={setTimeZone}
-        autoCapitalize="none"
-        autoCorrect={false}
-        editable={!mutation.isPending}
+        onChange={setTimeZone}
+        disabled={mutation.isPending}
+        error={attempted && !timeZone ? t('calendar.zoneRequired') : undefined}
       />
       <Text>{t('calendar.weekStart')}</Text>
-      {([1, 7] as const).map((day) => (
-        <Button
-          key={day}
-          title={t(day === 1 ? 'calendar.monday' : 'calendar.sunday')}
-          selected={firstDay === day}
-          disabled={mutation.isPending}
-          onPress={() => setFirstDay(day)}
-        />
-      ))}
+      <ChoiceGroup
+        label={t('calendar.weekStart')}
+        value={firstDay}
+        onChange={setFirstDay}
+        disabled={mutation.isPending}
+        options={([1, 7] as const).map((day) => ({
+          value: day,
+          label: t(day === 1 ? 'calendar.monday' : 'calendar.sunday'),
+        }))}
+      />
+      {attempted && firstDay === null && (
+        <ErrorMessage message={t('calendar.weekStartRequired')} />
+      )}
       {mutation.isError && (
         <ErrorMessage
           message={t(`habits.errors.${operationErrorCode(mutation.error)}`)}
@@ -63,6 +61,8 @@ function CalendarSetup({ reload }: { reload: () => void }) {
         loading={mutation.isPending}
         onPress={() => {
           if (submitting.current) return;
+          setAttempted(true);
+          if (!timeZone || firstDay === null) return;
           submitting.current = true;
           void mutation
             .mutateAsync({ timeZone, weekStartDay: firstDay })

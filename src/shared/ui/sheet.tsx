@@ -17,23 +17,27 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/shared/theme/use-theme';
 import { Text } from '@/shared/ui/primitives';
 import { IconButton } from './icon-button';
+import { useDiscardConfirmation } from '@/shared/presentation/use-form-navigation';
 
 export function Sheet({
   title,
   locked,
   onClose,
   children,
+  dirty = false,
 }: PropsWithChildren<{
   title: string;
   locked: boolean;
   onClose: () => void;
+  dirty?: boolean;
 }>) {
   const { t } = useTranslation();
   const { colors, tokens } = useTheme();
   const insets = useSafeAreaInsets();
   const headingRef = useRef<ComponentRef<typeof View>>(null);
+  const confirmDiscard = useDiscardConfirmation(locked, dirty);
   const close = () => {
-    if (!locked) onClose();
+    confirmDiscard(onClose);
   };
   useEffect(() => {
     AccessibilityInfo.announceForAccessibility(title);

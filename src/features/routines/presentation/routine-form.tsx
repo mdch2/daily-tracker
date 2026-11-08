@@ -11,10 +11,12 @@ import {
   habitAtDate,
   addBusinessDays,
 } from '@/features/habits/domain/habit-rules';
-import type { Habit } from '@/features/habits/domain/habit';
+import { listHabitChoices } from '@/features/habits/application/list-habit-choices';
 import { Button, Input, Text, ErrorMessage } from '@/shared/ui/primitives';
 import { Card } from '@/shared/ui/card';
 import { IconButton } from '@/shared/ui/icon-button';
+import { SelectionField } from '@/shared/ui/selection-field';
+import { SwitchField } from '@/shared/ui/switch-field';
 import { useTheme } from '@/shared/theme/use-theme';
 import { useLocalizedFormatters } from '@/shared/i18n/use-localized-formatters';
 import {
@@ -55,11 +57,13 @@ export function RoutineForm({
   context,
   onSaved,
   onLock,
+  onDirtyChange,
 }: {
   routine?: Routine;
   context: ReadyBusinessContext;
   onSaved: (id: string) => void;
   onLock: (locked: boolean) => void;
+  onDirtyChange?: (dirty: boolean) => void;
 }) {
   const { t } = useTranslation();
   const { colors } = useTheme();
@@ -94,20 +98,17 @@ export function RoutineForm({
   );
   const [steps, setSteps] = useState<RoutineStep[]>(initial.steps);
   const [choosing, setChoosing] = useState(false);
-  const [search, setSearch] = useState('');
+  const snapshot = JSON.stringify({ name, schedule, mask, steps });
+  const [initialSnapshot] = useState(snapshot);
+  const dirty = snapshot !== initialSnapshot;
+  useEffect(() => {
+    onDirtyChange?.(dirty);
+    return () => onDirtyChange?.(false);
+  }, [dirty, onDirtyChange]);
   const user = state.session?.userId;
   const choices = useQuery({
     queryKey: ['habits', user, 'routine-choices'],
-    queryFn: async () => {
-      const all: Habit[] = [];
-      for (let offset = 0; ; offset += 30) {
-        const page = await habitRepository.list(offset);
-        all.push(...page.habits);
-        if (!page.hasMore) break;
-        if (!page.habits.length) throw new OperationError('service');
-      }
-      return all;
-    },
+    queryFn: () => listHabitChoices(habitRepository),
   });
   const effective = addBusinessDays(context.weekStartDate, 7);
   const actions = createRoutineActions(repository);
@@ -178,12 +179,7 @@ export function RoutineForm({
   }
   const available = (choices.data ?? []).filter(
     (habit) =>
-      !steps.some(
-        (step) => step.kind === 'habit' && step.habitId === habit.id,
-      ) &&
-      habit.name
-        .toLocaleLowerCase()
-        .includes(search.trim().toLocaleLowerCase()),
+      !steps.some((step) => step.kind === 'habit' && step.habitId === habit.id),
   );
   return (
     <>
@@ -359,16 +355,13 @@ export function RoutineForm({
                 )}
               </>
             )}
-            <Button
-              title={t(
+            <SwitchField
+              label={t(
                 step.required ? 'routines.required' : 'routines.optional',
               )}
-              selected={step.required}
-              variant={step.required ? 'primary' : 'secondary'}
+              value={step.required}
               disabled={disabled || (!!flexible && !step.required)}
-              onPress={() =>
-                update(index, { ...step, required: !step.required })
-              }
+              onChange={(required) => update(index, { ...step, required })}
             />
           </Card>
         );
@@ -394,40 +387,38 @@ export function RoutineForm({
       />
       {choosing && (
         <Card>
-          <Input
-            label={t('routines.searchHabits')}
-            value={search}
-            onChangeText={setSearch}
-            editable={!disabled}
-          />
           {choices.isPending && <Text>{t('habits.loading')}</Text>}
           {choices.isSuccess && !available.length && (
             <Text>{t('routines.noHabitChoices')}</Text>
           )}
-          {available.map((habit) => (
-            <Button
-              key={habit.id}
-              title={habit.name}
-              variant="secondary"
-              disabled={disabled}
-              onPress={() => {
-                const flexible =
-                  habitAtDate(habit, routine ? effective : context.today)
-                    .definition.scheduleType === 'weekly';
-                setSteps((current) => [
-                  ...current,
-                  {
-                    id: randomUUID(),
-                    kind: 'habit',
-                    habitId: habit.id,
-                    required: !flexible,
-                  },
-                ]);
-                setChoosing(false);
-                setSearch('');
-              }}
-            />
-          ))}
+          <SelectionField
+            label={t('routines.searchHabits')}
+            value={null}
+            searchable
+            initiallyExpanded
+            options={available.map((habit) => ({
+              value: habit.id,
+              label: habit.name,
+            }))}
+            disabled={disabled || !choices.isSuccess}
+            onChange={(id) => {
+              const habit = available.find((habit) => habit.id === id);
+              if (!habit) return;
+              const flexible =
+                habitAtDate(habit, routine ? effective : context.today)
+                  .definition.scheduleType === 'weekly';
+              setSteps((current) => [
+                ...current,
+                {
+                  id: randomUUID(),
+                  kind: 'habit',
+                  habitId: habit.id,
+                  required: !flexible,
+                },
+              ]);
+              setChoosing(false);
+            }}
+          />
         </Card>
       )}
       <RoutineWriteFeedback

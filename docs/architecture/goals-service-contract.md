@@ -1,6 +1,8 @@
-# Metas v1: contrato de servicios para implementar
+# Metas: contrato de servicios consumido
 
-Fecha: 2026-10-30. Diseño técnico definido para implementar, sin endpoints disponibles ni tipos generados de Metas. Complementa las [reglas aprobadas](goals-v1.md) y [ADR-010](adr/010-personal-goals-v1.md); las decisiones de integración se recogen en [ADR-011](adr/011-goal-service-contract.md). Sustituye los nombres orientativos de servicios de Metas del [plan inicial](routines-goals-plan.md).
+Fecha de definición: 2026-10-30. Estado actualizado el 2026-11-07: endpoints implementados y tipos generados desde PostgreSQL e importados al móvil. Complementa las [reglas aprobadas](goals-v1.md) y [ADR-010](adr/010-personal-goals-v1.md); las decisiones de integración se recogen en [ADR-011](adr/011-goal-service-contract.md). Sustituye los nombres orientativos del [plan inicial](routines-goals-plan.md).
+
+Extensión compatible de [ADR-013](adr/013-form-controls-and-goal-rewards.md): el cliente utiliza `create_goal_v2`, `edit_goal_v2`, `get_goal_v2` y `get_goals_v2`. Creación, edición y `definition` incorporan `reward: string | null`, con las mismas reglas de normalización/límite de 400 de la descripción. Archivo, contribuciones, registro e historial mantienen sus RPC existentes; el historial de edición incluye recompensa anterior/posterior. Las lecturas v1 no incorporan la clave y las ediciones v1 preservan la recompensa actual. El resto de este documento describe los contratos base que siguen vigentes.
 
 El esquema, SQL, permisos y pruebas PostgreSQL pertenecen al backend, cuyo contrato está en `docs/goals-v1.md` de `daily-tracker-supabase`. Aquí se especifica lo que consume el móvil; no se importan fuentes ni se crean capas de código antes de implementar.
 
@@ -110,10 +112,12 @@ Transporte sin respuesta se distingue de rechazo conocido: conservar borrador, U
 
 ## Integración móvil y orden de implementación
 
+Las lecturas RPC de Metas tienen un límite cliente de 15 segundos, con cancelación del transporte y error `network` recuperable. La consulta del aporte de una fecha permite reintento manual y conserva el borrador. El aviso de fecha no permitida o archivo depende de las reglas de la meta. La carga y los fallos de consulta muestran sus propios estados.
+
 1. Backend implementa y prueba los contratos, permisos y lecturas coherentes en su repositorio. Genera tipos desde PostgreSQL real; el móvil importa el artefacto con `pnpm db:types`.
 2. `features/goals` incorpora tipos/reglas puras, validación y acciones, repositorio adaptador y composición en bootstrap según responsabilidades reales. No importa infraestructura de Hábitos ni usa Supabase desde presentación.
 3. TanStack Query usa la raíz `['goals', userId]`, con claves para filtro/detalle/contribuciones/historial. Registrar o corregir un hábito desde cualquier recorrido, editar su definición, volver a foreground y cruzar fecha invalida Metas. Escrituras propias invalidan sus lecturas y reinician paginación; el cambio de sesión limpia caché.
 4. Construir listado, creación, detalle, registro, edición e historial/archivo. Activar la pestaña Metas cuando exista el recorrido completo. Reutilizar patrones existentes y conservar el alcance visual aprobado.
 5. Validar reglas, paridad entre proyecciones y dominio, idempotencia/concurrencia/autorización en PostgreSQL real, borradores/fallos y paginación. Ejecutar checks, compatibilidad/bundles afectados y revisión visual es/en, light/dark/system e iOS/Android. Sin reset de la base de trabajo ni despliegues remotos por defecto.
 
-No quedan preguntas de producto para iniciar v1. La disponibilidad de PostgreSQL local y las verificaciones ejecutadas se comprobarán al implementar; esta definición no afirma que ya existan servicios, migraciones o seguridad probada de Metas.
+El orden anterior conserva la guía de implementación original. Estado actual: servicios y migraciones locales disponibles, tipos generados/importados y pruebas PostgreSQL ejecutadas en el backend. Los resultados y límites reales se mantienen en [validation.md](validation.md); no se infiere de ellos un despliegue remoto ni una revisión visual nativa.

@@ -1,10 +1,10 @@
 # Metas personales v1: definición aprobada
 
-Fecha: 2026-10-28. Estado: reglas de producto y alcance visual aprobados; implementación y contratos ejecutables pendientes. [ADR-010](adr/010-personal-goals-v1.md) complementa [ADR-008](adr/008-routines-personal-goals.md) y sustituye las propuestas de Metas del [plan previo](routines-goals-plan.md) donde difieran. Actualización del 30 de octubre: el [contrato técnico de servicios](goals-service-contract.md) queda definido y conciliado con el backend según [ADR-011](adr/011-goal-service-contract.md), sin endpoints implementados.
+Fecha de aprobación: 2026-10-28. Estado actualizado el 2026-11-07: implementación móvil y backend disponibles, con tipos generados e importados. [ADR-010](adr/010-personal-goals-v1.md) complementa [ADR-008](adr/008-routines-personal-goals.md); el [contrato técnico de servicios](goals-service-contract.md) sigue [ADR-011](adr/011-goal-service-contract.md). [ADR-013](adr/013-form-controls-and-goal-rewards.md) añade selectores semánticos y recompensa personal opcional. La evidencia y los límites de revisión nativa están en [validation.md](validation.md).
 
 ## Modalidades, fuente y validación
 
-Cada meta pertenece a una cuenta y tiene nombre, descripción opcional, inicio y fecha límite opcional. Admite cantidad acumulada frente a un objetivo positivo, o hitos ordenados de igual peso. Se logra al alcanzar o superar el objetivo o completar todos los hitos.
+Cada meta pertenece a una cuenta y tiene nombre, descripción opcional, recompensa personal opcional, inicio y fecha límite opcional. Admite cantidad acumulada frente a un objetivo positivo, o hitos ordenados de igual peso. Se logra al alcanzar o superar el objetivo o completar todos los hitos. La recompensa admite hasta 400 puntos de código Unicode, se puede editar o quitar mientras la meta no esté archivada y se destaca únicamente mientras el estado confirmado sea logrado. No añade un estado de recompensa recibida.
 
 La fuente se elige al crear: manual o un único hábito propio compatible, sin mezclarlas. Un hábito puede alimentar varias metas sin repartir sus registros. Su aparición en rutinas no multiplica el avance.
 
@@ -78,6 +78,8 @@ La [referencia de Metas](../design/goals/README.md) aporta composición y tarjet
 Quedan fuera de v1 el resumen de próximos hitos entre metas, categorías, pronósticos de riesgo/ritmo, avance global ponderado, comparaciones mensuales, alineación semanal, fechas límite por hito, rachas y subprogreso no medido. No se generan datos ficticios para conservar bloques de la maqueta.
 
 La pestaña Metas se incorpora con el recorrido completo, entre Rutinas y Más: Hoy, Hábitos, Rutinas, Metas y Más. No genera una obligación diaria en Hoy. Las metas vinculadas muestran hábito y medida y ofrecen abrir el hábito, sin aporte manual.
+
+Por solicitud del 6 de noviembre de 2026, Hoy incorpora además hasta tres metas en curso o vencidas, con las vencidas primero y acceso a todas las metas. Consume las primeras páginas filtradas del contrato existente y reutiliza `GoalCard`; no recalcula ni agrega progreso. El avance es acumulado y no depende del día seleccionado para hábitos/rutinas. Creación, archivo, correcciones y cambios de hábitos vinculados invalidan la misma familia de consultas de Metas. Las metas logradas, programadas y archivadas siguen disponibles en su pestaña.
 
 Se mantienen es/en, light/dark/system, preferencias persistentes, formateadores compartidos con contexto temporal explícito y áreas táctiles mínimas de 48. Carga, vacío, error, validación, guardado, conflicto y recuperación deben tener comportamiento accesible y conservar entradas. La revisión visual real sigue pendiente de implementación.
 
