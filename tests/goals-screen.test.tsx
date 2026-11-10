@@ -154,6 +154,8 @@ describe('goal screens and confirmed writes', () => {
       expect(screen.getByDisplayValue('42')).toBeOnTheScreen();
       expect(repository.recordAmount).not.toHaveBeenCalled();
     },
+    // Initial native rendering plus deferred read/retry can exceed 5s on Windows.
+    15000,
   );
   it('saves the optional personal reward with the goal', async () => {
     const { repository } = await open(<CreateGoalScreen />);

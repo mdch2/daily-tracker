@@ -90,7 +90,9 @@ export function Screen({
       >
         <ScrollView
           keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
+          // RN Web dismisses on every scroll, including browser focus/keyboard
+          // repositioning. Let the browser keep the active field focused.
+          keyboardDismissMode={Platform.OS === 'web' ? 'none' : 'on-drag'}
           contentContainerStyle={[
             {
               flexGrow: 1,

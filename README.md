@@ -62,7 +62,7 @@ En Vercel importa `mdch2/daily-tracker`, selecciona el directorio raíz y config
 
 En Supabase Auth / URL Configuration autoriza el callback exacto `https://<dominio-vercel>/callback` y su variante `?mode=recovery`, además de los callbacks nativos ya existentes. Para desarrollo añade `http://localhost:8081/callback` y la variante de recuperación. Usa dominios de preview específicos si también se prueban correos allí; evita una autorización global de vercel.app. Este cambio remoto no lo realiza la compilación del cliente.
 
-Web conserva idioma/tema en localStorage y sesión en sessionStorage. Para confirmar correo o recuperar contraseña, abre el enlace en la misma pestaña que inició la solicitud (copia el enlace del correo). Cerrar la pestaña termina la persistencia local; el backend determina la validez del token. Los recordatorios locales siguen disponibles en Android/iOS.
+Web conserva idioma/tema y sesión en localStorage, con claves independientes. Volver a abrir la aplicación en el mismo navegador y dominio restaura la sesión; Supabase determina su validez y renueva los tokens. Cerrar sesión elimina la sesión guardada. Los enlaces PKCE de correo deben abrirse en el mismo navegador y dominio que inició la solicitud, incluso si se abren en otra pestaña. Una sesión antigua por pestaña puede requerir un último acceso tras actualizar. Véase [ADR-016](docs/architecture/adr/016-persistent-web-session-and-keyboard.md). Los recordatorios locales siguen disponibles en Android/iOS.
 
 Publicar en Vercel aloja el cliente web y usa Supabase remoto; no traslada ni reinicia su base de datos. Valida acceso con tu cuenta, recarga/cierre de sesión y correo antes de distribuir la URL.
 
