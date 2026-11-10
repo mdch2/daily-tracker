@@ -28,6 +28,36 @@ describe('sign-in form', () => {
   beforeEach(() => {
     jest.mocked(mockRepository.signUp).mockReset();
   });
+
+  it.each([
+    ['es', 'light'],
+    ['es', 'dark'],
+    ['es', 'system'],
+    ['en', 'light'],
+    ['en', 'dark'],
+    ['en', 'system'],
+  ] as const)(
+    'keeps registration hidden and password recovery available in %s/%s',
+    async (language, theme) => {
+      await render(<AuthScreen mode="sign-in" />, { language, theme });
+      expect(
+        screen.queryByText(
+          language === 'es' ? 'Crear cuenta' : 'Create account',
+        ),
+      ).not.toBeOnTheScreen();
+      expect(
+        screen.queryByText(
+          language === 'es' ? '¿Es tu primera vez aquí?' : 'First time here?',
+        ),
+      ).not.toBeOnTheScreen();
+      expect(
+        screen.getByText(
+          language === 'es' ? 'Recuperar contraseña' : 'Recover password',
+        ),
+      ).toBeOnTheScreen();
+      expect(mockRepository.signUp).not.toHaveBeenCalled();
+    },
+  );
   it.each([
     [
       'es',

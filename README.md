@@ -50,6 +50,8 @@ pnpm ios
 
 Authentication currently provides a provisional technical flow: registration, email confirmation, sign-in, local sign-out, and account recovery.
 
+Public account creation is closed: sign-in hides Create account and `/sign-up` redirects to `/sign-in`. Disable **Allow new users to sign up** in the cloud Supabase Auth configuration so earlier clients and direct API calls cannot register accounts. Account creation is managed by the owner in Supabase; this change adds no invitation-email flow. See [ADR-015](docs/architecture/adr/015-controlled-account-creation.md).
+
 The MVP requires an account to access personal tracking features and does not include guest mode. See [ADR-005](docs/architecture/adr/005-mvp-account-required.md). The final onboarding design remains pending.
 
 ## Web y Vercel
