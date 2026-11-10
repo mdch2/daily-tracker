@@ -1,7 +1,7 @@
 import { useEffect, useState, type PropsWithChildren } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import * as SecureStore from 'expo-secure-store';
+import { deviceStorage } from '@/infrastructure/storage/device-storage';
 import { useTranslation } from 'react-i18next';
 import type { i18n } from 'i18next';
 import { readEnvironment } from '@/shared/config/environment';
@@ -25,8 +25,7 @@ import { createPreferencesStore } from '@/shared/preferences/store';
 import { PreferencesProvider } from '@/shared/preferences/preferences-provider';
 import { PresentationProvider } from './presentation-provider';
 import { FontProvider } from './font-provider';
-import { createReminderService } from '@/features/reminders/application/reminder-service';
-import { createExpoReminderScheduler } from '@/features/reminders/infrastructure/expo-reminder-scheduler';
+import { createRuntimeReminders } from './runtime-reminders';
 import { ReminderContext } from '@/features/reminders/presentation/reminder-context';
 import { ReminderLifecycle } from './reminder-lifecycle';
 
@@ -34,21 +33,7 @@ function createRuntime(i18n: i18n) {
   const environment = readEnvironment();
   if (!environment) return null;
   const client = createSupabaseClient(environment);
-  const reminders = createReminderService(
-    {
-      read: () => SecureStore.getItemAsync('daily-tracker.reminders.v1'),
-      write: (value) =>
-        SecureStore.setItemAsync('daily-tracker.reminders.v1', value, {
-          keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-        }),
-    },
-    createExpoReminderScheduler(() => ({
-      title: i18n.t('reminders.notificationTitle'),
-      habit: i18n.t('reminders.notificationHabit'),
-      routine: i18n.t('reminders.notificationRoutine'),
-      channel: i18n.t('reminders.title'),
-    })),
-  );
+  const reminders = createRuntimeReminders(i18n);
   const auth = createAuthRepository(client);
   const routines = createRoutineRepository(client);
   return {
@@ -57,7 +42,7 @@ function createRuntime(i18n: i18n) {
     auth: {
       ...auth,
       async signOut() {
-        await reminders.reset();
+        await reminders?.reset();
         await auth.signOut();
       },
     },
@@ -67,7 +52,7 @@ function createRuntime(i18n: i18n) {
       ...routines,
       async archive(input: Parameters<typeof routines.archive>[0]) {
         // Stop this device's reminders before the routine becomes read-only.
-        await reminders.remove({ kind: 'routine', targetId: input.routineId });
+        await reminders?.remove({ kind: 'routine', targetId: input.routineId });
         await routines.archive(input);
       },
     },
@@ -84,7 +69,7 @@ function BackendProvider({ children }: PropsWithChildren) {
   return runtime ? (
     <AuthProvider repository={runtime.auth}>
       <ReminderContext.Provider value={runtime.reminders}>
-        <ReminderLifecycle service={runtime.reminders} />
+        {runtime.reminders && <ReminderLifecycle service={runtime.reminders} />}
         <ProfileRepositoryContext.Provider value={runtime.profiles}>
           <HabitRepositoryContext.Provider value={runtime.habits}>
             <RoutineRepositoryContext.Provider value={runtime.routines}>
@@ -115,15 +100,7 @@ export function AppProviders({ children }: PropsWithChildren) {
         },
       }),
   );
-  const [preferences] = useState(() =>
-    createPreferencesStore({
-      getItem: (key) => SecureStore.getItemAsync(key),
-      setItem: (key, value) =>
-        SecureStore.setItemAsync(key, value, {
-          keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-        }),
-    }),
-  );
+  const [preferences] = useState(() => createPreferencesStore(deviceStorage));
   return (
     <SafeAreaProvider>
       <PreferencesProvider store={preferences}>

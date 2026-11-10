@@ -28,7 +28,7 @@ Dos repositorios independientes: el [backend](repository-boundaries.md) posee to
 | ESLint / eslint-config-expo / Prettier | 9.39.5 / 58.0.4 / 3.9.10  | Reglas Expo y formato uniforme.                                                           |
 
 El lockfile fija las resoluciones reales; los rangos permiten parches compatibles. ESLint 10 se descartó porque los plugins actuales de Expo declaran compatibilidad solo hasta 9; existe una advertencia de deprecación que se revisará al actualizar el preset. No se ignoran peers incompatibles.
-react-dom está fijado a la versión de React para satisfacer el peer de Router; no habilita una plataforma web del producto.
+react-dom está fijado a la versión de React para satisfacer el peer de Router. La compatibilidad web y Vercel se habilitan según [ADR-014](adr/014-web-storage-and-hosting.md).
 La instalación hoisted de pnpm simplifica resolución de Metro/Jest. No hay gestor adicional ni workspace artificial.
 
 ## Compatibilidad Android
@@ -51,7 +51,7 @@ La composición inyecta adaptadores; dominio no importa infraestructura. ESLint 
 
 ## Estado y ciclo de sesión
 
-Supabase posee la sesión y SecureStore la persiste; el contexto solo proyecta userId, estado de carga/error y modo de recuperación.
+Supabase posee la sesión; SecureStore la persiste en nativo y sessionStorage en web según ADR-014; el contexto solo proyecta userId, estado de carga/error y modo de recuperación.
 Se escucha Auth antes de restaurar la sesión para que una respuesta inicial tardía no reemplace un evento más reciente.
 El cambio de identidad limpia la caché Query. Las consultas personales incluyen userId en la clave y las mutaciones no tienen reintentos automáticos.
 Los listeners de AppState y Auth se limpian al desmontar. No hay almacenamiento de contraseñas.
@@ -64,7 +64,7 @@ Idioma y tema se persisten en SecureStore mediante un store Zustand de preferenc
 La primera aplicación de Stitch al acceso usa tokens semánticos claros/oscuros, acento verde/lima, superficies carbón y Manrope empaquetada en cuatro pesos. La identidad comercial continúa siendo provisional; el motivo de cuatro bloques del acceso es un recurso visual de la propuesta.
 Text, Button, Input, Screen y mensajes de error/carga existen porque el acceso los usa. Los enlaces respetan tema y área táctil mínima de 48. Input integra foco, icono, ayudas y mostrar/ocultar contraseña.
 El panel modal de preferencias permite cambiar idioma y tema antes del acceso conservando el formulario. Feather proporciona la iconografía de controles, con etiquetas accesibles independientes del glifo.
-expo-font y @expo-google-fonts/manrope cargan los archivos empaquetados sin consultar servicios externos. react-native-web es solo una dependencia de desarrollo para inspección visual; no habilita una plataforma web del producto ni almacenamiento de sesión alternativo. Screen integra área segura, scroll y teclado.
+expo-font y @expo-google-fonts/manrope cargan los archivos empaquetados sin consultar servicios externos. react-native-web habilita la aplicación web; ADR-014 define la sesión por pestaña, las preferencias del navegador y las capacidades nativas excluidas. Screen integra área segura, scroll y teclado.
 La referencia, el alcance y las diferencias del mock se documentan en [diseño de autenticación](../design/authentication.md).
 Las rutas se cargan mediante Router; no hay listas ni grandes consultas que optimizar todavía.
 

@@ -1,9 +1,12 @@
 import type { BackendClient } from '@/infrastructure/supabase/client';
 import type { AuthRepository } from '../domain/auth-repository';
 import { mapAuthError } from './auth-error';
+import { getAuthRedirectUrl } from './auth-redirect';
 
-export function createAuthRepository(client: BackendClient): AuthRepository {
-  const redirectUrl = 'dailytracker://callback';
+export function createAuthRepository(
+  client: BackendClient,
+  redirectUrl: () => string = getAuthRedirectUrl,
+): AuthRepository {
   return {
     async getSession() {
       const { data, error } = await client.auth.getSession();
@@ -27,7 +30,7 @@ export function createAuthRepository(client: BackendClient): AuthRepository {
     async signUp(credentials) {
       const { data, error } = await client.auth.signUp({
         ...credentials,
-        options: { emailRedirectTo: redirectUrl },
+        options: { emailRedirectTo: redirectUrl() },
       });
       if (error) throw mapAuthError(error);
       return { confirmationRequired: data.session === null };
@@ -39,7 +42,7 @@ export function createAuthRepository(client: BackendClient): AuthRepository {
     },
     async requestPasswordReset(email) {
       const { error } = await client.auth.resetPasswordForEmail(email, {
-        redirectTo: `${redirectUrl}?mode=recovery`,
+        redirectTo: `${redirectUrl()}?mode=recovery`,
       });
       if (error) throw mapAuthError(error);
     },

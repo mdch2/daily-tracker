@@ -38,7 +38,7 @@ El tema de lanzamiento/splash depende del binario y del sistema antes de hidrata
 ## Persistencia y fallos
 
 Un único store Zustand de preferencias de dispositivo persiste language y theme en daily-tracker.preferences.v1.
-Se reutiliza SecureStore, ya instalado, para un JSON pequeño; no se añade almacenamiento ni dependencia extra. Nunca se mezclan preferencias con tokens Auth, datos remotos o perfiles PostgreSQL.
+En Android/iOS se reutiliza SecureStore, ya instalado, para un JSON pequeño; en web se usa localStorage según [ADR-014](adr/014-web-storage-and-hosting.md); no se añade almacenamiento ni dependencia extra. Nunca se mezclan preferencias con tokens Auth, datos remotos o perfiles PostgreSQL.
 Las preferencias se conservan al cerrar sesión; no sincronizan entre dispositivos.
 
 El arranque espera la hidratación antes de mostrar el contenido de la app. Un fallo de lectura o datos inválidos muestra error y permite reintentar, sin sobrescribir silenciosamente el registro.
