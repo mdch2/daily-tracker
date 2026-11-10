@@ -1,6 +1,6 @@
 # ADR-014: compatibilidad web y hosting estático
 
-- Estado: aceptada para web; complementa ADR-002 y ADR-012 sin cambiar persistencia nativa.
+- Estado: aceptada para web; complementa ADR-002 y ADR-012 sin cambiar persistencia nativa. La persistencia por pestaña fue sustituida por [ADR-016](016-persistent-web-session-and-keyboard.md).
 - Fecha: 2026-11-09.
 
 ## Contexto
@@ -9,9 +9,9 @@ El usuario autoriza ejecutar Daily Tracker en web y preparar Vercel usando su Su
 
 ## Decisión
 
-Metro selecciona adaptadores por plataforma. Android/iOS mantienen SecureStore cifrado y sesiones por bloques sin fallback. Web guarda solo idioma/tema en localStorage y sesión/PKCE en sessionStorage. Las operaciones acceden al navegador de forma diferida y propagan fallos; no se ocultan errores ni se reemplazan datos inválidos.
+Metro selecciona adaptadores por plataforma. Android/iOS mantienen SecureStore cifrado y sesiones por bloques sin fallback. Web guarda idioma/tema y sesión/PKCE en localStorage con claves independientes, según la actualización ADR-016. Las operaciones acceden al navegador de forma diferida y propagan fallos; no se ocultan errores ni se reemplazan datos inválidos.
 
-La sesión web sobrevive recargas dentro de la pestaña. sessionStorage es accesible a JavaScript, no equivale al almacenamiento cifrado nativo, y no se promete continuidad entre pestañas o después de cerrarlas. Los enlaces PKCE de registro/recuperación deben abrirse en la pestaña que inició el flujo: copiar el enlace de correo y abrirlo allí. La aplicación no guarda contraseñas.
+La decisión inicial limitaba la sesión web a la pestaña mediante sessionStorage para evitar persistirla al cerrarla. ADR-016 cambia esa decisión por petición del propietario: se recuerda la sesión entre pestañas y aperturas del mismo navegador y origen. El almacenamiento web es accesible a JavaScript y no equivale al cifrado nativo. La aplicación no guarda contraseñas.
 
 Los recordatorios locales son exclusivamente nativos: web no crea el servicio ni sus controles ni importa expo-notifications. Cerrar sesión/archivar rutinas en web no depende del almacenamiento de recordatorios. El refresh por AppState es nativo; Supabase gestiona visibilidad en navegador.
 
