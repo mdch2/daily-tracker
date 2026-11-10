@@ -6,6 +6,7 @@ module.exports = defineConfig([
   {
     ignores: [
       'dist/**',
+      '.tmp/**',
       'coverage/**',
       '.expo/**',
       'src/infrastructure/supabase/database.types.ts',

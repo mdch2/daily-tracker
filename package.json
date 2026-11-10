@@ -9,6 +9,9 @@
   "packageManager": "pnpm@10.28.2",
   "scripts": {
     "start": "expo start",
+    "web": "expo start --web",
+    "build:web": "expo export --platform web",
+    "serve:web": "expo serve",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "lint": "eslint . --max-warnings=0",

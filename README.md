@@ -52,6 +52,18 @@ Authentication currently provides a provisional technical flow: registration, em
 
 The MVP requires an account to access personal tracking features and does not include guest mode. See [ADR-005](docs/architecture/adr/005-mvp-account-required.md). The final onboarding design remains pending.
 
+## Web y Vercel
+
+`pnpm web` inicia web; `pnpm build:web` exporta la SPA a `dist`; `pnpm serve:web` permite revisar esa compilación. `vercel.json` configura instalación reproducible, compilación y rutas profundas. Véase [ADR-014](docs/architecture/adr/014-web-storage-and-hosting.md).
+
+En Vercel importa `mdch2/daily-tracker`, selecciona el directorio raíz y configura `EXPO_PUBLIC_SUPABASE_URL` y `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` con los valores del proyecto Supabase de nube antes de compilar. No subir `.env` ni claves secretas. `.env.local` tiene prioridad sobre `.env` localmente; no se copia automáticamente a Vercel. Cada cambio de variables necesita una nueva compilación/despliegue.
+
+En Supabase Auth / URL Configuration autoriza el callback exacto `https://<dominio-vercel>/callback` y su variante `?mode=recovery`, además de los callbacks nativos ya existentes. Para desarrollo añade `http://localhost:8081/callback` y la variante de recuperación. Usa dominios de preview específicos si también se prueban correos allí; evita una autorización global de vercel.app. Este cambio remoto no lo realiza la compilación del cliente.
+
+Web conserva idioma/tema en localStorage y sesión en sessionStorage. Para confirmar correo o recuperar contraseña, abre el enlace en la misma pestaña que inició la solicitud (copia el enlace del correo). Cerrar la pestaña termina la persistencia local; el backend determina la validez del token. Los recordatorios locales siguen disponibles en Android/iOS.
+
+Publicar en Vercel aloja el cliente web y usa Supabase remoto; no traslada ni reinicia su base de datos. Valida acceso con tu cuenta, recarga/cierre de sesión y correo antes de distribuir la URL.
+
 ## Backend
 
 The independent [mdch2/daily-tracker-supabase](https://github.com/mdch2/daily-tracker-supabase) repository exclusively owns PostgreSQL, migrations, RLS, SQL, triggers, seeds, Edge Functions, tests and Supabase infrastructure. Read its instructions before changing backend contracts. This mobile repository only consumes the services.

@@ -1,26 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
-import * as SecureStore from 'expo-secure-store';
-import { randomUUID } from 'expo-crypto';
-import { AppState } from 'react-native';
+import { AppState, Platform } from 'react-native';
 
 import type { Environment } from '@/shared/config/environment';
-import { createChunkedStorage } from './chunked-storage';
+import { createSessionStorage } from './session-storage';
 import type { Database } from './database.types';
 import { installAuthCrypto } from './auth-crypto';
 
 export function createSupabaseClient(environment: Environment) {
   installAuthCrypto();
-  const storage = createChunkedStorage(
-    {
-      getItem: (key) => SecureStore.getItemAsync(key),
-      setItem: (key, value) =>
-        SecureStore.setItemAsync(key, value, {
-          keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-        }),
-      removeItem: (key) => SecureStore.deleteItemAsync(key),
-    },
-    randomUUID,
-  );
+  const storage = createSessionStorage();
   return createClient<Database>(environment.url, environment.publishableKey, {
     auth: {
       storage,
@@ -35,6 +23,8 @@ export function createSupabaseClient(environment: Environment) {
 export type BackendClient = ReturnType<typeof createSupabaseClient>;
 
 export function observeAuthLifecycle(client: BackendClient) {
+  // Supabase manages browser visibility itself; AppState refresh is native only.
+  if (Platform.OS === 'web') return;
   const refresh = (state: string) => {
     if (state === 'active') client.auth.startAutoRefresh();
     else client.auth.stopAutoRefresh();
