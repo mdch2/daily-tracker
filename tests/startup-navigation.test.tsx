@@ -32,7 +32,6 @@ async function openApp(initialUrl: string) {
       appDir: './src/app',
       overrides: {
         '(auth)/sign-in': () => <Text>Sign in screen</Text>,
-        '(auth)/sign-up': () => <Text>Sign up screen</Text>,
         '(auth)/reset-password': () => <Text>Reset password screen</Text>,
         '(tabs)/index': () => <Text>Dashboard screen</Text>,
         '(tabs)/habits': () => <Text>Habits screen</Text>,
@@ -74,6 +73,12 @@ describe('startup navigation', () => {
     const view = await openApp('/');
     expect(screen.getByText('Dashboard screen')).toBeOnTheScreen();
     expect(view.getPathname()).toBe('/');
+  });
+
+  it('redirects direct sign-up links to sign-in while public registration is closed', async () => {
+    const view = await openApp('/sign-up');
+    expect(screen.getByText('Sign in screen')).toBeOnTheScreen();
+    expect(view.getPathname()).toBe('/sign-in');
   });
 
   it.each([

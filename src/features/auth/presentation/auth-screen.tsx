@@ -304,16 +304,7 @@ export function AuthScreen({ mode }: { mode: Mode }) {
           alignItems: 'center',
         }}
       >
-        {mode === 'sign-in' ? (
-          <>
-            <Text style={{ color: colors.muted, fontSize: 14 }}>
-              {t('auth.noAccount')}
-            </Text>
-            <Link href="/sign-up" disabled={isSubmitting} centered>
-              {t('auth.signUp')}
-            </Link>
-          </>
-        ) : mode === 'sign-up' || mode === 'reset-password' ? (
+        {mode === 'sign-up' || mode === 'reset-password' ? (
           <>
             {mode === 'sign-up' && !notice && (
               <Text style={{ color: colors.muted, fontSize: 14 }}>
